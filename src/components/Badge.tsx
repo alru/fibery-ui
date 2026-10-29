@@ -65,7 +65,7 @@ export const EnumBadge = forwardRef<HTMLSpanElement, EnumBadgeProps>(
       {...props}
     >
       {variant === "dot" && <span className="fui-enum-badge__dot" aria-hidden />}
-      {name}
+      {variant === "circle" ? <span className="fui-enum-badge__letter">{name}</span> : name}
     </span>
   ),
 );
