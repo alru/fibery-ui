@@ -303,6 +303,14 @@
     overflow-wrap: anywhere;
   }
 
+  /* ─── Search match highlight ─── */
+  .fui-highlight {
+    padding: 0;
+    border-radius: 2px;
+    background: var(--highlight-yellow-bg);
+    color: var(--highlight-yellow-fg-on-bg);
+  }
+
   /* ─── Page / section headers ─── */
   .fui-page-header {
     display: flex;

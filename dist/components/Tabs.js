@@ -1,6 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-// Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs.
-import { createContext, forwardRef, useContext } from "react";
+// Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs,
+// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels.
+import { createContext, forwardRef, useContext, } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cx } from "../cx";
 export const Tabs = TabsPrimitive.Root;
@@ -12,3 +13,23 @@ export const TabsTrigger = forwardRef(({ className, ...props }, ref) => (_jsx(Ta
 TabsTrigger.displayName = "TabsTrigger";
 export const TabsContent = forwardRef(({ className, ...props }, ref) => _jsx(TabsPrimitive.Content, { ref: ref, className: cx("fui-tabs-content", className), ...props }));
 TabsContent.displayName = "TabsContent";
+/**
+ * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
+ * Arrow keys move the selection, like native radio buttons.
+ */
+export function SegmentedControl({ options, value, onValueChange, className, ...props }) {
+    const onKeyDown = (e) => {
+        const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!step)
+            return;
+        e.preventDefault();
+        const index = options.findIndex((o) => o.value === value);
+        const next = options[(index + step + options.length) % options.length];
+        onValueChange(next.value);
+        e.currentTarget.querySelector(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
+    };
+    return (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", className: cx("fui-tabs-list", className), onKeyDown: onKeyDown, children: options.map((option) => {
+            const active = option.value === value;
+            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
+        }) }));
+}
