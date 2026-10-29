@@ -1,0 +1,62 @@
+/*
+ * @alru/fibery-ui styles. Colors come only from the variables Fibery's theme sidecar populates in Custom Apps
+ * (--primary, --border, --highlight-*-bg, ...); sizes, radii and shadows are measured from Fibery's own UI.
+ */
+
+/* Same layer order as the Fibery app template: keeps kit styles above Tailwind preflight and below
+   utilities, regardless of whether this file is imported before or after the app's index.css. */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* Helper tokens, declared on every kit element so they resolve against the element's own theme scope. */
+  :where([class^="fui-"], [class*=" fui-"]) {
+    --fui-hover: color-mix(in oklab, var(--foreground) 6%, transparent);
+    --fui-pressed: color-mix(in oklab, var(--foreground) 10%, transparent);
+    --fui-subtle: color-mix(in oklab, var(--foreground) 8%, transparent);
+    --fui-line-strong: color-mix(in oklab, var(--border), var(--foreground) 18%);
+    --fui-focus-ring: 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+    --fui-shadow-card: 0 0 0 1px var(--border), 0 1px 4px 0 rgb(23 23 23 / 0.05);
+    --fui-shadow-card-hover: 0 0 0 1px var(--fui-line-strong), 0 2px 6px 0 rgb(23 23 23 / 0.06);
+    --fui-shadow-popup: 0 0 2px 0 rgb(94 94 94 / 0.3), 0 4px 6px 0 rgb(94 94 94 / 0.05), 0 10px 26px 0 rgb(94 94 94 / 0.15);
+    --fui-shadow-dialog: 0 0 1px 0 rgb(23 23 23 / 0.2), 0 26px 80px 0 rgb(23 23 23 / 0.2);
+    /* Fibery's Inter Variable regular weight; non-variable fonts round it to 400. */
+    --fui-regular: 410;
+    box-sizing: border-box;
+  }
+
+  /* Icons placed directly inside kit components: Fibery's 16px size, lighter Lucide stroke. */
+  :where([class^="fui-"], [class*=" fui-"]) > svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  :where([class^="fui-"], [class*=" fui-"]) > svg.lucide {
+    stroke-width: 1.75;
+  }
+}
+
+@keyframes fui-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fui-pulse {
+  50% { opacity: 0.5; }
+}
+@keyframes fui-fade-in {
+  from { opacity: 0; }
+}
+@keyframes fui-fade-out {
+  to { opacity: 0; }
+}
+@keyframes fui-pop-in {
+  from { opacity: 0; transform: scale(0.97); }
+}
+@keyframes fui-dialog-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where([class^="fui-"], [class*=" fui-"]) {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

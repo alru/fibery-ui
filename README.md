@@ -1,0 +1,183 @@
+# @alru/fibery-ui
+
+React components for [Fibery Custom Apps](https://fibery.io), made to look native inside Fibery.
+
+## Why this exists
+
+Every Fibery Custom App starts from the same bare template: Tailwind, theme variables, and no components.
+Each new app used to rebuild buttons, inputs, menus and loading states from scratch, and each rebuild drifted
+a little further from Fibery's own look and from the previous app.
+
+This kit solves that once:
+
+- **Native look.** Sizes, radii, typography and shadows are measured from Fibery's own UI (compact 24–32px
+  controls, 6–8px radii, Inter at weight 410, ring-style borders), so apps blend into the workspace.
+- **Theme for free.** Colors come only from the variables Fibery injects into every app (`--primary`,
+  `--border`, `--highlight-*`), so components follow light/dark mode and the workspace palette with no setup.
+- **One place to fix things.** A bug fix or design tweak lands in every app with a version bump instead of
+  being patched app by app.
+- **No Tailwind dependency.** Plain CSS in `@layer components`: works next to the template's Tailwind, and
+  Tailwind utilities can still override any kit style via `className`.
+
+## The rule: kit first
+
+**If an app needs a new component, variant or behavior, add it to the kit first, then use it from the app.**
+Do not build one-off copies inside apps. A "special" button style, a slightly different list row or a custom
+empty state is almost always something the next app will want too; in the kit it gets the Fibery look, the
+theme rules and the fixes for free, and every app stays consistent.
+
+One-offs are allowed only for genuinely app-specific UI that cannot be generalized — for example, a
+visualization of one particular domain model. Before writing a one-off, ask: "could another app use this
+with different data?" If yes, it belongs in the kit.
+
+## Install
+
+In the app's `package.json` (pin the exact version; Fibery installs it during the server build):
+
+```json
+"@alru/fibery-ui": "0.1.0"
+```
+
+React, Radix and lucide-react are peer dependencies; the Fibery app template already includes all of them.
+
+In `src/main.tsx`:
+
+```tsx
+import "@alru/fibery-ui/style.css";
+import {FiberyUIProvider} from "@alru/fibery-ui";
+
+// Optional: gives every Lucide icon in the app Fibery's 16px / 1.75 stroke proportions.
+<FiberyUIProvider><App /></FiberyUIProvider>
+```
+
+## Components
+
+**Actions**
+
+```tsx
+<Button>Save</Button>                                   // primary | secondary | outline | ghost | destructive
+<Button variant="ghost" size="sm" icon={<Plus />}>Add</Button>   // sm 24px | md 28px | lg 32px
+<Button loading>Saving</Button>
+<Button asChild variant="outline"><a href="…">Open</a></Button>
+<IconButton icon={<MoreHorizontal />} aria-label="More" />
+```
+
+**Display**
+
+```tsx
+<Badge>Draft</Badge>  <Badge hue="green">Done</Badge>  <Badge variant="outline" hue="red">Blocked</Badge>
+<Badge caps>Contractor</Badge>                          // Fibery's uppercase type label
+<EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name
+<EnumBadge name="A" color="#4FAF54" variant="circle" />                         // letter in a ring
+<Avatar name="Jane Doe" src={url} size="sm" />
+
+<Card interactive onClick={…}>
+  <CardHeader title="Skills" description="4 linked" actions={<IconButton … />} />
+  <CardContent>…</CardContent>
+</Card>
+
+<List>                                                  // Fibery relation rows
+  <ListItem leading={<EnumBadge … />} trailing="B" onClick={() => openEntity(…)}>3D › Handpaint</ListItem>
+</List>
+
+<PropertyList>                                          // entity field grid
+  <Property icon={<Mail />} label="Email">a@b.c</Property>
+</PropertyList>
+```
+
+**Layout**
+
+```tsx
+<PageHeader eyebrow={<Badge caps>Contractor</Badge>} title="Jane Doe" actions={…} />
+<SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
+<Separator />
+```
+
+**Forms**
+
+```tsx
+<Field label="Name" htmlFor="name" hint="As in the contract" error={err}>
+  <Input id="name" invalid={!!err} />
+</Field>
+<SearchInput placeholder="Search…" size="sm" />
+<Textarea rows={4} />
+<Checkbox label="Only experts" checked={v} onCheckedChange={setV} />
+<Switch label="Show archived" />
+
+<Select value={v} onValueChange={setV}>
+  <SelectTrigger><SelectValue placeholder="Level" /></SelectTrigger>
+  <SelectContent>
+    <SelectItem value="a"><EnumBadge name="A" color="#4FAF54" /></SelectItem>
+  </SelectContent>
+</Select>
+```
+
+**Overlays**
+
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger asChild><IconButton icon={<MoreHorizontal />} aria-label="Actions" /></DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem icon={<Pencil />} shortcut="E">Edit</DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem icon={<Trash2 />} destructive>Delete</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+
+<Popover>
+  <PopoverTrigger asChild><Button variant="outline">Filters</Button></PopoverTrigger>
+  <PopoverContent>…</PopoverContent>
+</Popover>
+
+<Tooltip content="Open in Fibery"><IconButton … /></Tooltip>
+
+<Dialog>
+  <DialogTrigger asChild><Button>New</Button></DialogTrigger>
+  <DialogContent title="New contractor" description="…" size="sm">
+    …
+    <DialogFooter><DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose><Button>Create</Button></DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+**Tabs**
+
+```tsx
+<Tabs defaultValue="list">
+  <TabsList>                                            // segmented (default) | line
+    <TabsTrigger value="list">List</TabsTrigger>
+    <TabsTrigger value="matrix">Matrix</TabsTrigger>
+  </TabsList>
+  <TabsContent value="list">…</TabsContent>
+</Tabs>
+```
+
+**Feedback**
+
+```tsx
+{isPending && <LoadingState />}
+{error && <ErrorState error={error} action={<Button size="sm" onClick={refetch}>Retry</Button>} />}
+<EmptyState title="No contractors" description="…" action={…} />
+<Skeleton style={{height: 20, width: 160}} />
+<Spinner size="sm" />
+```
+
+All components accept `className`. Icons placed directly inside kit components are sized to 16px by CSS.
+
+## Theme rules (from Fibery's Custom Apps guide)
+
+- Color only through theme variables or Tailwind tokens; no hard-coded hex in components.
+- No `dark:` overrides or theme toggles: Fibery's sidecar owns the theme.
+- User-defined colors (enum, space, entity) are data: render them as-is, don't derive shades or text colors
+  from them. `EnumBadge` follows this — the color paints a dot or a ring, never a text background.
+- Don't reference Fibery's internal UI variables (`--bg-button-*` and the like): they are not passed into apps.
+
+## Develop
+
+```sh
+npm install
+npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
+```
+
+Styles live in `src/styles/`, one file per component group; `scripts/build-css.mjs` lists the concatenation
+order (`base.css` first: it declares the layer order and helper tokens).

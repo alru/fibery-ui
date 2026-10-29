@@ -1,0 +1,129 @@
+@layer components {
+  /* ─── Input / Textarea / Select trigger: Fibery draws borders as 1px rings ─── */
+  .fui-input {
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 0 0 1px var(--input);
+    font: inherit;
+    font-size: 14px;
+    font-weight: var(--fui-regular);
+    line-height: 20px;
+    outline: none;
+    transition: box-shadow 0.12s;
+  }
+  .fui-input::placeholder { color: var(--muted-foreground); opacity: 1; }
+  .fui-input:hover { box-shadow: 0 0 0 1px var(--fui-line-strong); }
+  .fui-input:focus-visible,
+  .fui-input[data-state="open"] {
+    box-shadow: 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent);
+  }
+  .fui-input[aria-invalid="true"] { box-shadow: 0 0 0 1px var(--destructive); }
+  .fui-input[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 25%, transparent);
+  }
+  .fui-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fui-input[data-size="sm"] { height: 28px; padding: 0 8px; font-size: 13px; }
+
+  .fui-textarea { height: auto; min-height: 80px; padding: 6px 10px; resize: vertical; }
+
+  .fui-input-wrap { position: relative; display: block; width: 100%; }
+  .fui-input-wrap > svg {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    translate: 0 -50%;
+    color: var(--muted-foreground);
+    pointer-events: none;
+  }
+  .fui-input-wrap > .fui-input { padding-left: 32px; }
+  .fui-input-wrap[data-size="sm"] > svg { left: 8px; width: 14px; height: 14px; }
+  .fui-input-wrap[data-size="sm"] > .fui-input { padding-left: 28px; }
+
+  .fui-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+    cursor: pointer;
+  }
+  .fui-select-trigger[data-placeholder] .fui-select-trigger__value { color: var(--muted-foreground); }
+  .fui-select-trigger__value { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .fui-select-trigger > svg { color: var(--muted-foreground); }
+
+  /* ─── Label / Field ─── */
+  .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
+  .fui-field { display: flex; flex-direction: column; gap: 6px; }
+  .fui-field__hint,
+  .fui-field__error { margin: 0; font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
+  .fui-field__hint { color: var(--muted-foreground); }
+  .fui-field__error { color: var(--destructive); }
+
+  /* ─── Checkbox / Switch ─── */
+  .fui-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: var(--fui-regular);
+    line-height: 20px;
+    cursor: pointer;
+  }
+  .fui-choice:has(:disabled) { opacity: 0.5; cursor: not-allowed; }
+
+  .fui-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: var(--background);
+    box-shadow: inset 0 0 0 1px var(--fui-line-strong);
+    cursor: pointer;
+    transition: background-color 0.12s, box-shadow 0.12s;
+  }
+  .fui-checkbox:focus-visible { outline: none; box-shadow: inset 0 0 0 1px var(--fui-line-strong), var(--fui-focus-ring); }
+  .fui-checkbox[data-state="checked"],
+  .fui-checkbox[data-state="indeterminate"] { background: var(--primary); box-shadow: none; }
+  .fui-checkbox:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fui-checkbox__indicator { display: flex; color: var(--primary-foreground); }
+  .fui-checkbox__indicator > svg { width: 12px; height: 12px; stroke-width: 3; }
+
+  .fui-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 34px;
+    height: 20px;
+    flex-shrink: 0;
+    padding: 2px;
+    border: 0;
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--foreground) 18%, transparent);
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  .fui-switch:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+  .fui-switch[data-state="checked"] { background: var(--primary); }
+  .fui-switch:disabled { opacity: 0.5; cursor: not-allowed; }
+  .fui-switch__thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: var(--background);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+    transition: transform 0.15s;
+  }
+  .fui-switch__thumb[data-state="checked"] { transform: translateX(14px); }
+}
