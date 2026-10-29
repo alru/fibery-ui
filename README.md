@@ -86,6 +86,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 
 <List>                                                  // Fibery relation rows
   <ListItem leading={<EnumBadge … />} trailing="B" onClick={() => openEntity(…)}>3D › Handpaint</ListItem>
+  <ListItem multiline>…nested content that wraps…</ListItem>
 </List>
 
 <PropertyList>                                          // entity field grid
