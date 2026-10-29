@@ -8,7 +8,7 @@ export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectI
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, } from "./components/Overlay";
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
-export { Combobox } from "./components/Combobox";
+export { Combobox, Autocomplete } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
 export { cx } from "./cx";

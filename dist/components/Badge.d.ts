@@ -7,6 +7,10 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
     variant?: "soft" | "outline";
     /** Small uppercase letter-spaced label, like Fibery's database type badge. */
     caps?: boolean;
+    /** Adds a × button, e.g. for an active filter chip. */
+    onRemove?: () => void;
+    /** Accessible label of the × button. */
+    removeLabel?: string;
 };
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
 export declare const Badge: import("react").ForwardRefExoticComponent<HTMLAttributes<HTMLSpanElement> & {
@@ -16,6 +20,10 @@ export declare const Badge: import("react").ForwardRefExoticComponent<HTMLAttrib
     variant?: "soft" | "outline";
     /** Small uppercase letter-spaced label, like Fibery's database type badge. */
     caps?: boolean;
+    /** Adds a × button, e.g. for an active filter chip. */
+    onRemove?: () => void;
+    /** Accessible label of the × button. */
+    removeLabel?: string;
 } & import("react").RefAttributes<HTMLSpanElement>>;
 export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "children"> & {
     /** Option name, e.g. `enum/name` of a single-select or workflow state. */
