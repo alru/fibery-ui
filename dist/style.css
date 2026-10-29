@@ -606,6 +606,10 @@
 
   .fui-popover { width: 280px; padding: 12px; }
 
+  .fui-combobox { width: 320px; padding: 6px; }
+  .fui-combobox__list { max-height: 280px; margin-top: 6px; overflow-y: auto; }
+  .fui-combobox__empty { padding: 12px 8px; color: var(--muted-foreground); font-size: 13px; text-align: center; }
+
   /* ─── Menu rows (dropdown and select) ─── */
   .fui-menu-item {
     position: relative;

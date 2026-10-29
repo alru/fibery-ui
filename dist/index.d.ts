@@ -7,6 +7,7 @@ export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectI
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, type DropdownMenuItemProps, type TooltipProps, type DialogContentProps, } from "./components/Overlay";
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";
+export { Combobox, type ComboboxOption, type ComboboxProps } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
 export { cx } from "./cx";
