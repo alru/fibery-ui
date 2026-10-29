@@ -37,6 +37,8 @@ export type ListItemProps = Omit<LiHTMLAttributes<HTMLLIElement>, "onClick"> & {
     trailing?: ReactNode;
     /** Makes the row focusable and clickable (Enter / Space too), e.g. to `openEntity`. */
     onClick?: () => void;
+    /** Lets the content wrap onto several lines and top-aligns leading/trailing, for rows with nested lists. */
+    multiline?: boolean;
 };
 /** Row in the style of Fibery relation lists: ringed, radius 6px, single-line text with ellipsis. */
 export declare const ListItem: import("react").ForwardRefExoticComponent<Omit<LiHTMLAttributes<HTMLLIElement>, "onClick"> & {
@@ -46,6 +48,8 @@ export declare const ListItem: import("react").ForwardRefExoticComponent<Omit<Li
     trailing?: ReactNode;
     /** Makes the row focusable and clickable (Enter / Space too), e.g. to `openEntity`. */
     onClick?: () => void;
+    /** Lets the content wrap onto several lines and top-aligns leading/trailing, for rows with nested lists. */
+    multiline?: boolean;
 } & import("react").RefAttributes<HTMLLIElement>>;
 /** Two-column label/value grid, like the field list on a Fibery entity page. */
 export declare const PropertyList: import("react").ForwardRefExoticComponent<HTMLAttributes<HTMLDListElement> & import("react").RefAttributes<HTMLDListElement>>;
