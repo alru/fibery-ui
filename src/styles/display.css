@@ -91,6 +91,8 @@
     font-weight: 700;
     line-height: 1;
   }
+  /* Centers the capital itself, not its line box: line boxes reserve descender space, which pushes caps up. */
+  .fui-enum-badge__letter { display: block; text-box: trim-both cap alphabetic; }
 
   /* ─── Avatar ─── */
   .fui-avatar {
