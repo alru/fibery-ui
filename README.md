@@ -159,6 +159,22 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   </TabsList>
   <TabsContent value="list">…</TabsContent>
 </Tabs>
+
+// Same look for picking a value (filters): a radio group, arrow keys move the selection.
+<SegmentedControl
+  aria-label="Minimum level"
+  value={level}
+  onValueChange={setLevel}
+  options={[{value: "any", label: "Any"}, {value: "A", label: "A"}, {value: "B", label: "B+"}]}
+/>
+```
+
+**Search**
+
+```tsx
+const tokens = searchTokens(query);                     // lowercased, "ё" → "е", split by spaces
+const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
+<Highlight text={name} query={tokens} />                // marks every match in the highlight palette
 ```
 
 **Feedback**

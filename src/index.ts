@@ -65,7 +65,17 @@ export {
   type TooltipProps,
   type DialogContentProps,
 } from "./components/Overlay";
-export {Tabs, TabsList, TabsTrigger, TabsContent, type TabsListProps} from "./components/Tabs";
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  SegmentedControl,
+  type TabsListProps,
+  type SegmentedControlProps,
+  type SegmentedOption,
+} from "./components/Tabs";
+export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";
 export {
   Spinner,
   Skeleton,
