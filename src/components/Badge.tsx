@@ -1,5 +1,6 @@
 // Badges: theme-colored labels (Badge) and labels painted with a user-defined Fibery enum color (EnumBadge).
 import {forwardRef, type HTMLAttributes} from "react";
+import {X} from "lucide-react";
 import {cx} from "../cx";
 
 export type Hue =
@@ -13,19 +14,32 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: "soft" | "outline";
   /** Small uppercase letter-spaced label, like Fibery's database type badge. */
   caps?: boolean;
+  /** Adds a × button, e.g. for an active filter chip. */
+  onRemove?: () => void;
+  /** Accessible label of the × button. */
+  removeLabel?: string;
 };
 
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
-export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(({hue, variant = "soft", caps, className, ...props}, ref) => (
-  <span
-    ref={ref}
-    data-hue={hue}
-    data-variant={variant}
-    data-caps={caps ? "" : undefined}
-    className={cx("fui-badge", className)}
-    {...props}
-  />
-));
+export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
+  ({hue, variant = "soft", caps, onRemove, removeLabel = "Убрать", className, children, ...props}, ref) => (
+    <span
+      ref={ref}
+      data-hue={hue}
+      data-variant={variant}
+      data-caps={caps ? "" : undefined}
+      className={cx("fui-badge", className)}
+      {...props}
+    >
+      {children}
+      {onRemove && (
+        <button type="button" className="fui-badge__remove" aria-label={removeLabel} onClick={onRemove}>
+          <X />
+        </button>
+      )}
+    </span>
+  ),
+);
 Badge.displayName = "Badge";
 
 export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "children"> & {

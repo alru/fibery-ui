@@ -161,6 +161,11 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   <Button variant="ghost" size="sm" icon={<Plus />}>Add</Button>
 </Combobox>
 
+// Search field with suggestions under it while typing; pick one to apply an exact filter.
+<Autocomplete size="sm" value={query} onValueChange={setQuery} options={skillOptions}
+  onSelect={(id) => { setSkill(id); setQuery(""); }} />
+<Badge onRemove={() => setSkill(null)}>3D › Handpaint</Badge>          // removable filter chip
+
 <Dialog>
   <DialogTrigger asChild><Button>New</Button></DialogTrigger>
   <DialogContent title="New contractor" description="…" size="sm">
