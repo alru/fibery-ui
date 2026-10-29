@@ -16,7 +16,16 @@ export {
   type ListItemProps,
   type PropertyProps,
 } from "./components/Display";
-export {PageHeader, SectionHeader, Separator, type PageHeaderProps, type SectionHeaderProps, type SeparatorProps} from "./components/Layout";
+export {
+  PageHeader,
+  SectionHeader,
+  SidePanel,
+  Separator,
+  type PageHeaderProps,
+  type SectionHeaderProps,
+  type SidePanelProps,
+  type SeparatorProps,
+} from "./components/Layout";
 export {
   Input,
   SearchInput,

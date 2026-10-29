@@ -100,6 +100,17 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <PageHeader eyebrow={<Badge caps>Contractor</Badge>} title="Jane Doe" actions={…} />
 <SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
 <Separator />
+
+// Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
+<div className="flex items-start gap-4">
+  <List className="flex-1">…</List>
+  {item && (
+    <SidePanel className="sticky top-6 flex-1" title={item.name} onClose={close}
+      actions={<Button variant="outline" size="sm" icon={<ExternalLink />}>Open in Fibery</Button>}>
+      <PropertyList>…</PropertyList>
+    </SidePanel>
+  )}
+</div>
 ```
 
 **Forms**

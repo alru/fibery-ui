@@ -74,11 +74,13 @@ export type ListItemProps = Omit<LiHTMLAttributes<HTMLLIElement>, "onClick"> & {
   onClick?: () => void;
   /** Lets the content wrap onto several lines and top-aligns leading/trailing, for rows with nested lists. */
   multiline?: boolean;
+  /** Accent-tinted state for the row whose details are open, e.g. in a SidePanel. */
+  selected?: boolean;
 };
 
 /** Row in the style of Fibery relation lists: ringed, radius 6px, single-line text with ellipsis. */
 export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
-  ({leading, trailing, onClick, multiline, className, children, ...props}, ref) => {
+  ({leading, trailing, onClick, multiline, selected, className, children, ...props}, ref) => {
     const onKeyDown = (e: KeyboardEvent<HTMLLIElement>) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -89,8 +91,9 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
       <li
         ref={ref}
         data-multiline={multiline ? "" : undefined}
+        data-selected={selected ? "" : undefined}
         className={cx("fui-list-item", className)}
-        {...(onClick && {role: "button", tabIndex: 0, onClick, onKeyDown, "data-interactive": ""})}
+        {...(onClick && {role: "button", tabIndex: 0, onClick, onKeyDown, "aria-pressed": selected, "data-interactive": ""})}
         {...props}
       >
         {leading}
