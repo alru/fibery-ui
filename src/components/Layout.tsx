@@ -58,13 +58,15 @@ export type SidePanelProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
   actions?: ReactNode;
   /** Shows a close (×) button and closes on Escape while focus is inside the panel. */
   onClose?: () => void;
+  /** Accent ring and tinted header: makes an explicit edit mode obvious, so nothing is changed by accident. */
+  editing?: boolean;
 };
 
 /**
  * Details panel next to a list (master–detail): header with title and actions, scrollable body.
  * Position and width come from the parent layout, e.g. `className="sticky top-6 flex-1"`.
  */
-export function SidePanel({title, description, actions, onClose, className, children, ...props}: SidePanelProps) {
+export function SidePanel({title, description, actions, onClose, editing, className, children, ...props}: SidePanelProps) {
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape" && onClose) {
       e.stopPropagation();
@@ -72,7 +74,12 @@ export function SidePanel({title, description, actions, onClose, className, chil
     }
   };
   return (
-    <aside className={cx("fui-side-panel", className)} onKeyDown={onKeyDown} {...props}>
+    <aside
+      data-editing={editing ? "" : undefined}
+      className={cx("fui-side-panel", className)}
+      onKeyDown={onKeyDown}
+      {...props}
+    >
       <header className="fui-side-panel__header">
         <div className="fui-side-panel__heading">
           <h2 className="fui-side-panel__title">{title}</h2>
