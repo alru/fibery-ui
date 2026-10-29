@@ -58,11 +58,12 @@ type OptionListProps = {
   options: ComboboxOption[];
   tokens: string[];
   emptyText?: string;
+  separator?: string;
   nav: ReturnType<typeof useOptionNavigation>;
   onPick: (option: ComboboxOption) => void;
 };
 
-function OptionList({options, tokens, emptyText, nav, onPick}: OptionListProps) {
+function OptionList({options, tokens, emptyText, separator, nav, onPick}: OptionListProps) {
   let lastGroup: string | undefined;
   return (
     <div id={nav.listId} role="listbox" className="fui-combobox__list">
@@ -85,7 +86,7 @@ function OptionList({options, tokens, emptyText, nav, onPick}: OptionListProps) 
               onClick={() => onPick(option)}
             >
               <span className="fui-menu-item__text">
-                <Highlight text={option.text} query={tokens} />
+                <Highlight text={option.text} query={tokens} separator={separator} />
               </span>
             </div>
           </div>
@@ -103,6 +104,8 @@ export type ComboboxProps = {
   placeholder?: string;
   emptyText?: string;
   align?: "start" | "center" | "end";
+  /** Path separator in option texts, drawn small and muted (see Highlight). */
+  separator?: string;
   /** Classes for the popup, e.g. to change its 320px width. */
   className?: string;
 };
@@ -115,6 +118,7 @@ export function Combobox({
   placeholder = "Поиск…",
   emptyText = "Ничего не найдено",
   align = "start",
+  separator,
   className,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -151,7 +155,7 @@ export function Combobox({
           onKeyDown={nav.handleKey}
         />
         <div className="fui-combobox__list-wrap">
-          <OptionList options={filtered} tokens={tokens} emptyText={emptyText} nav={nav} onPick={pick} />
+          <OptionList options={filtered} tokens={tokens} emptyText={emptyText} separator={separator} nav={nav} onPick={pick} />
         </div>
       </PopoverContent>
     </Popover>
@@ -165,13 +169,26 @@ export type AutocompleteProps = Omit<InputProps, "value" | "onChange" | "onSelec
   options: ComboboxOption[];
   /** Called when a suggestion is picked; the caller decides what happens to the text. */
   onSelect: (value: string) => void;
+  /** Path separator in option texts, drawn small and muted (see Highlight). */
+  separator?: string;
 };
 
 /**
  * Search field that suggests matching options under itself while typing. The popup only shows when there are
  * matches; Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export function Autocomplete({value, onValueChange, options, onSelect, onKeyDown, onFocus, onBlur, className, ...props}: AutocompleteProps) {
+export function Autocomplete({
+  value,
+  onValueChange,
+  options,
+  onSelect,
+  separator,
+  onKeyDown,
+  onFocus,
+  onBlur,
+  className,
+  ...props
+}: AutocompleteProps) {
   const [focused, setFocused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const tokens = searchTokens(value);
@@ -225,7 +242,7 @@ export function Autocomplete({value, onValueChange, options, onSelect, onKeyDown
         // Focus stays in the field: typing continues while suggestions are shown.
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <OptionList options={filtered} tokens={tokens} nav={nav} onPick={pick} />
+        <OptionList options={filtered} tokens={tokens} separator={separator} nav={nav} onPick={pick} />
       </PopoverContent>
     </Popover>
   );

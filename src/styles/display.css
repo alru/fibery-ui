@@ -245,6 +245,14 @@
     color: var(--highlight-yellow-fg-on-bg);
   }
 
+  /* Separator inside path-like text ("3D > Handpaint"), see Highlight `separator`. */
+  .fui-path-separator {
+    margin: 0 0.35em;
+    color: var(--muted-foreground);
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+
   /* ─── Page / section headers ─── */
   .fui-page-header {
     display: flex;
