@@ -1,10 +1,15 @@
-import { Fragment as _Fragment, jsx as _jsx } from "react/jsx-runtime";
+import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Search helpers shared by app-side filtering and match highlighting, so both agree on what "matches" means.
+import { Fragment } from "react";
 /** Lowercases and folds "ё" into "е" so "рублев" finds "Рублёв". Keeps the string length unchanged. */
 export const normalizeSearchText = (text) => text.toLowerCase().replace(/ё/g, "е");
 /** Splits a search query into normalized, non-empty words. */
 export const searchTokens = (query) => normalizeSearchText(query).split(/\s+/).filter(Boolean);
 /** Renders `text` with query matches wrapped in `<mark>`, case- and "ё"-insensitive. */
-export function Highlight({ text, query }) {
+export function Highlight({ text, query = [], separator }) {
+    if (separator && text.includes(separator)) {
+        return (_jsx(_Fragment, { children: text.split(separator).map((segment, index) => (_jsxs(Fragment, { children: [index > 0 && _jsx("span", { className: "fui-path-separator", children: separator.trim() }), _jsx(Highlight, { text: segment, query: query })] }, index))) }));
+    }
     const tokens = Array.isArray(query) ? query.map(normalizeSearchText).filter(Boolean) : searchTokens(query);
     const normalized = normalizeSearchText(text);
     // Lowercasing a few exotic characters changes length; positions would drift, so skip highlighting then.

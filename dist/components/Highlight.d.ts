@@ -4,8 +4,10 @@ export declare const normalizeSearchText: (text: string) => string;
 export declare const searchTokens: (query: string) => string[];
 export type HighlightProps = {
     text: string;
-    /** Raw query string or tokens from `searchTokens`; every occurrence of every word is marked. */
-    query: string | string[];
+    /** Raw query string or tokens from `searchTokens`; every occurrence of every word is marked. Omit to only format. */
+    query?: string | string[];
+    /** Path separator inside `text` (e.g. " > "): segments are highlighted separately, separators drawn small and muted. */
+    separator?: string;
 };
 /** Renders `text` with query matches wrapped in `<mark>`, case- and "ё"-insensitive. */
-export declare function Highlight({ text, query }: HighlightProps): import("react").JSX.Element;
+export declare function Highlight({ text, query, separator }: HighlightProps): import("react").JSX.Element;

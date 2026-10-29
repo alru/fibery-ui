@@ -42,18 +42,18 @@ function useOptionNavigation(filtered, pick) {
     };
     return { active, setActive, listId, optionId, handleKey, inputProps };
 }
-function OptionList({ options, tokens, emptyText, nav, onPick }) {
+function OptionList({ options, tokens, emptyText, separator, nav, onPick }) {
     let lastGroup;
     return (_jsxs("div", { id: nav.listId, role: "listbox", className: "fui-combobox__list", children: [options.length === 0 && emptyText && _jsx("div", { className: "fui-combobox__empty", children: emptyText }), options.map((option, index) => {
                 const caption = option.group !== lastGroup ? option.group : undefined;
                 lastGroup = option.group;
                 return (_jsxs("div", { role: "presentation", children: [caption && _jsx("div", { className: "fui-menu-label", children: caption }), _jsx("div", { id: nav.optionId(index), role: "option", "aria-selected": index === nav.active, "data-highlighted": index === nav.active ? "" : undefined, className: "fui-menu-item", onMouseMove: () => index !== nav.active && nav.setActive(index), 
                             // Keep focus in the search field so typing and arrow keys keep working.
-                            onMouseDown: (e) => e.preventDefault(), onClick: () => onPick(option), children: _jsx("span", { className: "fui-menu-item__text", children: _jsx(Highlight, { text: option.text, query: tokens }) }) })] }, option.value));
+                            onMouseDown: (e) => e.preventDefault(), onClick: () => onPick(option), children: _jsx("span", { className: "fui-menu-item__text", children: _jsx(Highlight, { text: option.text, query: tokens, separator: separator }) }) })] }, option.value));
             })] }));
 }
 /** Picker with search, groups and ↑ ↓ Enter navigation. Closes after a pick. */
-export function Combobox({ options, onSelect, children, placeholder = "Поиск…", emptyText = "Ничего не найдено", align = "start", className, }) {
+export function Combobox({ options, onSelect, children, placeholder = "Поиск…", emptyText = "Ничего не найдено", align = "start", separator, className, }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const tokens = searchTokens(query);
@@ -73,13 +73,13 @@ export function Combobox({ options, onSelect, children, placeholder = "Поис�
     return (_jsxs(Popover, { open: open, onOpenChange: (next) => (next ? setOpen(true) : close()), children: [_jsx(PopoverTrigger, { asChild: true, children: children }), _jsxs(PopoverContent, { align: align, className: cx("fui-combobox", className), children: [_jsx(SearchInput, { size: "sm", ...nav.inputProps, "aria-expanded": true, placeholder: placeholder, value: query, onChange: (e) => {
                             setQuery(e.target.value);
                             nav.setActive(0);
-                        }, onKeyDown: nav.handleKey }), _jsx("div", { className: "fui-combobox__list-wrap", children: _jsx(OptionList, { options: filtered, tokens: tokens, emptyText: emptyText, nav: nav, onPick: pick }) })] })] }));
+                        }, onKeyDown: nav.handleKey }), _jsx("div", { className: "fui-combobox__list-wrap", children: _jsx(OptionList, { options: filtered, tokens: tokens, emptyText: emptyText, separator: separator, nav: nav, onPick: pick }) })] })] }));
 }
 /**
  * Search field that suggests matching options under itself while typing. The popup only shows when there are
  * matches; Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export function Autocomplete({ value, onValueChange, options, onSelect, onKeyDown, onFocus, onBlur, className, ...props }) {
+export function Autocomplete({ value, onValueChange, options, onSelect, separator, onKeyDown, onFocus, onBlur, className, ...props }) {
     const [focused, setFocused] = useState(false);
     const [dismissed, setDismissed] = useState(false);
     const tokens = searchTokens(value);
@@ -113,5 +113,5 @@ export function Autocomplete({ value, onValueChange, options, onSelect, onKeyDow
                             onKeyDown?.(e);
                         } }) }) }), _jsx(PopoverContent, { align: "start", className: "fui-autocomplete", 
                 // Focus stays in the field: typing continues while suggestions are shown.
-                onOpenAutoFocus: (e) => e.preventDefault(), children: _jsx(OptionList, { options: filtered, tokens: tokens, nav: nav, onPick: pick }) })] }));
+                onOpenAutoFocus: (e) => e.preventDefault(), children: _jsx(OptionList, { options: filtered, tokens: tokens, separator: separator, nav: nav, onPick: pick }) })] }));
 }
