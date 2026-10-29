@@ -93,7 +93,8 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   <thead><tr><th>Skill</th><th data-align="right">People</th></tr></thead>
   <tbody>
     <TableGroupRow label="3D" colSpan={2} />
-    <tr><td>Handpaint</td><td data-align="right">2</td></tr>
+    <TableGroupRow label="Characters" colSpan={2} level={2} />       // subgroup
+    <tr><td data-indent="2">Handpaint</td><td data-align="right">2</td></tr>
   </tbody>
 </Table>
 
