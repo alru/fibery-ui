@@ -1,5 +1,14 @@
-// Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs.
-import {createContext, forwardRef, useContext, type ComponentPropsWithoutRef, type ElementRef} from "react";
+// Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs,
+// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels.
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import {cx} from "../cx";
 
@@ -36,3 +45,59 @@ export const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, 
   ({className, ...props}, ref) => <TabsPrimitive.Content ref={ref} className={cx("fui-tabs-content", className)} {...props} />,
 );
 TabsContent.displayName = "TabsContent";
+
+export type SegmentedOption<T extends string> = {value: T; label: ReactNode};
+
+export type SegmentedControlProps<T extends string> = {
+  options: SegmentedOption<T>[];
+  value: T;
+  onValueChange: (value: T) => void;
+  /** Describes the choice for screen readers, e.g. "Minimum level". */
+  "aria-label"?: string;
+  className?: string;
+};
+
+/**
+ * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
+ * Arrow keys move the selection, like native radio buttons.
+ */
+export function SegmentedControl<T extends string>({options, value, onValueChange, className, ...props}: SegmentedControlProps<T>) {
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    const index = options.findIndex((o) => o.value === value);
+    const next = options[(index + step + options.length) % options.length];
+    onValueChange(next.value);
+    e.currentTarget.querySelector<HTMLElement>(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
+  };
+  return (
+    <div
+      role="radiogroup"
+      aria-label={props["aria-label"]}
+      data-variant="segmented"
+      className={cx("fui-tabs-list", className)}
+      onKeyDown={onKeyDown}
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            tabIndex={active ? 0 : -1}
+            data-value={option.value}
+            data-variant="segmented"
+            data-state={active ? "active" : "inactive"}
+            className="fui-tabs-trigger"
+            onClick={() => onValueChange(option.value)}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
