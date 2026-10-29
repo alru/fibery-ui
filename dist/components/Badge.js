@@ -10,5 +10,5 @@ Badge.displayName = "Badge";
  * Renders a Fibery select/workflow option in its own color. The color is data, not theme,
  * so it is applied as-is and never used as a text background.
  */
-export const EnumBadge = forwardRef(({ name, color, variant = "dot", className, style, ...props }, ref) => (_jsxs("span", { ref: ref, "data-variant": variant, className: cx("fui-enum-badge", className), style: color ? { ...style, ["--fui-enum-color"]: color } : style, ...props, children: [variant === "dot" && _jsx("span", { className: "fui-enum-badge__dot", "aria-hidden": true }), name] })));
+export const EnumBadge = forwardRef(({ name, color, variant = "dot", className, style, ...props }, ref) => (_jsxs("span", { ref: ref, "data-variant": variant, className: cx("fui-enum-badge", className), style: color ? { ...style, ["--fui-enum-color"]: color } : style, ...props, children: [variant === "dot" && _jsx("span", { className: "fui-enum-badge__dot", "aria-hidden": true }), variant === "circle" ? _jsx("span", { className: "fui-enum-badge__letter", children: name }) : name] })));
 EnumBadge.displayName = "EnumBadge";
