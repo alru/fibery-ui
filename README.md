@@ -213,6 +213,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 const tokens = searchTokens(query);                     // lowercased, "ё" → "е", split by spaces
 const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 <Highlight text={name} query={tokens} />                // marks every match in the highlight palette
+<Highlight text="3D > Handpaint" separator=" > " />    // path text: separators small and muted (also on Combobox/Autocomplete)
 ```
 
 **Feedback**
