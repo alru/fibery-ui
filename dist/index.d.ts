@@ -8,6 +8,7 @@ export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuConte
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type TabsContentProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";
 export { Table, TableGroupRow, type TableGroupRowProps } from "./components/Table";
+export { HeatValue, type HeatValueProps } from "./components/HeatValue";
 export { Combobox, Autocomplete, type ComboboxOption, type ComboboxProps, type AutocompleteProps } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";

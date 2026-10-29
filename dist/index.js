@@ -9,6 +9,7 @@ export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuConte
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
 export { Table, TableGroupRow } from "./components/Table";
+export { HeatValue } from "./components/HeatValue";
 export { Combobox, Autocomplete } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
