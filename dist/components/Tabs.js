@@ -17,19 +17,19 @@ TabsContent.displayName = "TabsContent";
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export function SegmentedControl({ options, value, onValueChange, className, ...props }) {
+export function SegmentedControl({ options, value, onValueChange, scale, className, ...props }) {
+    const selectedIndex = options.findIndex((o) => o.value === value);
     const onKeyDown = (e) => {
         const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
         if (!step)
             return;
         e.preventDefault();
-        const index = options.findIndex((o) => o.value === value);
-        const next = options[(index + step + options.length) % options.length];
+        const next = options[(selectedIndex + step + options.length) % options.length];
         onValueChange(next.value);
         e.currentTarget.querySelector(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
     };
-    return (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", className: cx("fui-tabs-list", className), onKeyDown: onKeyDown, children: options.map((option) => {
+    return (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
-            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
+            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": scale && index <= selectedIndex ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
         }) }));
 }

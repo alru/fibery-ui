@@ -21,11 +21,13 @@ export type SegmentedControlProps<T extends string> = {
     onValueChange: (value: T) => void;
     /** Describes the choice for screen readers, e.g. "Minimum level". */
     "aria-label"?: string;
+    /** Ordered scale: every option up to and including the selected one is filled, like a level meter. */
+    scale?: boolean;
     className?: string;
 };
 /**
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export declare function SegmentedControl<T extends string>({ options, value, onValueChange, className, ...props }: SegmentedControlProps<T>): import("react").JSX.Element;
+export declare function SegmentedControl<T extends string>({ options, value, onValueChange, scale, className, ...props }: SegmentedControlProps<T>): import("react").JSX.Element;
 export {};
