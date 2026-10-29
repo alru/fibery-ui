@@ -326,6 +326,37 @@
     overflow-wrap: anywhere;
   }
 
+  /* ─── Table ─── */
+  .fui-table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    background: var(--card);
+    box-shadow: var(--fui-shadow-card);
+  }
+  .fui-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--card-foreground);
+    font-size: 14px;
+    font-weight: var(--fui-regular);
+    line-height: 20px;
+  }
+  .fui-table th,
+  .fui-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+  .fui-table tbody tr:last-child > * { border-bottom: 0; }
+  .fui-table thead th { color: var(--muted-foreground); font-size: 12px; font-weight: 500; line-height: 16px; white-space: nowrap; }
+  .fui-table [data-align="right"] { text-align: right; font-variant-numeric: tabular-nums; }
+  .fui-table [data-align="center"] { text-align: center; font-variant-numeric: tabular-nums; }
+  .fui-table tbody tr:not(.fui-table__group):hover > td { background: var(--fui-hover); }
+  .fui-table__group > th {
+    padding-top: 14px;
+    background: color-mix(in oklab, var(--card), var(--foreground) 3%);
+    color: var(--foreground);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+  }
+
   /* ─── Search match highlight ─── */
   .fui-highlight {
     padding: 0;
@@ -789,5 +820,7 @@
   }
 
   .fui-tabs-content { outline: none; }
+  /* Force-mounted (keepMounted) panels stay in the DOM; hide the inactive ones. */
+  .fui-tabs-content[data-state="inactive"] { display: none; }
   .fui-tabs-content:focus-visible { box-shadow: var(--fui-focus-ring); border-radius: 6px; }
 }

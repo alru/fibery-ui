@@ -5,8 +5,9 @@ export { PageHeader, SectionHeader, SidePanel, Separator, type PageHeaderProps, 
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, type InputProps, type TextareaProps, type FieldProps, type CheckboxProps, type SwitchProps, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, type SelectTriggerProps, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, type DropdownMenuItemProps, type TooltipProps, type DialogContentProps, } from "./components/Overlay";
-export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
+export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type TabsContentProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";
+export { Table, TableGroupRow, type TableGroupRowProps } from "./components/Table";
 export { Combobox, Autocomplete, type ComboboxOption, type ComboboxProps, type AutocompleteProps } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";

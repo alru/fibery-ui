@@ -11,7 +11,7 @@ export const TabsList = forwardRef(({ variant = "segmented", className, ...props
 TabsList.displayName = "TabsList";
 export const TabsTrigger = forwardRef(({ className, ...props }, ref) => (_jsx(TabsPrimitive.Trigger, { ref: ref, "data-variant": useContext(VariantContext), className: cx("fui-tabs-trigger", className), ...props })));
 TabsTrigger.displayName = "TabsTrigger";
-export const TabsContent = forwardRef(({ className, ...props }, ref) => _jsx(TabsPrimitive.Content, { ref: ref, className: cx("fui-tabs-content", className), ...props }));
+export const TabsContent = forwardRef(({ keepMounted, className, ...props }, ref) => (_jsx(TabsPrimitive.Content, { ref: ref, forceMount: keepMounted || undefined, className: cx("fui-tabs-content", className), ...props })));
 TabsContent.displayName = "TabsContent";
 /**
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.

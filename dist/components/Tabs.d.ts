@@ -10,7 +10,14 @@ export declare const TabsList: import("react").ForwardRefExoticComponent<Omit<Ta
     variant?: TabsVariant;
 } & import("react").RefAttributes<HTMLDivElement>>;
 export declare const TabsTrigger: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsTriggerProps & import("react").RefAttributes<HTMLButtonElement>, "ref"> & import("react").RefAttributes<HTMLButtonElement>>;
-export declare const TabsContent: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsContentProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & import("react").RefAttributes<HTMLDivElement>>;
+export type TabsContentProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & {
+    /** Keep the panel mounted while hidden, so its state (filters, selection, scroll) survives tab switches. */
+    keepMounted?: boolean;
+};
+export declare const TabsContent: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsContentProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & {
+    /** Keep the panel mounted while hidden, so its state (filters, selection, scroll) survives tab switches. */
+    keepMounted?: boolean;
+} & import("react").RefAttributes<HTMLDivElement>>;
 export type SegmentedOption<T extends string> = {
     value: T;
     label: ReactNode;
