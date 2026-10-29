@@ -102,6 +102,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Separator />
 
 // Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
+// Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.
 <div className="flex items-start gap-4">
   <List className="flex-1">…</List>
   {item && (
