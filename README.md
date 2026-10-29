@@ -151,6 +151,15 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 
 <Tooltip content="Open in Fibery"><IconButton … /></Tooltip>
 
+// Searchable picker for long catalogs: groups, highlight, ↑ ↓ Enter.
+<Combobox
+  placeholder="Find a skill"
+  options={skills.map((s) => ({value: s.id, text: s.name, group: s.group, keywords: s.group}))}
+  onSelect={addSkill}
+>
+  <Button variant="ghost" size="sm" icon={<Plus />}>Add</Button>
+</Combobox>
+
 <Dialog>
   <DialogTrigger asChild><Button>New</Button></DialogTrigger>
   <DialogContent title="New contractor" description="…" size="sm">
