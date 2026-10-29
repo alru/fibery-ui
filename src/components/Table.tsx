@@ -15,19 +15,22 @@ export function Table({className, ...props}: TableHTMLAttributes<HTMLTableElemen
 
 export type TableGroupRowProps = {
   label: ReactNode;
-  /** Number of table columns to span. */
-  colSpan: number;
-  /** 1 — top-level group (tinted, bold); 2 — subgroup inside it (indented, lighter). */
+  /** Columns the label spans when the row has no cells of its own. */
+  colSpan?: number;
+  /** 1 — top-level group (tinted, bold); 2 — subgroup inside it (lighter). */
   level?: 1 | 2;
+  /** Cells after the label (`<td>`s), e.g. group totals aligned with the columns below. */
+  children?: ReactNode;
 };
 
-/** Caption row that starts a group of body rows, e.g. a category. */
-export function TableGroupRow({label, colSpan, level = 1}: TableGroupRowProps) {
+/** Caption row that starts a group of body rows, e.g. a category; may carry its own totals. */
+export function TableGroupRow({label, colSpan, level = 1, children}: TableGroupRowProps) {
   return (
     <tr className="fui-table__group" data-level={level}>
-      <th colSpan={colSpan} scope="colgroup">
+      <th colSpan={children ? undefined : colSpan} scope={children ? "row" : "colgroup"}>
         {label}
       </th>
+      {children}
     </tr>
   );
 }
