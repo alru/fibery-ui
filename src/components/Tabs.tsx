@@ -41,8 +41,20 @@ export const TabsTrigger = forwardRef<ElementRef<typeof TabsPrimitive.Trigger>, 
 );
 TabsTrigger.displayName = "TabsTrigger";
 
-export const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, ComponentPropsWithoutRef<typeof TabsPrimitive.Content>>(
-  ({className, ...props}, ref) => <TabsPrimitive.Content ref={ref} className={cx("fui-tabs-content", className)} {...props} />,
+export type TabsContentProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & {
+  /** Keep the panel mounted while hidden, so its state (filters, selection, scroll) survives tab switches. */
+  keepMounted?: boolean;
+};
+
+export const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, TabsContentProps>(
+  ({keepMounted, className, ...props}, ref) => (
+    <TabsPrimitive.Content
+      ref={ref}
+      forceMount={keepMounted || undefined}
+      className={cx("fui-tabs-content", className)}
+      {...props}
+    />
+  ),
 );
 TabsContent.displayName = "TabsContent";
 

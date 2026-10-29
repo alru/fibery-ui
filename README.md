@@ -89,6 +89,14 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   <ListItem multiline>…nested content that wraps…</ListItem>
 </List>
 
+<Table>                                                 // native thead/tbody/tr/th/td inside
+  <thead><tr><th>Skill</th><th data-align="right">People</th></tr></thead>
+  <tbody>
+    <TableGroupRow label="3D" colSpan={2} />
+    <tr><td>Handpaint</td><td data-align="right">2</td></tr>
+  </tbody>
+</Table>
+
 <PropertyList>                                          // entity field grid
   <Property icon={<Mail />} label="Email">a@b.c</Property>
 </PropertyList>
@@ -183,7 +191,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
     <TabsTrigger value="list">List</TabsTrigger>
     <TabsTrigger value="matrix">Matrix</TabsTrigger>
   </TabsList>
-  <TabsContent value="list">…</TabsContent>
+  <TabsContent value="list" keepMounted>…</TabsContent>    // keepMounted: state survives tab switches
 </Tabs>
 
 // Same look for picking a value (filters): a radio group, arrow keys move the selection.
