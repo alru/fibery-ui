@@ -1,5 +1,7 @@
 // Select built on Radix: input-styled trigger and a Fibery-style popup menu (radius 8px, 32px rows).
-import {forwardRef, type ComponentPropsWithoutRef, type ElementRef} from "react";
+// MultiSelect is its several-values sibling for filters, on a dropdown menu with checkable rows.
+import {forwardRef, type ComponentPropsWithoutRef, type ElementRef, type ReactNode} from "react";
+import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import {Check, ChevronDown} from "lucide-react";
 import {cx} from "../cx";
@@ -73,3 +75,94 @@ export const SelectSeparator = forwardRef<ElementRef<typeof SelectPrimitive.Sepa
   ({className, ...props}, ref) => <SelectPrimitive.Separator ref={ref} className={cx("fui-menu-separator", className)} {...props} />,
 );
 SelectSeparator.displayName = "SelectSeparator";
+
+export type MultiSelectOption = {
+  value: string;
+  /** Row content and trigger summary, e.g. an EnumBadge. */
+  label: ReactNode;
+};
+
+export type MultiSelectProps = {
+  /** Muted caption before the selection in the trigger, e.g. "Status". */
+  label: ReactNode;
+  options: MultiSelectOption[];
+  value: string[];
+  onValueChange: (value: string[]) => void;
+  /** Trigger text while nothing is selected, i.e. the filter is off. */
+  placeholder?: ReactNode;
+  /** Text of the menu row that clears the selection; shown only when something is selected. */
+  clearLabel?: string;
+  size?: "sm" | "md";
+  className?: string;
+  "aria-label"?: string;
+};
+
+/**
+ * Filter picker for several values: an input-styled trigger "Label: first value +N" and a menu of checkable rows
+ * that stays open while toggling. An empty selection means "no filter".
+ */
+export function MultiSelect({
+  label,
+  options,
+  value,
+  onValueChange,
+  placeholder = "Все",
+  clearLabel = "Сбросить",
+  size = "md",
+  className,
+  "aria-label": ariaLabel,
+}: MultiSelectProps) {
+  const selected = options.filter((o) => value.includes(o.value));
+  const toggle = (option: string, checked: boolean) =>
+    onValueChange(checked ? [...value, option] : value.filter((v) => v !== option));
+  return (
+    <DropdownPrimitive.Root>
+      <DropdownPrimitive.Trigger
+        data-size={size}
+        data-placeholder={selected.length === 0 ? "" : undefined}
+        aria-label={ariaLabel}
+        className={cx("fui-input fui-select-trigger fui-multiselect", className)}
+      >
+        <span className="fui-select-trigger__value">
+          <span className="fui-multiselect__label">{label}</span>
+          {selected.length === 0 ? (
+            placeholder
+          ) : (
+            <>
+              {selected[0].label}
+              {selected.length > 1 && <span className="fui-multiselect__more">+{selected.length - 1}</span>}
+            </>
+          )}
+        </span>
+        <ChevronDown />
+      </DropdownPrimitive.Trigger>
+      <DropdownPrimitive.Portal>
+        <DropdownPrimitive.Content sideOffset={4} align="start" className="fui-popup fui-menu">
+          {options.map((o) => (
+            <DropdownPrimitive.CheckboxItem
+              key={o.value}
+              className="fui-menu-item"
+              checked={value.includes(o.value)}
+              onCheckedChange={(checked) => toggle(o.value, checked === true)}
+              // Keep the menu open: a filter is usually several clicks.
+              onSelect={(e) => e.preventDefault()}
+            >
+              <span className="fui-menu-item__text">{o.label}</span>
+              <DropdownPrimitive.ItemIndicator className="fui-menu-item__check">
+                <Check />
+              </DropdownPrimitive.ItemIndicator>
+            </DropdownPrimitive.CheckboxItem>
+          ))}
+          {selected.length > 0 && (
+            <>
+              <DropdownPrimitive.Separator className="fui-menu-separator" />
+              <DropdownPrimitive.Item className="fui-menu-item" onSelect={() => onValueChange([])}>
+                <span className="fui-menu-item__text">{clearLabel}</span>
+              </DropdownPrimitive.Item>
+            </>
+          )}
+        </DropdownPrimitive.Content>
+      </DropdownPrimitive.Portal>
+    </DropdownPrimitive.Root>
+  );
+}

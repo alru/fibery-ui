@@ -145,6 +145,10 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
     <SelectItem value="a"><EnumBadge name="A" color="#4FAF54" /></SelectItem>
   </SelectContent>
 </Select>
+
+// Filter by several values: trigger "Status: Active +1", menu stays open while toggling; [] = no filter.
+<MultiSelect size="sm" label="Status" value={statuses} onValueChange={setStatuses}
+  options={states.map((s) => ({value: s.id, label: <EnumBadge name={s.name} color={s.color} />}))} />
 ```
 
 **Overlays**

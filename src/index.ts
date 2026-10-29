@@ -49,7 +49,10 @@ export {
   SelectItem,
   SelectLabel,
   SelectSeparator,
+  MultiSelect,
   type SelectTriggerProps,
+  type MultiSelectOption,
+  type MultiSelectProps,
 } from "./components/Select";
 export {
   DropdownMenu,
