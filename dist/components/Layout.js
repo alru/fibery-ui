@@ -14,14 +14,14 @@ export function SectionHeader({ title, icon, count, actions, className }) {
  * Details panel next to a list (master–detail): header with title and actions, scrollable body.
  * Position and width come from the parent layout, e.g. `className="sticky top-6 flex-1"`.
  */
-export function SidePanel({ title, description, actions, onClose, className, children, ...props }) {
+export function SidePanel({ title, description, actions, onClose, editing, className, children, ...props }) {
     const onKeyDown = (e) => {
         if (e.key === "Escape" && onClose) {
             e.stopPropagation();
             onClose();
         }
     };
-    return (_jsxs("aside", { className: cx("fui-side-panel", className), onKeyDown: onKeyDown, ...props, children: [_jsxs("header", { className: "fui-side-panel__header", children: [_jsxs("div", { className: "fui-side-panel__heading", children: [_jsx("h2", { className: "fui-side-panel__title", children: title }), description && _jsx("p", { className: "fui-side-panel__description", children: description })] }), _jsxs("div", { className: "fui-side-panel__actions", children: [actions, onClose && _jsx(IconButton, { icon: _jsx(X, {}), "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C", size: "sm", onClick: onClose })] })] }), _jsx("div", { className: "fui-side-panel__body", children: children })] }));
+    return (_jsxs("aside", { "data-editing": editing ? "" : undefined, className: cx("fui-side-panel", className), onKeyDown: onKeyDown, ...props, children: [_jsxs("header", { className: "fui-side-panel__header", children: [_jsxs("div", { className: "fui-side-panel__heading", children: [_jsx("h2", { className: "fui-side-panel__title", children: title }), description && _jsx("p", { className: "fui-side-panel__description", children: description })] }), _jsxs("div", { className: "fui-side-panel__actions", children: [actions, onClose && _jsx(IconButton, { icon: _jsx(X, {}), "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C", size: "sm", onClick: onClose })] })] }), _jsx("div", { className: "fui-side-panel__body", children: children })] }));
 }
 /** Hairline divider. */
 export function Separator({ orientation = "horizontal", className, ...props }) {
