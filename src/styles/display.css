@@ -112,6 +112,8 @@
     gap: 8px;
     padding: 12px 16px 0;
   }
+  /* Header-only card (no CardContent below) still needs its bottom padding. */
+  .fui-card__header:last-child { padding-bottom: 12px; }
   .fui-card__heading { min-width: 0; }
   .fui-card__title { margin: 0; font-size: 14px; font-weight: 600; line-height: 20px; }
   .fui-card__description { margin: 2px 0 0; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
