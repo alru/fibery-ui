@@ -1,7 +1,7 @@
 export { Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize } from "./components/Button";
 export { Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue } from "./components/Badge";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, type AvatarProps, type CardProps, type CardHeaderProps, type ListItemProps, type PropertyProps, } from "./components/Display";
-export { PageHeader, SectionHeader, Separator, type PageHeaderProps, type SectionHeaderProps, type SeparatorProps } from "./components/Layout";
+export { PageHeader, SectionHeader, SidePanel, Separator, type PageHeaderProps, type SectionHeaderProps, type SidePanelProps, type SeparatorProps, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, type InputProps, type TextareaProps, type FieldProps, type CheckboxProps, type SwitchProps, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, type SelectTriggerProps, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, type DropdownMenuItemProps, type TooltipProps, type DialogContentProps, } from "./components/Overlay";

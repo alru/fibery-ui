@@ -22,14 +22,14 @@ export function CardContent({ className, ...props }) {
 export const List = forwardRef(({ className, ...props }, ref) => (_jsx("ul", { ref: ref, className: cx("fui-list", className), ...props })));
 List.displayName = "List";
 /** Row in the style of Fibery relation lists: ringed, radius 6px, single-line text with ellipsis. */
-export const ListItem = forwardRef(({ leading, trailing, onClick, multiline, className, children, ...props }, ref) => {
+export const ListItem = forwardRef(({ leading, trailing, onClick, multiline, selected, className, children, ...props }, ref) => {
     const onKeyDown = (e) => {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             onClick?.();
         }
     };
-    return (_jsxs("li", { ref: ref, "data-multiline": multiline ? "" : undefined, className: cx("fui-list-item", className), ...(onClick && { role: "button", tabIndex: 0, onClick, onKeyDown, "data-interactive": "" }), ...props, children: [leading, _jsx("span", { className: "fui-list-item__main", children: children }), trailing && _jsx("span", { className: "fui-list-item__trailing", children: trailing })] }));
+    return (_jsxs("li", { ref: ref, "data-multiline": multiline ? "" : undefined, "data-selected": selected ? "" : undefined, className: cx("fui-list-item", className), ...(onClick && { role: "button", tabIndex: 0, onClick, onKeyDown, "aria-pressed": selected, "data-interactive": "" }), ...props, children: [leading, _jsx("span", { className: "fui-list-item__main", children: children }), trailing && _jsx("span", { className: "fui-list-item__trailing", children: trailing })] }));
 });
 ListItem.displayName = "ListItem";
 /** Two-column label/value grid, like the field list on a Fibery entity page. */
