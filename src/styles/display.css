@@ -148,6 +148,8 @@
   .fui-list-item[data-interactive]:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--border), var(--fui-focus-ring); }
   .fui-list-item__main { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fui-list-item__trailing { display: flex; flex-shrink: 0; align-items: center; gap: 6px; color: var(--muted-foreground); font-size: 12px; }
+  .fui-list-item[data-multiline] { align-items: flex-start; padding: 8px 10px; }
+  .fui-list-item[data-multiline] .fui-list-item__main { overflow: visible; white-space: normal; }
 
   /* ─── PropertyList: entity field grid ─── */
   .fui-properties {
