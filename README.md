@@ -14,8 +14,8 @@ This kit solves that once:
   controls, 6–8px radii, Inter at weight 410, ring-style borders), so apps blend into the workspace.
 - **Theme for free.** Colors come only from the variables Fibery injects into every app (`--primary`,
   `--border`, `--highlight-*`), so components follow light/dark mode and the workspace palette with no setup.
-- **One place to fix things.** A bug fix or design tweak lands in every app with a version bump instead of
-  being patched app by app.
+- **One place to fix things.** A bug fix or design tweak lands in every app by bumping the pinned release
+  commit instead of being patched app by app.
 - **No Tailwind dependency.** Plain CSS in `@layer components`: works next to the template's Tailwind, and
   Tailwind utilities can still override any kit style via `className`.
 
@@ -32,11 +32,19 @@ with different data?" If yes, it belongs in the kit.
 
 ## Install
 
-In the app's `package.json` (pin the exact version; Fibery installs it during the server build):
+The kit is not published to npm. Apps install it straight from GitHub: the `release` branch carries the
+compiled `dist/`, so nothing is built during install. Fibery's server build fetches it like any other dependency.
+
+In the app's `package.json`, pin the **release commit** (not a tag or branch — tags can be moved, a commit
+hash cannot):
 
 ```json
-"@alru/fibery-ui": "0.1.0"
+"@alru/fibery-ui": "github:alru/fibery-ui#<release commit sha>"
 ```
+
+Each release is tagged `vX.Y.Z` on the `release` branch; find the commit with
+`git rev-parse vX.Y.Z` or on the [tags page](https://github.com/alru/fibery-ui/tags).
+The release script prints the ready-to-paste line.
 
 React, Radix and lucide-react are peer dependencies; the Fibery app template already includes all of them.
 
@@ -181,3 +189,23 @@ npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
 
 Styles live in `src/styles/`, one file per component group; `scripts/build-css.mjs` lists the concatenation
 order (`base.css` first: it declares the layer order and helper tokens).
+
+## Release
+
+Branches:
+
+- `master` — sources only; `dist/` is git-ignored.
+- `release` — `master` merged in plus the compiled `dist/`; every release commit is tagged `vX.Y.Z`.
+
+From a clean `master`:
+
+```sh
+npm run release -- 0.1.3
+```
+
+The script (`scripts/release.mjs`) bumps the version and commits it on `master`, builds, merges `master` into
+`release` in a temporary worktree, commits `dist/`, tags `v0.1.3`, pushes `master`, `release` and the tag, and
+prints the dependency line for apps. Then update the commit hash in each app's `package.json` and re-upload the
+app.
+
+`package.json` is marked `private`, so an accidental `npm publish` is refused.
