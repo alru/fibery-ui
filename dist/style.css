@@ -356,6 +356,15 @@
     font-weight: 600;
     line-height: 16px;
   }
+  .fui-table__group[data-level="2"] > th {
+    padding-top: 10px;
+    padding-left: 28px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-weight: 500;
+  }
+  .fui-table [data-indent="1"] { padding-left: 28px; }
+  .fui-table [data-indent="2"] { padding-left: 44px; }
 
   /* ─── Search match highlight ─── */
   .fui-highlight {
