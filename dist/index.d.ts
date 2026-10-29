@@ -3,7 +3,7 @@ export { Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue } from
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, type AvatarProps, type CardProps, type CardHeaderProps, type ListItemProps, type PropertyProps, } from "./components/Display";
 export { PageHeader, SectionHeader, SidePanel, Separator, type PageHeaderProps, type SectionHeaderProps, type SidePanelProps, type SeparatorProps, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, type InputProps, type TextareaProps, type FieldProps, type CheckboxProps, type SwitchProps, } from "./components/Form";
-export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, type SelectTriggerProps, } from "./components/Select";
+export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, type SelectTriggerProps, type MultiSelectOption, type MultiSelectProps, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, type DropdownMenuItemProps, type TooltipProps, type DialogContentProps, } from "./components/Overlay";
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type TabsContentProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";

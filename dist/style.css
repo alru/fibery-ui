@@ -599,6 +599,11 @@
   .fui-select-trigger__value { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .fui-select-trigger > svg { color: var(--muted-foreground); }
 
+  /* Sized by content, unlike full-width inputs: sits in a toolbar next to other filters. */
+  .fui-multiselect { width: auto; flex-shrink: 0; }
+  .fui-multiselect__label { color: var(--muted-foreground); }
+  .fui-multiselect__more { color: var(--muted-foreground); font-size: 12px; }
+
   /* ─── Label / Field ─── */
   .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-field { display: flex; flex-direction: column; gap: 6px; }

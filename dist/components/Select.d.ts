@@ -1,4 +1,4 @@
-import { type ComponentPropsWithoutRef } from "react";
+import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 export declare const Select: import("react").FC<SelectPrimitive.SelectProps>;
 export declare const SelectGroup: import("react").ForwardRefExoticComponent<SelectPrimitive.SelectGroupProps & import("react").RefAttributes<HTMLDivElement>>;
@@ -19,3 +19,27 @@ export declare const SelectItem: import("react").ForwardRefExoticComponent<Omit<
 /** Muted group caption inside SelectContent. */
 export declare const SelectLabel: import("react").ForwardRefExoticComponent<Omit<SelectPrimitive.SelectLabelProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & import("react").RefAttributes<HTMLDivElement>>;
 export declare const SelectSeparator: import("react").ForwardRefExoticComponent<Omit<SelectPrimitive.SelectSeparatorProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & import("react").RefAttributes<HTMLDivElement>>;
+export type MultiSelectOption = {
+    value: string;
+    /** Row content and trigger summary, e.g. an EnumBadge. */
+    label: ReactNode;
+};
+export type MultiSelectProps = {
+    /** Muted caption before the selection in the trigger, e.g. "Status". */
+    label: ReactNode;
+    options: MultiSelectOption[];
+    value: string[];
+    onValueChange: (value: string[]) => void;
+    /** Trigger text while nothing is selected, i.e. the filter is off. */
+    placeholder?: ReactNode;
+    /** Text of the menu row that clears the selection; shown only when something is selected. */
+    clearLabel?: string;
+    size?: "sm" | "md";
+    className?: string;
+    "aria-label"?: string;
+};
+/**
+ * Filter picker for several values: an input-styled trigger "Label: first value +N" and a menu of checkable rows
+ * that stays open while toggling. An empty selection means "no filter".
+ */
+export declare function MultiSelect({ label, options, value, onValueChange, placeholder, clearLabel, size, className, "aria-label": ariaLabel, }: MultiSelectProps): import("react").JSX.Element;

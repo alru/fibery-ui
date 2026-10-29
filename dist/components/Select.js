@@ -1,6 +1,8 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // Select built on Radix: input-styled trigger and a Fibery-style popup menu (radius 8px, 32px rows).
+// MultiSelect is its several-values sibling for filters, on a dropdown menu with checkable rows.
 import { forwardRef } from "react";
+import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 import { cx } from "../cx";
@@ -21,3 +23,14 @@ export const SelectLabel = forwardRef(({ className, ...props }, ref) => _jsx(Sel
 SelectLabel.displayName = "SelectLabel";
 export const SelectSeparator = forwardRef(({ className, ...props }, ref) => _jsx(SelectPrimitive.Separator, { ref: ref, className: cx("fui-menu-separator", className), ...props }));
 SelectSeparator.displayName = "SelectSeparator";
+/**
+ * Filter picker for several values: an input-styled trigger "Label: first value +N" and a menu of checkable rows
+ * that stays open while toggling. An empty selection means "no filter".
+ */
+export function MultiSelect({ label, options, value, onValueChange, placeholder = "Все", clearLabel = "Сбросить", size = "md", className, "aria-label": ariaLabel, }) {
+    const selected = options.filter((o) => value.includes(o.value));
+    const toggle = (option, checked) => onValueChange(checked ? [...value, option] : value.filter((v) => v !== option));
+    return (_jsxs(DropdownPrimitive.Root, { children: [_jsxs(DropdownPrimitive.Trigger, { "data-size": size, "data-placeholder": selected.length === 0 ? "" : undefined, "aria-label": ariaLabel, className: cx("fui-input fui-select-trigger fui-multiselect", className), children: [_jsxs("span", { className: "fui-select-trigger__value", children: [_jsx("span", { className: "fui-multiselect__label", children: label }), selected.length === 0 ? (placeholder) : (_jsxs(_Fragment, { children: [selected[0].label, selected.length > 1 && _jsxs("span", { className: "fui-multiselect__more", children: ["+", selected.length - 1] })] }))] }), _jsx(ChevronDown, {})] }), _jsx(DropdownPrimitive.Portal, { children: _jsxs(DropdownPrimitive.Content, { sideOffset: 4, align: "start", className: "fui-popup fui-menu", children: [options.map((o) => (_jsxs(DropdownPrimitive.CheckboxItem, { className: "fui-menu-item", checked: value.includes(o.value), onCheckedChange: (checked) => toggle(o.value, checked === true), 
+                            // Keep the menu open: a filter is usually several clicks.
+                            onSelect: (e) => e.preventDefault(), children: [_jsx("span", { className: "fui-menu-item__text", children: o.label }), _jsx(DropdownPrimitive.ItemIndicator, { className: "fui-menu-item__check", children: _jsx(Check, {}) })] }, o.value))), selected.length > 0 && (_jsxs(_Fragment, { children: [_jsx(DropdownPrimitive.Separator, { className: "fui-menu-separator" }), _jsx(DropdownPrimitive.Item, { className: "fui-menu-item", onSelect: () => onValueChange([]), children: _jsx("span", { className: "fui-menu-item__text", children: clearLabel }) })] }))] }) })] }));
+}
