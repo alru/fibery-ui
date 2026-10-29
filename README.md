@@ -167,6 +167,10 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   onValueChange={setLevel}
   options={[{value: "any", label: "Any"}, {value: "A", label: "A"}, {value: "B", label: "B+"}]}
 />
+
+// `scale`: ordered options, everything up to the selection is filled — a level meter.
+<SegmentedControl scale aria-label="Minimum level" value={min} onValueChange={setMin}
+  options={["D", "C", "B", "A"].map((l) => ({value: l, label: l}))} />
 ```
 
 **Search**
