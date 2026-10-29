@@ -188,5 +188,7 @@
   }
 
   .fui-tabs-content { outline: none; }
+  /* Force-mounted (keepMounted) panels stay in the DOM; hide the inactive ones. */
+  .fui-tabs-content[data-state="inactive"] { display: none; }
   .fui-tabs-content:focus-visible { box-shadow: var(--fui-focus-ring); border-radius: 6px; }
 }

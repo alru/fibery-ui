@@ -81,10 +81,12 @@ export {
   TabsContent,
   SegmentedControl,
   type TabsListProps,
+  type TabsContentProps,
   type SegmentedControlProps,
   type SegmentedOption,
 } from "./components/Tabs";
 export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";
+export {Table, TableGroupRow, type TableGroupRowProps} from "./components/Table";
 export {Combobox, Autocomplete, type ComboboxOption, type ComboboxProps, type AutocompleteProps} from "./components/Combobox";
 export {
   Spinner,
