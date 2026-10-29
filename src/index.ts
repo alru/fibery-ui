@@ -85,7 +85,7 @@ export {
   type SegmentedOption,
 } from "./components/Tabs";
 export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";
-export {Combobox, type ComboboxOption, type ComboboxProps} from "./components/Combobox";
+export {Combobox, Autocomplete, type ComboboxOption, type ComboboxProps, type AutocompleteProps} from "./components/Combobox";
 export {
   Spinner,
   Skeleton,
