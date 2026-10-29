@@ -246,6 +246,30 @@
   .fui-table [data-indent="1"] { padding-left: 28px; }
   .fui-table [data-indent="2"] { padding-left: 44px; }
 
+  /* ─── HeatValue: --fui-heat (0..1) is set inline; tint tops out at 45% so regular text stays readable ─── */
+  .fui-heat {
+    --fui-heat-color: var(--highlight-blue-fg);
+    display: inline-block;
+    min-width: 32px;
+    padding: 1px 8px;
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--fui-heat-color) calc(6% + var(--fui-heat, 0) * 39%), transparent);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+  .fui-heat[data-empty] { background: transparent; color: var(--muted-foreground); }
+  .fui-heat[data-hue="grey"] { --fui-heat-color: var(--highlight-grey-fg); }
+  .fui-heat[data-hue="red"] { --fui-heat-color: var(--highlight-red-fg); }
+  .fui-heat[data-hue="pink"] { --fui-heat-color: var(--highlight-pink-fg); }
+  .fui-heat[data-hue="purple"] { --fui-heat-color: var(--highlight-purple-fg); }
+  .fui-heat[data-hue="violet"] { --fui-heat-color: var(--highlight-violet-fg); }
+  .fui-heat[data-hue="turquoise"] { --fui-heat-color: var(--highlight-turquoise-fg); }
+  .fui-heat[data-hue="aqua"] { --fui-heat-color: var(--highlight-aqua-fg); }
+  .fui-heat[data-hue="aquamarine"] { --fui-heat-color: var(--highlight-aquamarine-fg); }
+  .fui-heat[data-hue="green"] { --fui-heat-color: var(--highlight-green-fg); }
+  .fui-heat[data-hue="yellow"] { --fui-heat-color: var(--highlight-yellow-fg); }
+  .fui-heat[data-hue="orange"] { --fui-heat-color: var(--highlight-orange-fg); }
+
   /* ─── Search match highlight ─── */
   .fui-highlight {
     padding: 0;
