@@ -98,6 +98,9 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   </tbody>
 </Table>
 
+// Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
+<HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default
+
 <PropertyList>                                          // entity field grid
   <Property icon={<Mail />} label="Email">a@b.c</Property>
 </PropertyList>

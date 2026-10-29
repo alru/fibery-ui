@@ -87,6 +87,7 @@ export {
 } from "./components/Tabs";
 export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";
 export {Table, TableGroupRow, type TableGroupRowProps} from "./components/Table";
+export {HeatValue, type HeatValueProps} from "./components/HeatValue";
 export {Combobox, Autocomplete, type ComboboxOption, type ComboboxProps, type AutocompleteProps} from "./components/Combobox";
 export {
   Spinner,
