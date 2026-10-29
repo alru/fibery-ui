@@ -1,6 +1,9 @@
-// Page-level structure: page title row, section headers and separators sized like Fibery entity pages.
-import type {HTMLAttributes, ReactNode} from "react";
+// Page-level structure: page title row, section headers, separators and a details side panel,
+// sized like Fibery entity pages.
+import type {HTMLAttributes, KeyboardEvent, ReactNode} from "react";
+import {X} from "lucide-react";
 import {cx} from "../cx";
+import {IconButton} from "./Button";
 
 export type PageHeaderProps = {
   title: ReactNode;
@@ -45,6 +48,43 @@ export function SectionHeader({title, icon, count, actions, className}: SectionH
       </h2>
       {actions && <div className="fui-section-header__actions">{actions}</div>}
     </div>
+  );
+}
+
+export type SidePanelProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
+  title: ReactNode;
+  description?: ReactNode;
+  /** Buttons in the header, left of the close button. */
+  actions?: ReactNode;
+  /** Shows a close (×) button and closes on Escape while focus is inside the panel. */
+  onClose?: () => void;
+};
+
+/**
+ * Details panel next to a list (master–detail): header with title and actions, scrollable body.
+ * Position and width come from the parent layout, e.g. `className="sticky top-6 flex-1"`.
+ */
+export function SidePanel({title, description, actions, onClose, className, children, ...props}: SidePanelProps) {
+  const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Escape" && onClose) {
+      e.stopPropagation();
+      onClose();
+    }
+  };
+  return (
+    <aside className={cx("fui-side-panel", className)} onKeyDown={onKeyDown} {...props}>
+      <header className="fui-side-panel__header">
+        <div className="fui-side-panel__heading">
+          <h2 className="fui-side-panel__title">{title}</h2>
+          {description && <p className="fui-side-panel__description">{description}</p>}
+        </div>
+        <div className="fui-side-panel__actions">
+          {actions}
+          {onClose && <IconButton icon={<X />} aria-label="Закрыть" size="sm" onClick={onClose} />}
+        </div>
+      </header>
+      <div className="fui-side-panel__body">{children}</div>
+    </aside>
   );
 }
 
