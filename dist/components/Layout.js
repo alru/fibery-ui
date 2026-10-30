@@ -31,7 +31,7 @@ export function SidePanel({ title, description, actions, onClose, editing, class
 export function PanelLayout({ children, panel, onDismiss, className }) {
     return (_jsxs("div", { className: cx("fui-panel-layout", className), "data-open": panel ? "" : undefined, children: [_jsx("div", { className: "fui-panel-layout__main", children: children }), panel && (_jsxs(_Fragment, { children: [_jsx("div", { className: "fui-panel-layout__veil", "aria-hidden": true, onClick: onDismiss }), _jsx("div", { className: "fui-panel-layout__panel", children: panel })] }))] }));
 }
-/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+/** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
 export function Inset({ className, ...props }) {
     return _jsx("div", { className: cx("fui-inset", className), ...props });
 }

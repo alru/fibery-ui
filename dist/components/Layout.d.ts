@@ -55,7 +55,7 @@ export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
     label?: ReactNode;
 };
 export type InsetProps = HTMLAttributes<HTMLDivElement>;
-/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+/** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
 export declare function Inset({ className, ...props }: InsetProps): import("react").JSX.Element;
 /** Hairline divider; with `label`, a captioned one ("На английском ————"). */
 export declare function Separator({ orientation, label, className, ...props }: SeparatorProps): import("react").JSX.Element;
