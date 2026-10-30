@@ -30,11 +30,13 @@ export type SegmentedControlProps<T extends string> = {
     "aria-label"?: string;
     /** Ordered scale: every option up to and including the selected one is filled, like a level meter. */
     scale?: boolean;
+    /** Muted caption inside an input-styled frame, like MultiSelect's: lines the control up with filter pickers. */
+    label?: ReactNode;
     className?: string;
 };
 /**
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export declare function SegmentedControl<T extends string>({ options, value, onValueChange, scale, className, ...props }: SegmentedControlProps<T>): import("react").JSX.Element;
+export declare function SegmentedControl<T extends string>({ options, value, onValueChange, scale, label, className, ...props }: SegmentedControlProps<T>): import("react").JSX.Element;
 export {};

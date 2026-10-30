@@ -1,4 +1,4 @@
-import { jsx as _jsx } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs,
 // plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels.
 import { createContext, forwardRef, useContext, } from "react";
@@ -17,7 +17,7 @@ TabsContent.displayName = "TabsContent";
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export function SegmentedControl({ options, value, onValueChange, scale, className, ...props }) {
+export function SegmentedControl({ options, value, onValueChange, scale, label, className, ...props }) {
     const selectedIndex = options.findIndex((o) => o.value === value);
     const onKeyDown = (e) => {
         const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -28,8 +28,9 @@ export function SegmentedControl({ options, value, onValueChange, scale, classNa
         onValueChange(next.value);
         e.currentTarget.querySelector(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
     };
-    return (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", className), onKeyDown: onKeyDown, children: options.map((option, index) => {
+    const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
             return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": scale && index <= selectedIndex ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
         }) }));
+    return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
 }
