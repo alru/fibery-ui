@@ -125,6 +125,8 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <PropertyGroup icon={<Briefcase />} title="Работа" actions={<IconButton … />}>
   <PropertyList>…</PropertyList>
 </PropertyGroup>
+// Collapsible: chevron at the right, the whole header toggles; controlled (open/onOpenChange) or defaultOpen.
+<PropertyGroup collapsible open={open} onOpenChange={setOpen} icon={<ShieldAlert />} title="Checks">…</PropertyGroup>
 ```
 
 **Layout**
@@ -135,6 +137,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Separator />
 <Separator label="На английском" />                       // captioned divider splitting one block into parts
 <Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // raised block (shadow) for a key field
+<Inset footer={<>Profile <Badge hue="green">Linked</Badge></>}>…</Inset>  // marks under a hairline at the bottom
 
 // Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
 // Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.

@@ -226,7 +226,33 @@
     font-weight: 600;
     line-height: 20px;
   }
-  .fui-property-group__title > svg { width: 16px; height: 16px; color: var(--muted-foreground); }
+  .fui-property-group__title > svg,
+  .fui-property-group__heading > svg { width: 16px; height: 16px; color: var(--muted-foreground); }
+  /* Collapsible: the whole header is the toggle; the chevron at the right end points down when closed. */
+  .fui-property-group__title:has(> .fui-property-group__toggle) { flex: 1; min-width: 0; }
+  .fui-property-group__toggle {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    margin: -2px -4px;
+    padding: 2px 4px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .fui-property-group__toggle:hover { background: var(--fui-hover); }
+  .fui-property-group__toggle:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+  .fui-property-group__heading { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .fui-property-group__chevron { flex-shrink: 0; width: 16px; height: 16px; color: var(--muted-foreground); transition: rotate 0.15s; }
+  .fui-property-group__toggle[aria-expanded="true"] .fui-property-group__chevron { rotate: 180deg; }
+  @media (prefers-reduced-motion: reduce) { .fui-property-group__chevron { transition: none; } }
   .fui-property-group__actions { display: flex; gap: 4px; }
   .fui-property-group .fui-properties { grid-template-columns: minmax(112px, 148px) minmax(0, 1fr); }
   .fui-property-group .fui-property__label { min-height: 28px; font-size: 13px; }
@@ -445,6 +471,19 @@
     border-radius: 8px;
     background: var(--card);
     box-shadow: 0 0 0 1px var(--border), 0 2px 8px 0 rgb(23 23 23 / 0.08);
+  }
+  /* Footer: edge to edge under a hairline, small muted text with badges in one wrapping line. */
+  .fui-inset__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin: 4px -12px -12px;
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
   }
   .fui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
   .fui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }
