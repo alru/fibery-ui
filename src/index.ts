@@ -90,9 +90,11 @@ export {
   TabsTrigger,
   TabsContent,
   SegmentedControl,
+  SegmentedToggles,
   type TabsListProps,
   type TabsContentProps,
   type SegmentedControlProps,
+  type SegmentedTogglesProps,
   type SegmentedOption,
 } from "./components/Tabs";
 export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";

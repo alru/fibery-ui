@@ -269,6 +269,10 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 // `label`: muted caption inside an input-styled frame, like MultiSelect's "Status: All" — use it in a filter row
 // next to MultiSelects so all filters share one look and height (28px).
 <SegmentedControl label="Level" scale="from" aria-label="Minimum level" value={min} onValueChange={setMin} options={…} />
+
+// Same look, but every option toggles on and off by itself (filled while on); value is an array. Any combination,
+// including none, is allowed — the caller decides what "all off" means.
+<SegmentedToggles label="Level" aria-label="Levels" value={levels} onValueChange={setLevels} options={…} />
 ```
 
 **Search**

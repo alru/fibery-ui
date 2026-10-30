@@ -1,5 +1,6 @@
 // Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs,
-// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels.
+// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels — and
+// SegmentedToggles, the same look with options toggled on and off independently.
 import {
   createContext,
   forwardRef,
@@ -117,6 +118,62 @@ export function SegmentedControl<T extends string>({options, value, onValueChang
             }
             className="fui-tabs-trigger"
             onClick={() => onValueChange(option.value)}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+  return label ? (
+    <div className={cx("fui-segmented-field", className)}>
+      <span className="fui-segmented-field__label">{label}</span>
+      {group}
+    </div>
+  ) : (
+    group
+  );
+}
+
+export type SegmentedTogglesProps<T extends string> = {
+  options: SegmentedOption<T>[];
+  /** Options that are on, in any order. */
+  value: T[];
+  /** Gets the options that are on, in the order of `options`. */
+  onValueChange: (value: T[]) => void;
+  /** Describes the group for screen readers, e.g. "Levels". */
+  "aria-label"?: string;
+  /** Muted caption inside an input-styled frame, as on SegmentedControl. */
+  label?: ReactNode;
+  className?: string;
+};
+
+/**
+ * SegmentedControl's look with independent toggles: each option turns on and off by itself and is filled while on,
+ * e.g. a filter that shows any combination of levels. Every option may be off; what that means is up to the caller.
+ */
+export function SegmentedToggles<T extends string>({options, value, onValueChange, label, className, ...props}: SegmentedTogglesProps<T>) {
+  const toggle = (option: T) =>
+    onValueChange(options.map((o) => o.value).filter((v) => (v === option ? !value.includes(v) : value.includes(v))));
+  const group = (
+    <div
+      role="group"
+      aria-label={props["aria-label"]}
+      data-variant="segmented"
+      data-scale=""
+      className={cx("fui-tabs-list", !label && className)}
+    >
+      {options.map((option) => {
+        const on = value.includes(option.value);
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={on}
+            data-variant="segmented"
+            data-filled={on ? "" : undefined}
+            className="fui-tabs-trigger"
+            onClick={() => toggle(option.value)}
           >
             {option.label}
           </button>
