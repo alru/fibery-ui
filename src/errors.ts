@@ -39,6 +39,14 @@ export function isTransientError(error: unknown): boolean {
   return status !== undefined ? TRANSIENT_STATUSES.has(status) : isNetworkError(error);
 }
 
+const PERMISSION = /\b403\b|forbidden|access denied|no access|not enough permissions|permission/i;
+
+/** Whether Fibery refused the call for lack of rights (403, or a "no access" / "permission" message in the result). */
+export function isPermissionError(error: unknown): boolean {
+  if (httpStatusOf(error) === 403) return true;
+  return error instanceof Error && PERMISSION.test(error.message);
+}
+
 /**
  * Human text for a transient failure, in Russian; `undefined` for other errors, whose raw message is the only
  * useful description. Show the raw message too: it carries the diagnostic needed to report the problem.

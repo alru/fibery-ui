@@ -138,5 +138,5 @@ export {
   type LiveUpdatesOptions,
   type NotifyChangeOptions,
 } from "./components/LiveUpdates";
-export {friendlyErrorMessage, httpStatusOf, isTransientError, retryDelay, transientRetry} from "./errors";
+export {friendlyErrorMessage, httpStatusOf, isPermissionError, isTransientError, retryDelay, transientRetry} from "./errors";
 export {cx} from "./cx";
