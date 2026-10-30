@@ -20,6 +20,6 @@ export type AccessGateProps = {
 /**
  * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
  * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
- * Checks once on mount: the schema, one small query per database and one for the role.
+ * Checks once on mount: the schema, one or two small queries per database and one for the role.
  */
 export declare function AccessGate({ databases, children }: AccessGateProps): import("react").JSX.Element;

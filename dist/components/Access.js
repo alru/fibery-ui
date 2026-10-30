@@ -50,8 +50,13 @@ const readable = async (database, field) => {
         const rows = await command("fibery.entity/query", {
             query: { "q/from": database, "q/select": ["fibery/id", field], "q/limit": SAMPLE },
         });
-        // An empty database proves nothing either way; the app shows its own empty state.
-        return rows.length === 0 || rows.some((r) => r[field] != null && r[field] !== "");
+        if (rows.some((r) => r[field] != null && r[field] !== ""))
+            return true;
+        // No readable row: either the database is empty, or Fibery hid the rows (with no access to the whole space it
+        // returns none at all, while q/count still counts every record). Only a truly empty one lets the viewer in; the
+        // app shows its own empty state.
+        const count = await command("fibery.entity/query", { query: { "q/from": database, "q/select": ["q/count", "fibery/id"] } });
+        return count === 0;
     }
     catch (error) {
         if (isPermissionError(error))
@@ -96,7 +101,7 @@ export const useAccess = () => useContext(AccessContext);
 /**
  * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
  * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
- * Checks once on mount: the schema, one small query per database and one for the role.
+ * Checks once on mount: the schema, one or two small queries per database and one for the role.
  */
 export function AccessGate({ databases, children }) {
     const [check, setCheck] = useState({ status: "checking" });
