@@ -103,15 +103,16 @@ export function EmptyState({title, description, icon = <Inbox />, action, classN
 }
 
 export type CalloutProps = {
-  /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey. */
-  tone?: "info" | "warning" | "neutral";
+  /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted
+   *  text: the quietest note, for a rule that applies to several fields at once. */
+  tone?: "info" | "warning" | "neutral" | "plain";
   /** Replaces the tone's default icon; `null` hides it. */
   icon?: ReactNode;
   children: ReactNode;
   className?: string;
 };
 
-const CALLOUT_ICONS = {info: <Info />, warning: <TriangleAlert />, neutral: <Info />};
+const CALLOUT_ICONS = {info: <Info />, warning: <TriangleAlert />, neutral: <Info />, plain: <Info />};
 
 /** Always-visible note in the workspace highlight palette, e.g. how a form behaves. */
 export function Callout({tone = "info", icon, children, className}: CalloutProps) {

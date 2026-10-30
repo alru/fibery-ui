@@ -80,16 +80,26 @@
   .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-field { display: flex; flex-direction: column; gap: 6px; }
   .fui-label__required { margin-left: 2px; color: var(--destructive); }
-  /* Changed-value marker: a small accent dot after the label text (nothing sits to the right of a label, so the
-     extra width moves nothing). */
-  .fui-label__changed {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-left: 6px;
-    border-radius: 50%;
+  /* Changed-value marker: an accent bar in the left gutter along label, control and note. It sits outside the box,
+     so marking a field shifts nothing; forms leave >= 8px of gap or padding to its left. */
+  .fui-field[data-changed] { position: relative; }
+  .fui-field[data-changed]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -8px;
+    width: 2px;
+    border-radius: 1px;
     background: var(--primary);
-    vertical-align: 1px;
+  }
+  .fui-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .fui-field__hint,
   .fui-field__warning,

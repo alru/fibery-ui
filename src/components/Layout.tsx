@@ -124,10 +124,29 @@ export function PanelLayout({children, panel, onDismiss, className}: PanelLayout
   );
 }
 
-export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {orientation?: "horizontal" | "vertical"};
+export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
+  orientation?: "horizontal" | "vertical";
+  /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */
+  label?: ReactNode;
+};
 
-/** Hairline divider. */
-export function Separator({orientation = "horizontal", className, ...props}: SeparatorProps) {
+export type InsetProps = HTMLAttributes<HTMLDivElement>;
+
+/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+export function Inset({className, ...props}: InsetProps) {
+  return <div className={cx("fui-inset", className)} {...props} />;
+}
+
+/** Hairline divider; with `label`, a captioned one ("На английском ————"). */
+export function Separator({orientation = "horizontal", label, className, ...props}: SeparatorProps) {
+  if (label != null) {
+    return (
+      <div className={cx("fui-separator-labeled", className)} {...props}>
+        <span className="fui-separator-labeled__text">{label}</span>
+        <div role="separator" aria-orientation="horizontal" data-orientation="horizontal" className="fui-separator" />
+      </div>
+    );
+  }
   return (
     <div
       role="separator"

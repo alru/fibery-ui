@@ -246,6 +246,7 @@
   .fui-callout[data-tone="info"] { background: var(--highlight-blue-bg); color: var(--highlight-blue-fg-on-bg); }
   .fui-callout[data-tone="warning"] { background: var(--highlight-yellow-bg); color: var(--highlight-yellow-fg-on-bg); }
   .fui-callout[data-tone="neutral"] { background: var(--highlight-grey-bg); color: var(--highlight-grey-fg-on-bg); }
+  .fui-callout[data-tone="plain"] { background: transparent; color: var(--muted-foreground); box-shadow: inset 0 0 0 1px var(--border); }
   .fui-callout__icon { display: flex; flex-shrink: 0; padding-top: 1px; }
   .fui-callout__icon > svg { width: 16px; height: 16px; }
   .fui-callout__text { min-width: 0; }
@@ -429,6 +430,13 @@
   .fui-panel-layout__panel { display: contents; }
 
   .fui-separator { flex-shrink: 0; background: var(--border); }
+  /* Captioned divider: muted text, then the line to the right edge. */
+  .fui-separator-labeled { display: flex; align-items: center; gap: 12px; }
+  .fui-separator-labeled__text { flex-shrink: 0; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
+  .fui-separator-labeled > .fui-separator { flex: 1; }
+
+  /* ─── Inset: a grey backing that sets one item apart inside a card; inputs on it keep their own background ─── */
+  .fui-inset { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: var(--fui-subtle); }
   .fui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
   .fui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }
 
