@@ -246,6 +246,7 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 {isPending && <LoadingState />}
 {error && <ErrorState error={error} action={<Button size="sm" onClick={refetch}>Retry</Button>} />}
 <EmptyState title="No contractors" description="…" action={…} />
+<Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral
 <Skeleton style={{height: 20, width: 160}} />
 <Spinner size="sm" />
 

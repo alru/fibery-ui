@@ -1,6 +1,7 @@
-// Feedback placeholders: spinner, skeleton, and loading / error / empty states for React Query results.
+// Feedback placeholders: spinner, skeleton, and loading / error / empty states for React Query results, plus the
+// Callout — a short note that stays visible next to the content it explains.
 import type {HTMLAttributes, ReactNode} from "react";
-import {CircleAlert, Inbox} from "lucide-react";
+import {CircleAlert, Inbox, Info, TriangleAlert} from "lucide-react";
 import {cx} from "../cx";
 
 export type SpinnerProps = {size?: "sm" | "md" | "lg"; className?: string};
@@ -64,6 +65,28 @@ export function EmptyState({title, description, icon = <Inbox />, action, classN
       <strong className="fui-empty__title">{title}</strong>
       {description && <p className="fui-empty__description">{description}</p>}
       {action && <div className="fui-empty__action">{action}</div>}
+    </div>
+  );
+}
+
+export type CalloutProps = {
+  /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey. */
+  tone?: "info" | "warning" | "neutral";
+  /** Replaces the tone's default icon; `null` hides it. */
+  icon?: ReactNode;
+  children: ReactNode;
+  className?: string;
+};
+
+const CALLOUT_ICONS = {info: <Info />, warning: <TriangleAlert />, neutral: <Info />};
+
+/** Always-visible note in the workspace highlight palette, e.g. how a form behaves. */
+export function Callout({tone = "info", icon, children, className}: CalloutProps) {
+  const shown = icon === undefined ? CALLOUT_ICONS[tone] : icon;
+  return (
+    <div data-tone={tone} className={cx("fui-callout", className)}>
+      {shown && <span className="fui-callout__icon">{shown}</span>}
+      <div className="fui-callout__text">{children}</div>
     </div>
   );
 }
