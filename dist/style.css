@@ -685,7 +685,8 @@
 @layer components {
   /* ─── Shared popup surface: Fibery popups are radius 8px with a soft layered shadow ─── */
   .fui-popup {
-    z-index: 50;
+    /* Above dialogs (50–51): menus and pickers also open from inside a modal. */
+    z-index: 60;
     min-width: 180px;
     padding: 4px;
     border-radius: 8px;
@@ -751,7 +752,7 @@
 
   /* ─── Tooltip: inverted surface ─── */
   .fui-tooltip {
-    z-index: 60;
+    z-index: 70;
     max-width: 280px;
     padding: 4px 8px;
     border-radius: 6px;
