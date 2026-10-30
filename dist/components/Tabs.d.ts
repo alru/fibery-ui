@@ -28,8 +28,12 @@ export type SegmentedControlProps<T extends string> = {
     onValueChange: (value: T) => void;
     /** Describes the choice for screen readers, e.g. "Minimum level". */
     "aria-label"?: string;
-    /** Ordered scale: every option up to and including the selected one is filled, like a level meter. */
-    scale?: boolean;
+    /**
+     * Ordered scale. `true`: every option up to and including the selected one is filled, like a level meter.
+     * `"from"`: the selected option and every one after it are filled, like a threshold filter ("D and up" with options
+     * D, C, B, A fills all four; "A" fills one).
+     */
+    scale?: boolean | "from";
     /** Muted caption inside an input-styled frame, like MultiSelect's: lines the control up with filter pickers. */
     label?: ReactNode;
     className?: string;

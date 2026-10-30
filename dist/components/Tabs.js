@@ -30,7 +30,7 @@ export function SegmentedControl({ options, value, onValueChange, scale, label, 
     };
     const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
-            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": scale && index <= selectedIndex ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
+            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": (scale === "from" ? index >= selectedIndex : scale && index <= selectedIndex) ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
         }) }));
     return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
 }
