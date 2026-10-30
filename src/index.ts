@@ -106,6 +106,8 @@ export {
   LoadingState,
   ErrorState,
   EmptyState,
+  Callout,
+  type CalloutProps,
   type SpinnerProps,
   type LoadingStateProps,
   type ErrorStateProps,
