@@ -260,12 +260,15 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 />
 
 // `scale`: ordered options, everything up to the selection is filled — a level meter.
-<SegmentedControl scale aria-label="Minimum level" value={min} onValueChange={setMin}
+<SegmentedControl scale aria-label="Level" value={level} onValueChange={setLevel}
   options={["D", "C", "B", "A"].map((l) => ({value: l, label: l}))} />
+
+// `scale="from"`: the selection and everything after it are filled — a threshold filter ("D and up" fills all four).
+<SegmentedControl scale="from" aria-label="Minimum level" value={min} onValueChange={setMin} options={…} />
 
 // `label`: muted caption inside an input-styled frame, like MultiSelect's "Status: All" — use it in a filter row
 // next to MultiSelects so all filters share one look and height (28px).
-<SegmentedControl label="Level" scale aria-label="Minimum level" value={min} onValueChange={setMin} options={…} />
+<SegmentedControl label="Level" scale="from" aria-label="Minimum level" value={min} onValueChange={setMin} options={…} />
 ```
 
 **Search**
