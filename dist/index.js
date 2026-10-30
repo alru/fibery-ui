@@ -3,7 +3,7 @@ export { Button, IconButton } from "./components/Button";
 export { CopyButton } from "./components/CopyButton";
 export { Badge, EnumBadge } from "./components/Badge";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, PropertyGroup, } from "./components/Display";
-export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, } from "./components/Layout";
+export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, Inset, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, } from "./components/Overlay";

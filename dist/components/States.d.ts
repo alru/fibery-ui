@@ -41,8 +41,9 @@ export type EmptyStateProps = {
 /** Centered placeholder for an empty list or view. */
 export declare function EmptyState({ title, description, icon, action, className }: EmptyStateProps): import("react").JSX.Element;
 export type CalloutProps = {
-    /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey. */
-    tone?: "info" | "warning" | "neutral";
+    /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted
+     *  text: the quietest note, for a rule that applies to several fields at once. */
+    tone?: "info" | "warning" | "neutral" | "plain";
     /** Replaces the tone's default icon; `null` hides it. */
     icon?: ReactNode;
     children: ReactNode;

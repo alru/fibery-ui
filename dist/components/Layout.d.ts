@@ -51,6 +51,11 @@ export type PanelLayoutProps = {
 export declare function PanelLayout({ children, panel, onDismiss, className }: PanelLayoutProps): import("react").JSX.Element;
 export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
     orientation?: "horizontal" | "vertical";
+    /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */
+    label?: ReactNode;
 };
-/** Hairline divider. */
-export declare function Separator({ orientation, className, ...props }: SeparatorProps): import("react").JSX.Element;
+export type InsetProps = HTMLAttributes<HTMLDivElement>;
+/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+export declare function Inset({ className, ...props }: InsetProps): import("react").JSX.Element;
+/** Hairline divider; with `label`, a captioned one ("На английском ————"). */
+export declare function Separator({ orientation, label, className, ...props }: SeparatorProps): import("react").JSX.Element;

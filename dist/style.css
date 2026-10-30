@@ -383,6 +383,7 @@
   .fui-callout[data-tone="info"] { background: var(--highlight-blue-bg); color: var(--highlight-blue-fg-on-bg); }
   .fui-callout[data-tone="warning"] { background: var(--highlight-yellow-bg); color: var(--highlight-yellow-fg-on-bg); }
   .fui-callout[data-tone="neutral"] { background: var(--highlight-grey-bg); color: var(--highlight-grey-fg-on-bg); }
+  .fui-callout[data-tone="plain"] { background: transparent; color: var(--muted-foreground); box-shadow: inset 0 0 0 1px var(--border); }
   .fui-callout__icon { display: flex; flex-shrink: 0; padding-top: 1px; }
   .fui-callout__icon > svg { width: 16px; height: 16px; }
   .fui-callout__text { min-width: 0; }
@@ -566,6 +567,13 @@
   .fui-panel-layout__panel { display: contents; }
 
   .fui-separator { flex-shrink: 0; background: var(--border); }
+  /* Captioned divider: muted text, then the line to the right edge. */
+  .fui-separator-labeled { display: flex; align-items: center; gap: 12px; }
+  .fui-separator-labeled__text { flex-shrink: 0; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
+  .fui-separator-labeled > .fui-separator { flex: 1; }
+
+  /* ─── Inset: a grey backing that sets one item apart inside a card; inputs on it keep their own background ─── */
+  .fui-inset { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: var(--fui-subtle); }
   .fui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
   .fui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }
 
@@ -742,16 +750,26 @@
   .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-field { display: flex; flex-direction: column; gap: 6px; }
   .fui-label__required { margin-left: 2px; color: var(--destructive); }
-  /* Changed-value marker: a small accent dot after the label text (nothing sits to the right of a label, so the
-     extra width moves nothing). */
-  .fui-label__changed {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-left: 6px;
-    border-radius: 50%;
+  /* Changed-value marker: an accent bar in the left gutter along label, control and note. It sits outside the box,
+     so marking a field shifts nothing; forms leave >= 8px of gap or padding to its left. */
+  .fui-field[data-changed] { position: relative; }
+  .fui-field[data-changed]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -8px;
+    width: 2px;
+    border-radius: 1px;
     background: var(--primary);
-    vertical-align: 1px;
+  }
+  .fui-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .fui-field__hint,
   .fui-field__warning,

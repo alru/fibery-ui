@@ -36,7 +36,8 @@ export type FieldProps = {
     error?: ReactNode;
     /** Non-blocking problem, in the warning color; replaces the hint, gives way to `error`. */
     warning?: ReactNode;
-    /** Marks the label with an accent dot: the value differs from the saved one (edit forms with explicit Save). */
+    /** Accent bar in the left gutter along the whole field: the value differs from the saved one (edit forms with
+     *  explicit Save). Outside the field's box, so marking a field moves nothing. */
     changed?: boolean;
     /** Marks the label with a red asterisk: the field must be filled. */
     required?: boolean;

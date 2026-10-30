@@ -31,7 +31,14 @@ export function SidePanel({ title, description, actions, onClose, editing, class
 export function PanelLayout({ children, panel, onDismiss, className }) {
     return (_jsxs("div", { className: cx("fui-panel-layout", className), "data-open": panel ? "" : undefined, children: [_jsx("div", { className: "fui-panel-layout__main", children: children }), panel && (_jsxs(_Fragment, { children: [_jsx("div", { className: "fui-panel-layout__veil", "aria-hidden": true, onClick: onDismiss }), _jsx("div", { className: "fui-panel-layout__panel", children: panel })] }))] }));
 }
-/** Hairline divider. */
-export function Separator({ orientation = "horizontal", className, ...props }) {
+/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+export function Inset({ className, ...props }) {
+    return _jsx("div", { className: cx("fui-inset", className), ...props });
+}
+/** Hairline divider; with `label`, a captioned one ("На английском ————"). */
+export function Separator({ orientation = "horizontal", label, className, ...props }) {
+    if (label != null) {
+        return (_jsxs("div", { className: cx("fui-separator-labeled", className), ...props, children: [_jsx("span", { className: "fui-separator-labeled__text", children: label }), _jsx("div", { role: "separator", "aria-orientation": "horizontal", "data-orientation": "horizontal", className: "fui-separator" })] }));
+    }
     return (_jsx("div", { role: "separator", "aria-orientation": orientation, "data-orientation": orientation, className: cx("fui-separator", className), ...props }));
 }
