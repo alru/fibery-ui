@@ -35,3 +35,13 @@ export function Callout({ tone = "info", icon, children, className }) {
     const shown = icon === undefined ? CALLOUT_ICONS[tone] : icon;
     return (_jsxs("div", { "data-tone": tone, className: cx("fui-callout", className), children: [shown && _jsx("span", { className: "fui-callout__icon", children: shown }), _jsx("div", { className: "fui-callout__text", children: children })] }));
 }
+/**
+ * Compact warning above a screen whose background refetch failed. The data already on screen stays usable (it may
+ * only be stale), so a full-screen ErrorState would hide it for nothing; ErrorState is for screens with no data yet.
+ * Shows the plain-words reason, «Повторить», and the raw message (clamped: a gateway error may carry a whole page).
+ */
+export function RefreshWarning({ error, onRetry, retrying, title = "Не удалось обновить данные.", className, }) {
+    const message = error instanceof Error ? error.message : String(error);
+    const friendly = friendlyErrorMessage(error);
+    return (_jsxs(Callout, { tone: "warning", className: cx("fui-refresh-warning", className), children: [_jsxs("div", { className: "fui-refresh-warning__row", children: [_jsxs("span", { children: [title, friendly && ` ${friendly}`] }), _jsx(Button, { variant: "outline", size: "sm", icon: _jsx(RotateCw, {}), loading: retrying, onClick: onRetry, children: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C" })] }), _jsx("div", { className: "fui-refresh-warning__message", title: message, children: message })] }));
+}

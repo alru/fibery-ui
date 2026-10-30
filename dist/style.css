@@ -351,6 +351,18 @@
   .fui-callout__icon { display: flex; flex-shrink: 0; padding-top: 1px; }
   .fui-callout__icon > svg { width: 16px; height: 16px; }
   .fui-callout__text { min-width: 0; }
+  .fui-refresh-warning__row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+  .fui-refresh-warning__message {
+    display: -webkit-box;
+    margin-top: 4px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 16px;
+    opacity: 0.75;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
 
   /* ─── Table ─── */
   .fui-table-wrap {

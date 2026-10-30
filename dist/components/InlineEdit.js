@@ -6,6 +6,7 @@ import { Pencil, X } from "lucide-react";
 import { cx } from "../cx";
 import { IconButton } from "./Button";
 import { Input } from "./Form";
+import { friendlyErrorMessage } from "../errors";
 /** Click and Enter inside never reach the parent, so it works inside clickable rows. */
 export function InlineEdit({ value, children, onSave, label, hint, className }) {
     const [draft, setDraft] = useState(null);
@@ -30,7 +31,10 @@ export function InlineEdit({ value, children, onSave, label, hint, className }) 
             close();
         }
         catch (e) {
-            setError(e instanceof Error ? e.message : String(e));
+            const raw = e instanceof Error ? e.message : String(e);
+            const friendly = friendlyErrorMessage(e);
+            // Raw text stays as the diagnostic, cut short: a gateway error may carry a whole HTML page.
+            setError(friendly ? `${friendly} (${raw.slice(0, 200)})` : raw.slice(0, 300));
         }
         finally {
             busy.current = false;

@@ -11,7 +11,7 @@ export { Highlight, normalizeSearchText, searchTokens } from "./components/Highl
 export { Table, TableGroupRow } from "./components/Table";
 export { HeatValue } from "./components/HeatValue";
 export { Combobox, Autocomplete, PickerButton, } from "./components/Combobox";
-export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, } from "./components/States";
+export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, RefreshWarning, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
 export { ToastProvider, useToast } from "./components/Toast";
 export { InlineEdit } from "./components/InlineEdit";
