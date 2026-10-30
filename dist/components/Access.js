@@ -94,8 +94,9 @@ const AccessContext = createContext({ canEdit: true, markReadOnly: () => { } });
 /** Access of the viewer inside `AccessGate`; outside one, everything is allowed. */
 export const useAccess = () => useContext(AccessContext);
 /**
- * Renders the app only for viewers who can read every listed database; others get a «Нет доступа» screen naming
- * the missing ones. Checks once on mount: the schema, one small query per database and one for the role.
+ * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
+ * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
+ * Checks once on mount: the schema, one small query per database and one for the role.
  */
 export function AccessGate({ databases, children }) {
     const [check, setCheck] = useState({ status: "checking" });
@@ -112,7 +113,7 @@ export function AccessGate({ databases, children }) {
     if (check.status === "error")
         return _jsx(ErrorState, { className: "fui-access-gate", error: check.error, onRetry: run });
     if (check.status === "denied") {
-        return (_jsx("div", { className: "fui-access-gate", children: _jsx(EmptyState, { icon: _jsx(Lock, {}), title: "\u041D\u0435\u0442 \u0434\u043E\u0441\u0442\u0443\u043F\u0430", description: `Нет прав на чтение: ${check.databases.join(", ")}. Обратитесь к администратору Fibery.`, action: _jsx(Button, { variant: "outline", size: "sm", onClick: run, children: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430" }) }) }));
+        return (_jsx("div", { className: "fui-access-gate", children: _jsx(EmptyState, { icon: _jsx(Lock, {}), title: "\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0430", description: `Нет прав на чтение части данных приложения (баз без доступа: ${check.databases.length}). Обратитесь к администратору Fibery.`, action: _jsx(Button, { variant: "outline", size: "sm", onClick: run, children: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430" }) }) }));
     }
     return (_jsx(AccessContext.Provider, { value: { canEdit: check.editableByRole && !readOnly, markReadOnly }, children: children }));
 }
