@@ -141,6 +141,11 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Field label="Name" htmlFor="name" hint="As in the contract" error={err}>
   <Input id="name" invalid={!!err} />
 </Field>
+// Edit form with an explicit Save: `changed` puts an accent dot after the label, `warning` is a non-blocking
+// note in the warning color (error > warning > hint, one line shows).
+<Field label="Phone" htmlFor="phone" changed={phone !== saved.phone} warning="Same number as Jane Doe">
+  <Input id="phone" />
+</Field>
 <SearchInput placeholder="Search…" size="sm" />
 <Textarea rows={4} />
 <Checkbox label="Only experts" checked={v} onCheckedChange={setV} />
