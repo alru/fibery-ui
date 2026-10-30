@@ -1,7 +1,9 @@
 // Searchable pickers over a grouped option list with highlight and ↑ ↓ Enter navigation:
-// - Combobox: a trigger opens a popover with its own search field (e.g. "Add skill" button);
+// - Combobox: a trigger opens a popover with its own search field (e.g. "Add skill" button, or a PickerButton
+//   for a form field);
 // - Autocomplete: the page's search field itself suggests options while typing (e.g. pick an exact skill).
-import {useId, useState, type KeyboardEvent, type ReactElement} from "react";
+import {forwardRef, useId, useState, type ButtonHTMLAttributes, type KeyboardEvent, type ReactElement, type ReactNode} from "react";
+import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 import {SearchInput, type InputProps} from "./Form";
 import {Highlight, normalizeSearchText, searchTokens} from "./Highlight";
@@ -96,9 +98,19 @@ function OptionList({options, tokens, emptyText, separator, nav, onPick}: Option
   );
 }
 
+// Value of the synthetic "create" row; cannot clash with real option values, which are ids.
+const CREATE_VALUE = "\u0000create";
+
 export type ComboboxProps = {
   options: ComboboxOption[];
   onSelect: (value: string) => void;
+  /**
+   * Adds a last row "Создать «…»" while the search text matches no option exactly; called with the trimmed text.
+   * The caller creates the value and selects it.
+   */
+  onCreate?: (text: string) => void;
+  /** Text of the create row; defaults to `Создать «text»`. */
+  createText?: (text: string) => string;
   /** Trigger element (e.g. a Button); must accept a ref. */
   children: ReactElement;
   placeholder?: string;
@@ -110,10 +122,12 @@ export type ComboboxProps = {
   className?: string;
 };
 
-/** Picker with search, groups and ↑ ↓ Enter navigation. Closes after a pick. */
+/** Picker with search, groups and ↑ ↓ Enter navigation; optionally creates a new value. Closes after a pick. */
 export function Combobox({
   options,
   onSelect,
+  onCreate,
+  createText = (text) => `Создать «${text}»`,
   children,
   placeholder = "Поиск…",
   emptyText = "Ничего не найдено",
@@ -124,7 +138,12 @@ export function Combobox({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const tokens = searchTokens(query);
-  const filtered = filterOptions(options, tokens);
+  const typed = query.trim();
+  const exists = options.some((o) => normalizeSearchText(o.text) === normalizeSearchText(typed));
+  const filtered = [
+    ...filterOptions(options, tokens),
+    ...(onCreate && typed && !exists ? [{value: CREATE_VALUE, text: createText(typed)}] : []),
+  ];
 
   const close = () => {
     setOpen(false);
@@ -133,7 +152,8 @@ export function Combobox({
   };
   const pick = (option: ComboboxOption | undefined) => {
     if (!option) return;
-    onSelect(option.value);
+    if (option.value === CREATE_VALUE) onCreate?.(typed);
+    else onSelect(option.value);
     close();
   };
   const nav = useOptionNavigation(filtered, pick);
@@ -162,7 +182,37 @@ export function Combobox({
   );
 }
 
-export type AutocompleteProps = Omit<InputProps, "value" | "onChange" | "onSelect" | "icon"> & {
+export type PickerButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+  /** Current value; `placeholder` is shown while it is empty. */
+  children?: ReactNode;
+  placeholder?: ReactNode;
+  size?: "sm" | "md";
+  invalid?: boolean;
+};
+
+/** Input-styled button that shows a picked value, e.g. a Combobox trigger inside a form Field. */
+export const PickerButton = forwardRef<HTMLButtonElement, PickerButtonProps>(
+  ({children, placeholder, size = "md", invalid, className, ...props}, ref) => {
+    const empty = children == null || children === "";
+    return (
+      <button
+        ref={ref}
+        type="button"
+        data-size={size}
+        data-placeholder={empty ? "" : undefined}
+        aria-invalid={invalid || undefined}
+        className={cx("fui-input fui-select-trigger", className)}
+        {...props}
+      >
+        <span className="fui-select-trigger__value">{empty ? placeholder : children}</span>
+        <ChevronDown />
+      </button>
+    );
+  },
+);
+PickerButton.displayName = "PickerButton";
+
+export type AutocompleteProps =Omit<InputProps, "value" | "onChange" | "onSelect" | "icon"> & {
   value: string;
   onValueChange: (value: string) => void;
   /** Full option set; the field's text filters it. */

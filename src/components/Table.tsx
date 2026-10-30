@@ -1,13 +1,19 @@
 // Data table in Fibery's style: ringed surface, hairline row separators, muted small header.
 // Use native <thead>/<tbody>/<tr>/<th>/<td> inside; `data-align="right"` on a cell right-aligns it with tabular digits,
-// `data-indent="1" | "2"` on a first cell nests the row under group captions of that depth.
+// `data-indent="1" | "2"` on a first cell nests the row under group captions of that depth,
+// `data-interactive` on a body <tr> gives it a pointer cursor and a focus ring (add onClick/tabIndex yourself).
 import type {ReactNode, TableHTMLAttributes} from "react";
 import {cx} from "../cx";
 
+export type TableProps = TableHTMLAttributes<HTMLTableElement> & {
+  /** Accent ring and tinted header, like SidePanel's: makes an explicit edit mode obvious. */
+  editing?: boolean;
+};
+
 /** Table on a card-like surface; scrolls horizontally when wider than its container. */
-export function Table({className, ...props}: TableHTMLAttributes<HTMLTableElement>) {
+export function Table({editing, className, ...props}: TableProps) {
   return (
-    <div className="fui-table-wrap">
+    <div className="fui-table-wrap" data-editing={editing ? "" : undefined}>
       <table className={cx("fui-table", className)} {...props} />
     </div>
   );
