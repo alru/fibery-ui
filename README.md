@@ -109,6 +109,10 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   <Highlight text={group.name} query={tokens} />
 </InlineEdit>
 
+// Copy icon (20px) after a value: shows on hover of its parent or table row; copies, then a short toast.
+// Clicks and keys don't reach a clickable row around it. Needs FiberyUIProvider (toasts).
+<span className="flex items-center gap-1"><span className="truncate">{email}</span><CopyButton value={email} message="Email скопирован" /></span>
+
 // Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
 <HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default
 

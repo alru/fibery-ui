@@ -1,5 +1,6 @@
 // Public entry of @alru/fibery-ui. Styles ship separately: import "@alru/fibery-ui/style.css".
 export {Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize} from "./components/Button";
+export {CopyButton, type CopyButtonProps} from "./components/CopyButton";
 export {Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue} from "./components/Badge";
 export {
   Avatar,
