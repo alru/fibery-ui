@@ -308,6 +308,20 @@ useLiveUpdates({
 });
 ```
 
+Some changes never reach webhooks (e.g. renaming a select option: the option is not an entity of the hooked
+database). After such a change succeeds, the app announces it, and the relay sends it to every open app as an ordinary
+change event (the relay's `POST /notify`):
+
+```tsx
+const rename = useMutation({
+  mutationFn: renameOption,
+  // Fire and forget: returns at once, never throws; a lost notice is only logged with console.warn.
+  onSuccess: () => notifyChange({url: "https://relay.example.com", clientKey: "…", type: "Space/Task", ids: []}),
+});
+```
+
+`ids` is optional (default `[]`, meaning "refetch the whole database").
+
 ## Theme rules (from Fibery's Custom Apps guide)
 
 - Color only through theme variables or Tailwind tokens; no hard-coded hex in components.
