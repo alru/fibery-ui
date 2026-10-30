@@ -1,40 +1,55 @@
-/** One relay event: entities of `type` (a "Space/Database" name) were created, changed or deleted. */
+/** One change: entities of `type` (a "Space/Database" name) were created, changed or deleted. */
 export type LiveChange = {
     type: string;
     ids: string[];
 };
+/** Polls Fibery for a fingerprint of each subscribed database and reports the databases whose fingerprint changed. */
+export type ChangeDetector = {
+    /**
+     * Returns a string that changes whenever the database's data changes, e.g. entity count + latest
+     * `fibery/modification-date`. Called with the viewer's permissions, from the app, so the data stays in Fibery.
+     * A rejection skips that database for the round (no change reported, the previous fingerprint is kept).
+     */
+    fingerprint: (type: string) => Promise<string>;
+    /**
+     * How often to compare, in ms. Default 15 000. Every round costs what `fingerprint` costs for every type (two tiny
+     * requests per database for count + date), in every open app instance; Fibery allows 7 requests/s for the whole
+     * workspace, so keep it at 10 000 or more.
+     */
+    intervalMs?: number;
+};
 export type LiveUpdatesOptions = {
-    /** Relay base URL, e.g. `https://relay.example.com`. */
-    url: string;
+    /** Relay base URL, e.g. `https://relay.example.com`. Without it (or without `clientKey`) no relay connection opens. */
+    url?: string;
     /** The relay's client key (`?key=`). It ships in the app bundle; it only keeps casual scanners out. */
-    clientKey: string;
+    clientKey?: string;
     /** Databases to hear about, e.g. `["Space/Task"]`. */
     types: string[];
     /**
-     * Called with a batch of changes. After a dropped connection comes back, it is called once with every subscribed
-     * type and no ids: changes may have been missed meanwhile, so refetch everything.
+     * Called with a batch of changes from either source. After a dropped relay connection comes back, it is called
+     * once with every subscribed type and no ids: changes may have been missed meanwhile, so refetch everything.
+     * Detector changes always come without ids (the whole database may have changed).
      */
     onChange: (changes: LiveChange[]) => void;
     /** Changes arriving within this many ms are delivered as one batch. Default 500. */
     debounceMs?: number;
     /**
-     * Fallback refresh: when no batch has been delivered for this many ms, `onChange` is called with every subscribed
-     * type and no ids (as after a reconnect), then the countdown starts over. Covers lost events and a relay that is
-     * down or unreachable — it runs whether or not the connection is up. Every delivered batch restarts the countdown,
-     * so with a working relay and steady changes it never fires. Paused while the page is hidden; on becoming visible
-     * the countdown starts from zero (React Query refetches on focus by itself). The Fibery API budget (7 requests/s)
-     * is shared by every open app instance in the workspace: keep it at 15 000 ms or more. Default off.
+     * Change detector: polls Fibery for fingerprints of the subscribed databases. The first fingerprint after mount, and
+     * after the page becomes visible again, is a baseline, not a change. Paused while the page is hidden (React Query
+     * refetches on focus by itself). A round is skipped while the previous one is still running; types are probed one
+     * after another. It doesn't catch changes that move no fingerprint, e.g. renamed select options (they have no
+     * modification date in the database) — announce those with `notifyChange`. Default off.
      */
-    idleRefreshMs?: number;
-    /** Set false to stay disconnected (and skip the idle refresh). Default true. */
+    detector?: ChangeDetector;
+    /** Set false to stay disconnected and stop the detector. Default true. */
     enabled?: boolean;
 };
 /**
- * Subscribes to the change relay while the component is mounted. Reconnects on its own (EventSource retries).
- * `onChange` may change between renders without reconnecting. With `idleRefreshMs` it also calls `onChange` for
- * every type after that long without a delivered batch.
+ * Subscribes to data changes while the component is mounted: the relay (with `url` and `clientKey`; reconnects on its
+ * own through EventSource retries) and/or the change `detector`. `onChange` and `detector.fingerprint` may change
+ * between renders without reconnecting or restarting the detector.
  */
-export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, idleRefreshMs, enabled, }: LiveUpdatesOptions): void;
+export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, detector, enabled, }: LiveUpdatesOptions): void;
 export type NotifyChangeOptions = {
     /** Relay base URL, the same as for `useLiveUpdates`. */
     url: string;
