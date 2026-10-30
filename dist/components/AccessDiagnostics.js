@@ -53,11 +53,11 @@ const run = async (databases) => {
             // The schema may come bare or in a {success, result} envelope; anything else is reported by its top-level keys.
             const json = (await res.json());
             const root = (json.result ?? json);
-            const types = root["schema/types"];
+            const types = root["fibery/types"];
             if (Array.isArray(types))
                 schemaTypes = types;
             else
-                schemaError = `нет schema/types; ключи ответа: ${short(Object.keys(root).join(", "))}`;
+                schemaError = `нет fibery/types; ключи ответа: ${short(Object.keys(root).join(", "))}`;
         }
         else
             schemaError = `HTTP ${res.status}: ${short(await res.text())}`;
