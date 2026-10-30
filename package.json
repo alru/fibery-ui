@@ -1,7 +1,7 @@
 {
   "name": "@alru/fibery-ui",
   "private": true,
-  "version": "0.1.50",
+  "version": "0.1.51",
   "description": "React UI components for Fibery Custom Apps, styled with the workspace theme variables",
   "license": "ISC",
   "type": "module",
