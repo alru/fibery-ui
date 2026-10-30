@@ -556,8 +556,11 @@
   .fui-error > svg { margin-top: 2px; }
   .fui-error__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .fui-error__title { font-weight: 500; }
+  .fui-error__text { color: var(--foreground); }
   .fui-error__message { color: var(--foreground); font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
-  .fui-error__action { margin-top: 6px; }
+  /* Under a plain-words explanation the raw message is only the diagnostic. */
+  .fui-error__message[data-muted] { color: var(--muted-foreground); font-size: 11px; line-height: 16px; }
+  .fui-error__action { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
 
   .fui-empty {
     display: flex;

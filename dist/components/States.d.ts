@@ -16,14 +16,20 @@ export declare function LoadingState({ children, className }: LoadingStateProps)
 export type ErrorStateProps = {
     error: unknown;
     title?: ReactNode;
+    /** Shows a «Повторить» button that calls it, before `action`. */
+    onRetry?: () => void;
+    /** Spinner on the «Повторить» button while the retry runs. */
+    retrying?: boolean;
+    /** Any extra controls under the message. */
     action?: ReactNode;
     className?: string;
 };
 /**
- * Error box that always shows the underlying message: Fibery API errors carry the exact
- * diagnostic needed to report the problem.
+ * Error box. For transient failures (Fibery unavailable, rate limit, no connection) it explains them in plain
+ * words; the underlying message is always shown too, small and muted under that text: Fibery API errors carry
+ * the exact diagnostic needed to report the problem.
  */
-export declare function ErrorState({ error, title, action, className }: ErrorStateProps): import("react").JSX.Element;
+export declare function ErrorState({ error, title, onRetry, retrying, action, className, }: ErrorStateProps): import("react").JSX.Element;
 export type EmptyStateProps = {
     title: ReactNode;
     description?: ReactNode;

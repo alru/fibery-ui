@@ -1,6 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { CircleAlert, Inbox, Info, TriangleAlert } from "lucide-react";
+import { CircleAlert, Inbox, Info, RotateCw, TriangleAlert } from "lucide-react";
 import { cx } from "../cx";
+import { friendlyErrorMessage } from "../errors";
+import { Button } from "./Button";
 /** Indeterminate spinner: 12 / 16 / 24px. */
 export function Spinner({ size = "md", className }) {
     return _jsx("span", { "aria-hidden": true, "data-size": size, className: cx("fui-spinner", className) });
@@ -14,12 +16,14 @@ export function LoadingState({ children = "Загрузка…", className }) {
     return (_jsxs("div", { role: "status", className: cx("fui-state", className), children: [_jsx(Spinner, {}), children] }));
 }
 /**
- * Error box that always shows the underlying message: Fibery API errors carry the exact
- * diagnostic needed to report the problem.
+ * Error box. For transient failures (Fibery unavailable, rate limit, no connection) it explains them in plain
+ * words; the underlying message is always shown too, small and muted under that text: Fibery API errors carry
+ * the exact diagnostic needed to report the problem.
  */
-export function ErrorState({ error, title = "Не удалось загрузить данные", action, className }) {
+export function ErrorState({ error, title = "Не удалось загрузить данные", onRetry, retrying, action, className, }) {
     const message = error instanceof Error ? error.message : String(error);
-    return (_jsxs("div", { role: "alert", className: cx("fui-error", className), children: [_jsx(CircleAlert, {}), _jsxs("div", { className: "fui-error__body", children: [_jsx("strong", { className: "fui-error__title", children: title }), _jsx("span", { className: "fui-error__message", children: message }), action && _jsx("div", { className: "fui-error__action", children: action })] })] }));
+    const friendly = friendlyErrorMessage(error);
+    return (_jsxs("div", { role: "alert", className: cx("fui-error", className), children: [_jsx(CircleAlert, {}), _jsxs("div", { className: "fui-error__body", children: [_jsx("strong", { className: "fui-error__title", children: title }), friendly && _jsx("span", { className: "fui-error__text", children: friendly }), _jsx("span", { className: "fui-error__message", "data-muted": friendly ? "" : undefined, children: message }), (onRetry || action) && (_jsxs("div", { className: "fui-error__action", children: [onRetry && (_jsx(Button, { variant: "outline", size: "sm", icon: _jsx(RotateCw, {}), loading: retrying, onClick: onRetry, children: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C" })), action] }))] })] }));
 }
 /** Centered placeholder for an empty list or view. */
 export function EmptyState({ title, description, icon = _jsx(Inbox, {}), action, className }) {
