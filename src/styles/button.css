@@ -53,4 +53,15 @@
   .fui-button[data-variant="destructive"]:hover { background: color-mix(in oklab, var(--destructive) 88%, black); }
 
   .fui-button[data-variant]:focus-visible { box-shadow: var(--fui-focus-ring); }
+
+  /* ─── CopyButton: 20px with a 14px icon, so it sits on a text line without growing it ─── */
+  .fui-button.fui-copy-button { height: 20px; border-radius: 4px; flex-shrink: 0; }
+  .fui-copy-button > svg { width: 14px; height: 14px; }
+  @media (hover: hover) {
+    .fui-copy-button { opacity: 0; transition: opacity 0.12s; }
+    :hover > .fui-copy-button,
+    tr:hover .fui-copy-button,
+    .fui-list-item:hover .fui-copy-button,
+    .fui-copy-button:focus-visible { opacity: 1; }
+  }
 }
