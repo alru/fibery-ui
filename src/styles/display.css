@@ -435,8 +435,17 @@
   .fui-separator-labeled__text { flex-shrink: 0; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
   .fui-separator-labeled > .fui-separator { flex: 1; }
 
-  /* ─── Inset: a grey backing that sets one item apart inside a card; inputs on it keep their own background ─── */
-  .fui-inset { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; background: var(--fui-subtle); }
+  /* ─── Inset: a raised block (ring + soft shadow on the card background) that lifts one item above the rest of a
+     card; inputs on it keep their usual contrast. ─── */
+  .fui-inset {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--card);
+    box-shadow: 0 0 0 1px var(--border), 0 2px 8px 0 rgb(23 23 23 / 0.08);
+  }
   .fui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
   .fui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }
 
