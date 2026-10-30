@@ -80,6 +80,63 @@
     animation: fui-fade-in 0.1s ease-out;
   }
 
+  /* ─── Toast: inverted surface like the tooltip, bottom-right, above everything ─── */
+  .fui-toasts {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .fui-toast {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 260px;
+    max-width: 400px;
+    padding: 10px 10px 12px 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--foreground);
+    color: var(--background);
+    box-shadow: var(--fui-shadow-popup);
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    line-height: 18px;
+    pointer-events: auto;
+    animation: fui-pop-in 0.15s ease-out;
+  }
+  .fui-toast__message { flex: 1; min-width: 0; }
+  .fui-toast__action {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--background);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .fui-toast__action:hover { background: color-mix(in oklab, var(--background) 15%, transparent); }
+  .fui-toast__action:focus-visible { outline: 2px solid var(--background); outline-offset: 1px; }
+  .fui-toast__progress {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: color-mix(in oklab, var(--background) 55%, transparent);
+    transform-origin: left;
+    animation: fui-toast-time var(--fui-toast-duration) linear forwards;
+  }
+  .fui-toast:hover .fui-toast__progress { animation-play-state: paused; }
+
   /* ─── Dialog ─── */
   .fui-dialog-overlay {
     position: fixed;

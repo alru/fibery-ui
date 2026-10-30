@@ -112,4 +112,6 @@ export {
   type EmptyStateProps,
 } from "./components/States";
 export {FiberyUIProvider} from "./components/Provider";
+export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
+export {InlineEdit, type InlineEditProps} from "./components/InlineEdit";
 export {cx} from "./cx";

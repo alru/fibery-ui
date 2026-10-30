@@ -57,6 +57,16 @@
   .fui-select-trigger__value { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .fui-select-trigger > svg { color: var(--muted-foreground); }
 
+  /* ─── InlineEdit: negative margins keep the 20px line, so rows don't grow with the button or the field ─── */
+  .fui-inline-edit { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
+  .fui-inline-edit__value { min-width: 0; }
+  .fui-inline-edit__button { margin: -2px 0; opacity: 0; transition: opacity 0.12s; }
+  .fui-inline-edit:hover .fui-inline-edit__button,
+  .fui-table tr:hover .fui-inline-edit__button,
+  .fui-inline-edit__button:focus-visible { opacity: 1; }
+  .fui-inline-edit[data-editing] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
+  .fui-inline-edit[data-editing] > .fui-input { margin: -4px 0; }
+
   /* Sized by content, unlike full-width inputs: sits in a toolbar next to other filters. */
   .fui-multiselect { width: auto; flex-shrink: 0; }
   .fui-multiselect__label { color: var(--muted-foreground); }

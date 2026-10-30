@@ -53,10 +53,16 @@
 @keyframes fui-dialog-in {
   from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
 }
+@keyframes fui-toast-time {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   :where([class^="fui-"], [class*=" fui-"]) {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  /* The toast's time bar is its timer, not decoration: keep its real duration or the toast would vanish at once. */
+  .fui-toast__progress { animation-duration: var(--fui-toast-duration) !important; }
 }
