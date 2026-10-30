@@ -53,12 +53,18 @@
 @keyframes fui-dialog-in {
   from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
 }
+@keyframes fui-toast-time {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   :where([class^="fui-"], [class*=" fui-"]) {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  /* The toast's time bar is its timer, not decoration: keep its real duration or the toast would vanish at once. */
+  .fui-toast__progress { animation-duration: var(--fui-toast-duration) !important; }
 }
 
 @layer components {
@@ -609,6 +615,16 @@
   .fui-select-trigger__value { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .fui-select-trigger > svg { color: var(--muted-foreground); }
 
+  /* ─── InlineEdit: negative margins keep the 20px line, so rows don't grow with the button or the field ─── */
+  .fui-inline-edit { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
+  .fui-inline-edit__value { min-width: 0; }
+  .fui-inline-edit__button { margin: -2px 0; opacity: 0; transition: opacity 0.12s; }
+  .fui-inline-edit:hover .fui-inline-edit__button,
+  .fui-table tr:hover .fui-inline-edit__button,
+  .fui-inline-edit__button:focus-visible { opacity: 1; }
+  .fui-inline-edit[data-editing] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
+  .fui-inline-edit[data-editing] > .fui-input { margin: -4px 0; }
+
   /* Sized by content, unlike full-width inputs: sits in a toolbar next to other filters. */
   .fui-multiselect { width: auto; flex-shrink: 0; }
   .fui-multiselect__label { color: var(--muted-foreground); }
@@ -766,6 +782,63 @@
     line-height: 16px;
     animation: fui-fade-in 0.1s ease-out;
   }
+
+  /* ─── Toast: inverted surface like the tooltip, bottom-right, above everything ─── */
+  .fui-toasts {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .fui-toast {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 260px;
+    max-width: 400px;
+    padding: 10px 10px 12px 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--foreground);
+    color: var(--background);
+    box-shadow: var(--fui-shadow-popup);
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    line-height: 18px;
+    pointer-events: auto;
+    animation: fui-pop-in 0.15s ease-out;
+  }
+  .fui-toast__message { flex: 1; min-width: 0; }
+  .fui-toast__action {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--background);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .fui-toast__action:hover { background: color-mix(in oklab, var(--background) 15%, transparent); }
+  .fui-toast__action:focus-visible { outline: 2px solid var(--background); outline-offset: 1px; }
+  .fui-toast__progress {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: color-mix(in oklab, var(--background) 55%, transparent);
+    transform-origin: left;
+    animation: fui-toast-time var(--fui-toast-duration) linear forwards;
+  }
+  .fui-toast:hover .fui-toast__progress { animation-play-state: paused; }
 
   /* ─── Dialog ─── */
   .fui-dialog-overlay {

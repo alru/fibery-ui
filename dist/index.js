@@ -13,4 +13,6 @@ export { HeatValue } from "./components/HeatValue";
 export { Combobox, Autocomplete, PickerButton, } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
+export { ToastProvider, useToast } from "./components/Toast";
+export { InlineEdit } from "./components/InlineEdit";
 export { cx } from "./cx";
