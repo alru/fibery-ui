@@ -68,6 +68,8 @@ export type SegmentedControlProps<T extends string> = {
   "aria-label"?: string;
   /** Ordered scale: every option up to and including the selected one is filled, like a level meter. */
   scale?: boolean;
+  /** Muted caption inside an input-styled frame, like MultiSelect's: lines the control up with filter pickers. */
+  label?: ReactNode;
   className?: string;
 };
 
@@ -75,7 +77,7 @@ export type SegmentedControlProps<T extends string> = {
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export function SegmentedControl<T extends string>({options, value, onValueChange, scale, className, ...props}: SegmentedControlProps<T>) {
+export function SegmentedControl<T extends string>({options, value, onValueChange, scale, label, className, ...props}: SegmentedControlProps<T>) {
   const selectedIndex = options.findIndex((o) => o.value === value);
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -85,13 +87,13 @@ export function SegmentedControl<T extends string>({options, value, onValueChang
     onValueChange(next.value);
     e.currentTarget.querySelector<HTMLElement>(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
   };
-  return (
+  const group = (
     <div
       role="radiogroup"
       aria-label={props["aria-label"]}
       data-variant="segmented"
       data-scale={scale ? "" : undefined}
-      className={cx("fui-tabs-list", className)}
+      className={cx("fui-tabs-list", !label && className)}
       onKeyDown={onKeyDown}
     >
       {options.map((option, index) => {
@@ -115,5 +117,13 @@ export function SegmentedControl<T extends string>({options, value, onValueChang
         );
       })}
     </div>
+  );
+  return label ? (
+    <div className={cx("fui-segmented-field", className)}>
+      <span className="fui-segmented-field__label">{label}</span>
+      {group}
+    </div>
+  ) : (
+    group
   );
 }

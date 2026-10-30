@@ -233,6 +233,28 @@
   }
   .fui-tabs-list[data-scale] .fui-tabs-trigger[data-filled]:focus-visible { box-shadow: var(--fui-focus-ring); }
 
+  /* SegmentedControl `label`: the frame of a small input (28px, 1px ring) with a muted caption, as MultiSelect's
+     trigger; the segments sit inside on a transparent track, 22px high. */
+  .fui-segmented-field {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0 3px 0 8px;
+    border-radius: 6px;
+    background: var(--background);
+    box-shadow: 0 0 0 1px var(--input);
+    font-size: 13px;
+    line-height: 20px;
+    transition: box-shadow 0.12s;
+  }
+  .fui-segmented-field:hover { box-shadow: 0 0 0 1px var(--fui-line-strong); }
+  .fui-segmented-field__label { color: var(--muted-foreground); white-space: nowrap; }
+  .fui-segmented-field > .fui-tabs-list[data-variant="segmented"] { padding: 0; background: transparent; }
+  .fui-segmented-field .fui-tabs-trigger[data-variant="segmented"] { height: 22px; border-radius: 4px; }
+  .fui-segmented-field .fui-tabs-list[data-scale] .fui-tabs-trigger { min-width: 24px; }
+
   .fui-tabs-trigger[data-variant="line"] {
     height: 36px;
     font-size: 14px;
