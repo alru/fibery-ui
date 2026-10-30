@@ -55,9 +55,14 @@ export type AutocompleteProps = Omit<InputProps, "value" | "onChange" | "onSelec
     onSelect: (value: string) => void;
     /** Path separator in option texts, drawn small and muted (see Highlight). */
     separator?: string;
+    /**
+     * `"search"` (default): a search field, suggestions appear once something is typed. `"input"`: a plain form input
+     * (replaces a native `<datalist>`), all suggestions show on focus while it is empty; any other text is accepted too.
+     */
+    variant?: "search" | "input";
 };
 /**
- * Search field that suggests matching options under itself while typing. The popup only shows when there are
- * matches; Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
+ * Field that suggests matching options under itself while typing. The popup only shows when there are matches;
+ * Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export declare function Autocomplete({ value, onValueChange, options, onSelect, separator, onKeyDown, onFocus, onBlur, className, ...props }: AutocompleteProps): import("react").JSX.Element;
+export declare function Autocomplete({ value, onValueChange, options, onSelect, separator, variant, onKeyDown, onFocus, onBlur, className, ...props }: AutocompleteProps): import("react").JSX.Element;

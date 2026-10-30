@@ -2,11 +2,12 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // Searchable pickers over a grouped option list with highlight and ↑ ↓ Enter navigation:
 // - Combobox: a trigger opens a popover with its own search field (e.g. "Add skill" button, or a PickerButton
 //   for a form field);
-// - Autocomplete: the page's search field itself suggests options while typing (e.g. pick an exact skill).
+// - Autocomplete: the page's search field itself suggests options while typing (e.g. pick an exact skill), or, as
+//   `variant="input"`, a form field with suggested values (e.g. "apt." for a unit type).
 import { forwardRef, useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cx } from "../cx";
-import { SearchInput } from "./Form";
+import { Input, SearchInput } from "./Form";
 import { Highlight, normalizeSearchText, searchTokens } from "./Highlight";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./Overlay";
 const filterOptions = (options, tokens) => options.filter((o) => {
@@ -94,15 +95,19 @@ export const PickerButton = forwardRef(({ children, placeholder, size = "md", in
 });
 PickerButton.displayName = "PickerButton";
 /**
- * Search field that suggests matching options under itself while typing. The popup only shows when there are
- * matches; Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
+ * Field that suggests matching options under itself while typing. The popup only shows when there are matches;
+ * Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export function Autocomplete({ value, onValueChange, options, onSelect, separator, onKeyDown, onFocus, onBlur, className, ...props }) {
+export function Autocomplete({ value, onValueChange, options, onSelect, separator, variant = "search", onKeyDown, onFocus, onBlur, className, ...props }) {
     const [focused, setFocused] = useState(false);
     const [dismissed, setDismissed] = useState(false);
     const tokens = searchTokens(value);
-    const filtered = tokens.length ? filterOptions(options, tokens) : [];
-    const open = focused && !dismissed && filtered.length > 0;
+    const filtered = tokens.length ? filterOptions(options, tokens) : variant === "input" ? options : [];
+    // An input whose value is typed in full needs no suggestion of itself. A search keeps it: picking may mean more
+    // than the text (e.g. "exactly this skill").
+    const exact = variant === "input" && filtered.length === 1 && normalizeSearchText(filtered[0].text) === normalizeSearchText(value.trim());
+    const open = focused && !dismissed && filtered.length > 0 && !exact;
+    const Field = variant === "input" ? Input : SearchInput;
     const pick = (option) => {
         if (!option)
             return;
@@ -110,7 +115,7 @@ export function Autocomplete({ value, onValueChange, options, onSelect, separato
         setDismissed(true);
     };
     const nav = useOptionNavigation(filtered, pick);
-    return (_jsxs(Popover, { open: open, onOpenChange: (next) => !next && setDismissed(true), children: [_jsx(PopoverAnchor, { asChild: true, children: _jsx("span", { className: cx("fui-autocomplete-anchor", className), children: _jsx(SearchInput, { ...props, ...nav.inputProps, "aria-expanded": open, value: value, onChange: (e) => {
+    return (_jsxs(Popover, { open: open, onOpenChange: (next) => !next && setDismissed(true), children: [_jsx(PopoverAnchor, { asChild: true, children: _jsx("span", { className: cx("fui-autocomplete-anchor", className), children: _jsx(Field, { ...props, ...nav.inputProps, "aria-expanded": open, value: value, onChange: (e) => {
                             onValueChange(e.target.value);
                             setDismissed(false);
                             nav.setActive(0);

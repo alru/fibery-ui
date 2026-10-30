@@ -38,11 +38,13 @@ export type FieldProps = {
     warning?: ReactNode;
     /** Marks the label with an accent dot: the value differs from the saved one (edit forms with explicit Save). */
     changed?: boolean;
+    /** Marks the label with a red asterisk: the field must be filled. */
+    required?: boolean;
     children: ReactNode;
     className?: string;
 };
 /** Label + control + hint/warning/error stacked vertically. */
-export declare function Field({ label, htmlFor, hint, error, warning, changed, children, className }: FieldProps): import("react").JSX.Element;
+export declare function Field({ label, htmlFor, hint, error, warning, changed, required, children, className }: FieldProps): import("react").JSX.Element;
 type ChoiceLabel = {
     /** Text to the right of the control; wraps both in a clickable `<label>`. */
     label?: ReactNode;

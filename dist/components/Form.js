@@ -21,9 +21,9 @@ Textarea.displayName = "Textarea";
 export const Label = forwardRef(({ className, ...props }, ref) => (_jsx("label", { ref: ref, className: cx("fui-label", className), ...props })));
 Label.displayName = "Label";
 /** Label + control + hint/warning/error stacked vertically. */
-export function Field({ label, htmlFor, hint, error, warning, changed, children, className }) {
+export function Field({ label, htmlFor, hint, error, warning, changed, required, children, className }) {
     const note = error ? (_jsx("p", { className: "fui-field__error", children: error })) : warning ? (_jsx("p", { className: "fui-field__warning", children: warning })) : (hint && _jsx("p", { className: "fui-field__hint", children: hint }));
-    return (_jsxs("div", { className: cx("fui-field", className), children: [label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, changed && _jsx("span", { className: "fui-label__changed", "aria-label": "\u0438\u0437\u043C\u0435\u043D\u0435\u043D\u043E" })] })), children, note] }));
+    return (_jsxs("div", { className: cx("fui-field", className), children: [label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, required && (_jsx("span", { className: "fui-label__required", "aria-label": "\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043F\u043E\u043B\u0435", children: "*" })), changed && _jsx("span", { className: "fui-label__changed", "aria-label": "\u0438\u0437\u043C\u0435\u043D\u0435\u043D\u043E" })] })), children, note] }));
 }
 const withLabel = (control, label, className) => label ? (_jsxs("label", { className: cx("fui-choice", className), children: [control, _jsx("span", { children: label })] })) : (control);
 /** 16px checkbox; supports `checked="indeterminate"`. */
