@@ -70,29 +70,40 @@ const run = async (databases) => {
         const probes = [];
         const type = schemaTypes?.find((t) => t["fibery/name"] === name);
         const fields = type?.["fibery/fields"]?.length;
-        // Access-related keys of the type's meta, if Fibery puts any there for the viewer.
+        // All meta keys of the type, to spot anything Fibery says about the viewer's access; access-looking ones in full.
         const meta = (type?.["fibery/meta"] ?? {});
-        const accessMeta = Object.entries(meta).filter(([key]) => /access|capab|permission|secur/i.test(key));
+        const accessMeta = Object.entries(meta).filter(([key]) => /access|capab|permission|secur|read|write/i.test(key));
         probes.push({
             label: "Схема",
             ok: type != null,
             text: schemaTypes
                 ? type
-                    ? `есть, полей: ${fields ?? "?"}${accessMeta.length ? `; meta: ${short(JSON.stringify(Object.fromEntries(accessMeta)))}` : ""}`
+                    ? `есть, полей: ${fields ?? "?"}; meta: ${short(Object.keys(meta).join(", "))}` +
+                        (accessMeta.length ? `; доступ: ${short(JSON.stringify(Object.fromEntries(accessMeta)))}` : "")
                     : "базы нет в схеме"
                 : schemaError,
         });
         const count = await runCommand("fibery.entity/query", { query: { "q/from": name, "q/select": ["q/count", "fibery/id"] } });
         probes.push({ label: "Чтение (count)", ok: count.ok, text: count.ok ? `записей видно: ${JSON.stringify(count.result)}` : count.text });
-        // Rows themselves, not an aggregate: tells whether the count above is filtered by the viewer's access.
-        const rows = await runCommand("fibery.entity/query", {
-            query: { "q/from": name, "q/select": ["fibery/id"], "q/limit": "q/no-limit" },
-        });
-        probes.push({
-            label: "Чтение (строки)",
-            ok: rows.ok,
-            text: rows.ok ? `строк получено: ${rows.result.length}` : rows.text,
-        });
+        // Fibery returns records the viewer can only reach through a relation, with their fields empty; so rows prove
+        // nothing, and a filled title (the field marked ui/title? in the schema) is what shows real read access.
+        const typeFields = (type?.["fibery/fields"] ?? []);
+        const titleField = typeFields.find((f) => f["fibery/meta"]?.["ui/title?"])?.["fibery/name"];
+        if (titleField) {
+            const rows = await runCommand("fibery.entity/query", {
+                query: { "q/from": name, "q/select": ["fibery/id", titleField], "q/limit": "q/no-limit" },
+            });
+            const list = rows.ok ? rows.result : [];
+            const filled = list.filter((r) => r[titleField] != null && r[titleField] !== "").length;
+            probes.push({
+                label: "Чтение (поля)",
+                ok: rows.ok && (list.length === 0 || filled > 0),
+                text: rows.ok ? `строк: ${list.length}, с заполненным ${titleField}: ${filled}` : rows.text,
+            });
+        }
+        else {
+            probes.push({ label: "Чтение (поля)", ok: false, text: "в схеме не найдено поле-название" });
+        }
         const caps = await runCommand("fibery.type/query-capability-sources", { type: name });
         let capsText = caps.text;
         if (caps.ok) {
