@@ -19,7 +19,6 @@ export { InlineEdit } from "./components/InlineEdit";
 export { usePersistentState } from "./components/PersistentState";
 export { useWrapped } from "./components/Wrapped";
 export { ReloadAppButton } from "./components/ReloadAppButton";
-export { AccessDiagnostics } from "./components/AccessDiagnostics";
 export { AccessGate, useAccess } from "./components/Access";
 export { notifyChange, useLiveUpdates, } from "./components/LiveUpdates";
 export { friendlyErrorMessage, httpStatusOf, isPermissionError, isTransientError, retryDelay, transientRetry } from "./errors";
