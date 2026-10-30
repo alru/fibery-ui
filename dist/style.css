@@ -670,9 +670,22 @@
   /* ─── Label / Field ─── */
   .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-field { display: flex; flex-direction: column; gap: 6px; }
+  /* Changed-value marker: a small accent dot after the label text (nothing sits to the right of a label, so the
+     extra width moves nothing). */
+  .fui-label__changed {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    vertical-align: 1px;
+  }
   .fui-field__hint,
+  .fui-field__warning,
   .fui-field__error { margin: 0; font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
   .fui-field__hint { color: var(--muted-foreground); }
+  .fui-field__warning { color: var(--highlight-yellow-fg); }
   .fui-field__error { color: var(--destructive); }
 
   /* ─── Checkbox / Switch ─── */

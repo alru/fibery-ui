@@ -32,13 +32,17 @@ export type FieldProps = {
     /** `id` of the control, so clicking the label focuses it. */
     htmlFor?: string;
     hint?: ReactNode;
-    /** Error text; replaces the hint. Mark the control `invalid` yourself. */
+    /** Error text; replaces the hint and the warning. Mark the control `invalid` yourself. */
     error?: ReactNode;
+    /** Non-blocking problem, in the warning color; replaces the hint, gives way to `error`. */
+    warning?: ReactNode;
+    /** Marks the label with an accent dot: the value differs from the saved one (edit forms with explicit Save). */
+    changed?: boolean;
     children: ReactNode;
     className?: string;
 };
-/** Label + control + hint/error stacked vertically. */
-export declare function Field({ label, htmlFor, hint, error, children, className }: FieldProps): import("react").JSX.Element;
+/** Label + control + hint/warning/error stacked vertically. */
+export declare function Field({ label, htmlFor, hint, error, warning, changed, children, className }: FieldProps): import("react").JSX.Element;
 type ChoiceLabel = {
     /** Text to the right of the control; wraps both in a clickable `<label>`. */
     label?: ReactNode;
