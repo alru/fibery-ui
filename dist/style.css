@@ -618,12 +618,16 @@
   /* ─── InlineEdit: negative margins keep the 20px line, so rows don't grow with the button or the field ─── */
   .fui-inline-edit { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
   .fui-inline-edit__value { min-width: 0; }
-  .fui-inline-edit__button { margin: -2px 0; opacity: 0; transition: opacity 0.12s; }
+  /* A compact 20px button with a 14px icon: secondary to the text it edits. */
+  .fui-inline-edit .fui-inline-edit__button { height: 20px; border-radius: 4px; }
+  .fui-inline-edit .fui-inline-edit__button > svg { width: 14px; height: 14px; }
+  .fui-inline-edit:not([data-editing]) .fui-inline-edit__button { opacity: 0; transition: opacity 0.12s; }
   .fui-inline-edit:hover .fui-inline-edit__button,
   .fui-table tr:hover .fui-inline-edit__button,
-  .fui-inline-edit__button:focus-visible { opacity: 1; }
+  .fui-inline-edit .fui-inline-edit__button:focus-visible { opacity: 1; }
   .fui-inline-edit[data-editing] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
-  .fui-inline-edit[data-editing] > .fui-input { margin: -4px 0; }
+  .fui-inline-edit__row { display: flex; align-items: center; gap: 4px; }
+  .fui-inline-edit__row > .fui-input { flex: 1; min-width: 0; margin: -4px 0; }
 
   /* Sized by content, unlike full-width inputs: sits in a toolbar next to other filters. */
   .fui-multiselect { width: auto; flex-shrink: 0; }
