@@ -133,6 +133,8 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <PageHeader eyebrow={<Badge caps>Contractor</Badge>} title="Jane Doe" actions={…} />
 <SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
 <Separator />
+<Separator label="На английском" />                       // captioned divider splitting one block into parts
+<Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // grey backing for a key field
 
 // Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
 // Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.
@@ -157,7 +159,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Field label="Name" htmlFor="name" hint="As in the contract" error={err}>
   <Input id="name" invalid={!!err} />
 </Field>
-// Edit form with an explicit Save: `changed` puts an accent dot after the label, `warning` is a non-blocking
+// Edit form with an explicit Save: `changed` draws an accent bar in the left gutter (leave >= 8px there), `warning` is a non-blocking
 // note in the warning color (error > warning > hint, one line shows).
 <Field label="Phone" htmlFor="phone" changed={phone !== saved.phone} warning="Same number as Jane Doe">
   <Input id="phone" />
@@ -279,7 +281,7 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 {error && <ErrorState error={error} onRetry={refetch} retrying={isFetching} />}   // «Повторить» button; `action` adds more
 <RefreshWarning error={error} onRetry={refetch} retrying={isFetching} />   // data on screen, refetch failed
 <EmptyState title="No contractors" description="…" action={…} />
-<Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral
+<Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral | plain (no fill)
 <Skeleton style={{height: 20, width: 160}} />
 <Spinner size="sm" />
 

@@ -25,11 +25,13 @@ export {
   SidePanel,
   PanelLayout,
   Separator,
+  Inset,
   type PageHeaderProps,
   type SectionHeaderProps,
   type SidePanelProps,
   type PanelLayoutProps,
   type SeparatorProps,
+  type InsetProps,
 } from "./components/Layout";
 export {
   Input,
