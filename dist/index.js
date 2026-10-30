@@ -11,6 +11,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedTo
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
 export { Table, TableGroupRow } from "./components/Table";
 export { HeatValue } from "./components/HeatValue";
+export { BarList, StackedBar, FlowChart, } from "./components/Chart";
 export { Combobox, Autocomplete, PickerButton, } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, RefreshWarning, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";

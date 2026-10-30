@@ -720,6 +720,176 @@
 }
 
 @layer components {
+  /* ─── Charts: one color token per series, --fui-chart; neutral unless a highlight hue is set ─── */
+  .fui-chart-hue { --fui-chart: color-mix(in oklab, var(--foreground) 28%, transparent); }
+  .fui-chart-hue[data-hue="grey"] { --fui-chart: var(--highlight-grey-fg); }
+  .fui-chart-hue[data-hue="red"] { --fui-chart: var(--highlight-red-fg); }
+  .fui-chart-hue[data-hue="pink"] { --fui-chart: var(--highlight-pink-fg); }
+  .fui-chart-hue[data-hue="purple"] { --fui-chart: var(--highlight-purple-fg); }
+  .fui-chart-hue[data-hue="violet"] { --fui-chart: var(--highlight-violet-fg); }
+  .fui-chart-hue[data-hue="blue"] { --fui-chart: var(--highlight-blue-fg); }
+  .fui-chart-hue[data-hue="turquoise"] { --fui-chart: var(--highlight-turquoise-fg); }
+  .fui-chart-hue[data-hue="aqua"] { --fui-chart: var(--highlight-aqua-fg); }
+  .fui-chart-hue[data-hue="aquamarine"] { --fui-chart: var(--highlight-aquamarine-fg); }
+  .fui-chart-hue[data-hue="green"] { --fui-chart: var(--highlight-green-fg); }
+  .fui-chart-hue[data-hue="yellow"] { --fui-chart: var(--highlight-yellow-fg); }
+  .fui-chart-hue[data-hue="orange"] { --fui-chart: var(--highlight-orange-fg); }
+
+  /* Buttons inside charts look like the text they wrap. */
+  .fui-bar-list__row,
+  .fui-stacked__item,
+  .fui-flow__stack {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+  }
+  :is(.fui-bar-list__row, .fui-stacked__item, .fui-flow__stack)[data-interactive] { cursor: pointer; }
+  :is(.fui-bar-list__row, .fui-stacked__item, .fui-flow__stack)[data-interactive]:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+  /* A clickable number: the same dotted underline in every chart, the accent on hover. */
+  :is(.fui-bar-list__row, .fui-stacked__item, .fui-flow__stack)[data-interactive] :is(.fui-bar-list__value, .fui-stacked__value, .fui-flow__value) {
+    text-decoration: underline dotted;
+    text-underline-offset: 4px;
+  }
+  :is(.fui-bar-list__row, .fui-stacked__item, .fui-flow__stack)[data-interactive]:hover :is(.fui-bar-list__value, .fui-stacked__value, .fui-flow__value) {
+    color: var(--primary);
+  }
+
+  /* ─── BarList ─── */
+  .fui-bar-list {
+    --fui-bar-label: 13rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    font-weight: var(--fui-regular);
+    line-height: 20px;
+  }
+  .fui-bar-list__row {
+    display: grid;
+    grid-template-columns: minmax(0, min(var(--fui-bar-label), 45%)) minmax(48px, 1fr) 3.5ch;
+    align-items: center;
+    column-gap: 12px;
+    width: calc(100% + 16px);
+    min-height: 28px;
+    margin: 0 -8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+  .fui-bar-list[data-share] .fui-bar-list__row { grid-template-columns: minmax(0, min(var(--fui-bar-label), 45%)) minmax(48px, 1fr) 3.5ch 4.5ch; }
+  .fui-bar-list__row[data-interactive]:hover { --fui-chart: var(--primary); background: var(--fui-hover); }
+  .fui-bar-list__label { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .fui-bar-list__label[data-muted] { color: var(--muted-foreground); }
+  .fui-bar-list__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fui-bar-list__note { flex-shrink: 0; color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+  .fui-bar-list__track { height: 8px; border-radius: 2px; background: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  .fui-bar-list__bar { display: block; height: 100%; border-radius: 2px; background: var(--fui-chart); }
+  .fui-bar-list__bar[data-placeholder] {
+    background: repeating-linear-gradient(135deg, var(--fui-chart) 0 2px, transparent 2px 5px);
+    box-shadow: inset 0 0 0 1px var(--fui-chart);
+  }
+  .fui-bar-list__value { font-variant-numeric: tabular-nums; font-weight: 500; text-align: right; }
+  .fui-bar-list__value[data-empty] { color: var(--muted-foreground); font-weight: var(--fui-regular); }
+  .fui-bar-list__share { color: var(--muted-foreground); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* ─── StackedBar ─── */
+  .fui-stacked { display: flex; flex-direction: column; gap: 10px; font-size: 14px; font-weight: var(--fui-regular); line-height: 20px; }
+  .fui-stacked__bar {
+    display: flex;
+    gap: 2px;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: color-mix(in oklab, var(--foreground) 5%, transparent);
+  }
+  .fui-stacked__segment { flex-basis: 0; min-width: 3px; background: var(--fui-chart); }
+  .fui-stacked__legend { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0; padding: 0; list-style: none; }
+  .fui-stacked__item { display: inline-flex; align-items: center; gap: 6px; margin: 0 -6px; padding: 2px 6px; border-radius: 6px; }
+  .fui-stacked__item[data-interactive]:hover { background: var(--fui-hover); }
+  .fui-stacked__swatch { width: 8px; height: 8px; flex-shrink: 0; border-radius: 2px; background: var(--fui-chart); }
+  .fui-stacked__value { min-width: 3ch; font-variant-numeric: tabular-nums; font-weight: 500; text-align: right; }
+  .fui-stacked__share { min-width: 4ch; color: var(--muted-foreground); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* ─── FlowChart: --fui-flow-n periods; --fui-flow-up / -down are the tallest bars of each side ─── */
+  .fui-flow { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: var(--fui-regular); line-height: 20px; }
+  .fui-flow__legend { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0; padding: 0; list-style: none; color: var(--muted-foreground); }
+  .fui-flow__legend > li { display: inline-flex; align-items: center; gap: 6px; }
+  .fui-flow__legend b { min-width: 3ch; color: var(--foreground); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .fui-flow__swatch { width: 8px; height: 8px; flex-shrink: 0; border-radius: 2px; background: var(--fui-chart); }
+  .fui-flow__swatch[data-line] { width: 14px; height: 2px; border-radius: 1px; background: color-mix(in oklab, var(--foreground) 55%, transparent); }
+  .fui-flow__scroll { overflow-x: auto; }
+  .fui-flow__plot {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--fui-flow-n), minmax(36px, 1fr));
+  }
+  .fui-flow__line { position: absolute; top: 0; left: 0; z-index: 1; width: 100%; height: 72px; overflow: visible; pointer-events: none; }
+  .fui-flow__line polyline {
+    fill: none;
+    stroke: color-mix(in oklab, var(--foreground) 55%, transparent);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .fui-flow__column { display: flex; flex-direction: column; min-width: 0; border-radius: 6px; }
+  .fui-flow__column:hover { background: var(--fui-hover); }
+  .fui-flow__band { position: relative; height: 72px; }
+  .fui-flow__level {
+    position: absolute;
+    left: 50%;
+    z-index: 2;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 9999px;
+    background: var(--card, var(--background));
+    box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--foreground) 55%, transparent);
+  }
+  .fui-flow__level-value {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    line-height: 14px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+  .fui-flow__up,
+  .fui-flow__down { display: flex; flex-direction: column; align-items: center; }
+  .fui-flow__up { justify-content: flex-end; height: calc(var(--fui-flow-up) + 18px); }
+  .fui-flow__down { justify-content: flex-start; height: calc(var(--fui-flow-down) + 18px); border-top: 1px solid var(--fui-line-strong); }
+  .fui-flow__stack { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; border-radius: 4px; }
+  .fui-flow__stack[data-side="down"] { flex-direction: column-reverse; }
+  .fui-flow__value { font-size: 12px; font-variant-numeric: tabular-nums; font-weight: 500; line-height: 16px; }
+  .fui-flow__bar {
+    width: min(60%, 22px);
+    border-radius: 3px 3px 0 0;
+    background: var(--fui-chart);
+    transform-origin: bottom;
+    animation: fui-grow-y 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+  .fui-flow__stack[data-side="down"] .fui-flow__bar { border-radius: 0 0 3px 3px; transform-origin: top; }
+  .fui-flow__period {
+    padding: 6px 0 2px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+/* Bars grow out of the axis once, when the chart mounts; reduced motion turns it off (base.css). */
+@keyframes fui-grow-y {
+  from { transform: scaleY(0); }
+}
+
+@layer components {
   /* ─── Input / Textarea / Select trigger: Fibery draws borders as 1px rings ─── */
   .fui-input {
     display: block;

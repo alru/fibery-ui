@@ -10,6 +10,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedTo
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";
 export { Table, TableGroupRow, type TableProps, type TableGroupRowProps } from "./components/Table";
 export { HeatValue, type HeatValueProps } from "./components/HeatValue";
+export { BarList, StackedBar, FlowChart, type BarListItem, type BarListProps, type StackedBarSegment, type StackedBarProps, type FlowPeriod, type FlowChartProps, } from "./components/Chart";
 export { Combobox, Autocomplete, PickerButton, type ComboboxOption, type ComboboxProps, type AutocompleteProps, type PickerButtonProps, } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, RefreshWarning, type CalloutProps, type RefreshWarningProps, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
