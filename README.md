@@ -254,6 +254,19 @@ const toast = useToast();
 toast({message: "Skill removed: Jane Doe", actionLabel: "Undo", onAction: restore, duration: 6000});
 ```
 
+**Remembered state**
+
+```tsx
+// useState that survives reloads: localStorage, JSON, namespaced per app (all Fibery apps share one origin).
+// Read once on mount, written on change; storage errors fall back to in-memory state.
+const [tab, setTab] = usePersistentState("tab", "list", (v): v is "list" | "matrix" => v === "list" || v === "matrix");
+const [owner, setOwner] = usePersistentState<string | null>("filters.owner", null);  // no validate: any saved JSON
+```
+
+A saved value that fails `validate` (or is not valid JSON) is replaced by the initial one — use it to drop values
+from older app versions. Ids that may have been deleted since (options, entities) still need a check against the
+loaded data before they are applied, so a stale id never becomes an invisible filter.
+
 All components accept `className`. Icons placed directly inside kit components are sized to 16px by CSS.
 
 ## Theme rules (from Fibery's Custom Apps guide)
