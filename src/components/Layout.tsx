@@ -1,5 +1,5 @@
-// Page-level structure: page title row, section headers, separators and a details side panel,
-// sized like Fibery entity pages.
+// Page-level structure: page title row, section headers, separators, a details side panel and the list + panel
+// layout, sized like Fibery entity pages.
 import type {HTMLAttributes, KeyboardEvent, ReactNode} from "react";
 import {X} from "lucide-react";
 import {cx} from "../cx";
@@ -92,6 +92,35 @@ export function SidePanel({title, description, actions, onClose, editing, classN
       </header>
       <div className="fui-side-panel__body">{children}</div>
     </aside>
+  );
+}
+
+export type PanelLayoutProps = {
+  /** The list or table. */
+  children: ReactNode;
+  /** The open details panel (usually a SidePanel); nothing while closed. */
+  panel?: ReactNode;
+  /** Click on the veil over the list on narrow screens, usually the panel's close. */
+  onDismiss?: () => void;
+  className?: string;
+};
+
+/**
+ * List + details panel. Wide (≥ 1024px): side by side, the panel's own classes set its width and stickiness.
+ * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
+ * clicking the veil calls `onDismiss`.
+ */
+export function PanelLayout({children, panel, onDismiss, className}: PanelLayoutProps) {
+  return (
+    <div className={cx("fui-panel-layout", className)} data-open={panel ? "" : undefined}>
+      <div className="fui-panel-layout__main">{children}</div>
+      {panel && (
+        <>
+          <div className="fui-panel-layout__veil" aria-hidden onClick={onDismiss} />
+          <div className="fui-panel-layout__panel">{panel}</div>
+        </>
+      )}
+    </div>
   );
 }
 

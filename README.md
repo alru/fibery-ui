@@ -126,15 +126,19 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 
 // Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
 // Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.
-<div className="flex items-start gap-4">
-  <List className="flex-1">…</List>
-  {item && (
-    <SidePanel className="sticky top-6 flex-1" title={item.name} onClose={close}
+// PanelLayout: side by side from 1024px; narrower, the panel floats over the list, which stays behind a veil
+// (a click on the veil calls onDismiss). The panel's own classes (width, sticky) apply only side by side.
+<PanelLayout
+  onDismiss={close}
+  panel={item && (
+    <SidePanel className="sticky top-6 max-h-[calc(100vh-3rem)] flex-1" title={item.name} onClose={close}
       actions={<Button variant="outline" size="sm" icon={<ExternalLink />}>Open in Fibery</Button>}>
       <PropertyList>…</PropertyList>
     </SidePanel>
   )}
-</div>
+>
+  <List>…</List>
+</PanelLayout>
 ```
 
 **Forms**

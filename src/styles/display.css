@@ -397,6 +397,13 @@
     padding: 12px 16px 16px;
   }
 
+  /* ─── PanelLayout: list + details panel; narrow-screen overlay rules are below the layer ─── */
+  .fui-panel-layout { display: flex; align-items: flex-start; gap: 16px; }
+  .fui-panel-layout__main { flex: 1; min-width: 0; }
+  .fui-panel-layout__veil { display: none; }
+  /* Wide: the wrapper vanishes from layout, so the panel itself is the flex item with the app's own classes. */
+  .fui-panel-layout__panel { display: contents; }
+
   .fui-separator { flex-shrink: 0; background: var(--border); }
   .fui-separator[data-orientation="horizontal"] { width: 100%; height: 1px; }
   .fui-separator[data-orientation="vertical"] { width: 1px; align-self: stretch; }
@@ -461,4 +468,33 @@
   .fui-empty__title { font-size: 14px; font-weight: 600; line-height: 20px; }
   .fui-empty__description { max-width: 360px; margin: 0; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 18px; }
   .fui-empty__action { margin-top: 12px; }
+}
+
+/* Narrow PanelLayout, deliberately outside @layer: unlayered rules beat the app's Tailwind utilities on the panel
+   (its "sticky top-6 w-[36rem] …" are meant for the side-by-side layout and must give way to the overlay). */
+@media (max-width: 1023.98px) {
+  .fui-panel-layout__veil {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: color-mix(in oklab, var(--background) 75%, transparent);
+  }
+  .fui-panel-layout__panel {
+    display: flex;
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    bottom: 24px;
+    z-index: 41;
+    width: min(calc(100vw - 48px), 32rem);
+  }
+  .fui-panel-layout__panel > * {
+    position: static;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: 100%;
+  }
 }
