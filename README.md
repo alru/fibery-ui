@@ -48,14 +48,16 @@ The release script prints the ready-to-paste line.
 
 React, Radix and lucide-react are peer dependencies; the Fibery app template already includes all of them.
 
-In `src/main.tsx`:
+In `Root` of `src/routes.tsx` (Fibery's platform 3 owns `src/main.tsx` and drops edits to it). Import the app's
+`index.css` there first, so the kit styles load after the app theme:
 
 ```tsx
+import "./index.css";
 import "@alru/fibery-ui/style.css";
 import {FiberyUIProvider} from "@alru/fibery-ui";
 
 // Optional: gives every Lucide icon in the app Fibery's 16px / 1.75 stroke proportions.
-<FiberyUIProvider><App /></FiberyUIProvider>
+<FiberyUIProvider><Outlet /></FiberyUIProvider>
 ```
 
 ## Components
