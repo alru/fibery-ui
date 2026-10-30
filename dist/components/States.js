@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { CircleAlert, Inbox } from "lucide-react";
+import { CircleAlert, Inbox, Info, TriangleAlert } from "lucide-react";
 import { cx } from "../cx";
 /** Indeterminate spinner: 12 / 16 / 24px. */
 export function Spinner({ size = "md", className }) {
@@ -24,4 +24,10 @@ export function ErrorState({ error, title = "Не удалось загрузи�
 /** Centered placeholder for an empty list or view. */
 export function EmptyState({ title, description, icon = _jsx(Inbox, {}), action, className }) {
     return (_jsxs("div", { className: cx("fui-empty", className), children: [_jsx("span", { className: "fui-empty__icon", children: icon }), _jsx("strong", { className: "fui-empty__title", children: title }), description && _jsx("p", { className: "fui-empty__description", children: description }), action && _jsx("div", { className: "fui-empty__action", children: action })] }));
+}
+const CALLOUT_ICONS = { info: _jsx(Info, {}), warning: _jsx(TriangleAlert, {}), neutral: _jsx(Info, {}) };
+/** Always-visible note in the workspace highlight palette, e.g. how a form behaves. */
+export function Callout({ tone = "info", icon, children, className }) {
+    const shown = icon === undefined ? CALLOUT_ICONS[tone] : icon;
+    return (_jsxs("div", { "data-tone": tone, className: cx("fui-callout", className), children: [shown && _jsx("span", { className: "fui-callout__icon", children: shown }), _jsx("div", { className: "fui-callout__text", children: children })] }));
 }

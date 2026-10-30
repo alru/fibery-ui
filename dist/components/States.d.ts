@@ -34,3 +34,13 @@ export type EmptyStateProps = {
 };
 /** Centered placeholder for an empty list or view. */
 export declare function EmptyState({ title, description, icon, action, className }: EmptyStateProps): import("react").JSX.Element;
+export type CalloutProps = {
+    /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey. */
+    tone?: "info" | "warning" | "neutral";
+    /** Replaces the tone's default icon; `null` hides it. */
+    icon?: ReactNode;
+    children: ReactNode;
+    className?: string;
+};
+/** Always-visible note in the workspace highlight palette, e.g. how a form behaves. */
+export declare function Callout({ tone, icon, children, className }: CalloutProps): import("react").JSX.Element;

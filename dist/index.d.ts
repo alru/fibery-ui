@@ -10,7 +10,7 @@ export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } fro
 export { Table, TableGroupRow, type TableProps, type TableGroupRowProps } from "./components/Table";
 export { HeatValue, type HeatValueProps } from "./components/HeatValue";
 export { Combobox, Autocomplete, PickerButton, type ComboboxOption, type ComboboxProps, type AutocompleteProps, type PickerButtonProps, } from "./components/Combobox";
-export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
+export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, type CalloutProps, type SpinnerProps, type LoadingStateProps, type ErrorStateProps, type EmptyStateProps, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
 export { ToastProvider, useToast, type ToastOptions } from "./components/Toast";
 export { InlineEdit, type InlineEditProps } from "./components/InlineEdit";

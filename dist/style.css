@@ -334,6 +334,24 @@
     overflow-wrap: anywhere;
   }
 
+  /* ─── Callout: a highlight-palette note; the icon takes the text color ─── */
+  .fui-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    line-height: 18px;
+  }
+  .fui-callout[data-tone="info"] { background: var(--highlight-blue-bg); color: var(--highlight-blue-fg-on-bg); }
+  .fui-callout[data-tone="warning"] { background: var(--highlight-yellow-bg); color: var(--highlight-yellow-fg-on-bg); }
+  .fui-callout[data-tone="neutral"] { background: var(--highlight-grey-bg); color: var(--highlight-grey-fg-on-bg); }
+  .fui-callout__icon { display: flex; flex-shrink: 0; padding-top: 1px; }
+  .fui-callout__icon > svg { width: 16px; height: 16px; }
+  .fui-callout__text { min-width: 0; }
+
   /* ─── Table ─── */
   .fui-table-wrap {
     overflow-x: auto;
