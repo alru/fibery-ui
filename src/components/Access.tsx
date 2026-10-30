@@ -121,8 +121,9 @@ export type AccessGateProps = {
 };
 
 /**
- * Renders the app only for viewers who can read every listed database; others get a «Нет доступа» screen naming
- * the missing ones. Checks once on mount: the schema, one small query per database and one for the role.
+ * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
+ * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
+ * Checks once on mount: the schema, one small query per database and one for the role.
  */
 export function AccessGate({databases, children}: AccessGateProps) {
   const [check, setCheck] = useState<Check>({status: "checking"});
@@ -142,8 +143,8 @@ export function AccessGate({databases, children}: AccessGateProps) {
       <div className="fui-access-gate">
         <EmptyState
           icon={<Lock />}
-          title="Нет доступа"
-          description={`Нет прав на чтение: ${check.databases.join(", ")}. Обратитесь к администратору Fibery.`}
+          title="Недостаточно доступа"
+          description={`Нет прав на чтение части данных приложения (баз без доступа: ${check.databases.length}). Обратитесь к администратору Fibery.`}
           action={
             <Button variant="outline" size="sm" onClick={run}>
               Проверить снова
