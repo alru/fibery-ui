@@ -194,10 +194,13 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    max-width: 100%;
     font-size: 14px;
     font-weight: var(--fui-regular);
     line-height: 20px;
   }
+  /* A long name ends with an ellipsis at its container's width (a table cell, a narrow column) instead of wrapping. */
+  .fui-enum-badge__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fui-enum-badge__dot {
     width: 8px;
     height: 8px;
