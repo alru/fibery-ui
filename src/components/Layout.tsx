@@ -130,11 +130,19 @@ export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
   label?: ReactNode;
 };
 
-export type InsetProps = HTMLAttributes<HTMLDivElement>;
+export type InsetProps = HTMLAttributes<HTMLDivElement> & {
+  /** Strip under a hairline at the bottom, for small marks that belong to the item, e.g. link states as badges. */
+  footer?: ReactNode;
+};
 
 /** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
-export function Inset({className, ...props}: InsetProps) {
-  return <div className={cx("fui-inset", className)} {...props} />;
+export function Inset({footer, className, children, ...props}: InsetProps) {
+  return (
+    <div className={cx("fui-inset", className)} {...props}>
+      {children}
+      {footer != null && footer !== false && <div className="fui-inset__footer">{footer}</div>}
+    </div>
+  );
 }
 
 /** Hairline divider; with `label`, a captioned one ("На английском ————"). */

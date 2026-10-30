@@ -1,5 +1,6 @@
 // Content building blocks modeled on Fibery entity pages: avatar, card, relation-style list rows, property list.
-import {forwardRef, type HTMLAttributes, type KeyboardEvent, type LiHTMLAttributes, type ReactNode} from "react";
+import {forwardRef, useState, type HTMLAttributes, type KeyboardEvent, type LiHTMLAttributes, type ReactNode} from "react";
+import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 
 export type AvatarProps = {
@@ -138,24 +139,60 @@ export type PropertyGroupProps = {
   actions?: ReactNode;
   /** A PropertyList (rows get denser inside a group), form fields or any other content. */
   children: ReactNode;
+  /** Adds a chevron at the right end of the header; the whole header then toggles the content. */
+  collapsible?: boolean;
+  /** Controlled open state of a collapsible group, e.g. from `usePersistentState` to keep it across cards. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Initial state when uncontrolled. Default true. */
+  defaultOpen?: boolean;
   className?: string;
 };
 
 /**
  * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
- * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance. With
+ * `collapsible`, the header becomes a toggle with a chevron on the right.
  */
-export function PropertyGroup({title, icon, actions, children, className}: PropertyGroupProps) {
+export function PropertyGroup({
+  title,
+  icon,
+  actions,
+  children,
+  collapsible,
+  open: openProp,
+  onOpenChange,
+  defaultOpen = true,
+  className,
+}: PropertyGroupProps) {
+  const [ownOpen, setOwnOpen] = useState(defaultOpen);
+  const open = !collapsible || (openProp ?? ownOpen);
+  const toggle = () => {
+    setOwnOpen(!open);
+    onOpenChange?.(!open);
+  };
+  const heading = (
+    <>
+      {icon}
+      {title}
+    </>
+  );
   return (
-    <section className={cx("fui-property-group", className)}>
+    <section className={cx("fui-property-group", className)} data-collapsed={open ? undefined : ""}>
       <div className="fui-property-group__header">
         <h3 className="fui-property-group__title">
-          {icon}
-          {title}
+          {collapsible ? (
+            <button type="button" className="fui-property-group__toggle" aria-expanded={open} onClick={toggle}>
+              <span className="fui-property-group__heading">{heading}</span>
+              <ChevronDown className="fui-property-group__chevron" aria-hidden />
+            </button>
+          ) : (
+            heading
+          )}
         </h3>
         {actions && <div className="fui-property-group__actions">{actions}</div>}
       </div>
-      {children}
+      {open && children}
     </section>
   );
 }
