@@ -17,14 +17,24 @@ export type LiveUpdatesOptions = {
     onChange: (changes: LiveChange[]) => void;
     /** Changes arriving within this many ms are delivered as one batch. Default 500. */
     debounceMs?: number;
-    /** Set false to stay disconnected. Default true. */
+    /**
+     * Fallback refresh: when no batch has been delivered for this many ms, `onChange` is called with every subscribed
+     * type and no ids (as after a reconnect), then the countdown starts over. Covers lost events and a relay that is
+     * down or unreachable — it runs whether or not the connection is up. Every delivered batch restarts the countdown,
+     * so with a working relay and steady changes it never fires. Paused while the page is hidden; on becoming visible
+     * the countdown starts from zero (React Query refetches on focus by itself). The Fibery API budget (7 requests/s)
+     * is shared by every open app instance in the workspace: keep it at 15 000 ms or more. Default off.
+     */
+    idleRefreshMs?: number;
+    /** Set false to stay disconnected (and skip the idle refresh). Default true. */
     enabled?: boolean;
 };
 /**
  * Subscribes to the change relay while the component is mounted. Reconnects on its own (EventSource retries).
- * `onChange` may change between renders without reconnecting.
+ * `onChange` may change between renders without reconnecting. With `idleRefreshMs` it also calls `onChange` for
+ * every type after that long without a delivered batch.
  */
-export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, enabled }: LiveUpdatesOptions): void;
+export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, idleRefreshMs, enabled, }: LiveUpdatesOptions): void;
 export type NotifyChangeOptions = {
     /** Relay base URL, the same as for `useLiveUpdates`. */
     url: string;
