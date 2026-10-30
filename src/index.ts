@@ -123,6 +123,7 @@ export {ReloadAppButton, type ReloadAppButtonProps} from "./components/ReloadApp
 export {
   notifyChange,
   useLiveUpdates,
+  type ChangeDetector,
   type LiveChange,
   type LiveUpdatesOptions,
   type NotifyChangeOptions,

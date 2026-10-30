@@ -295,25 +295,56 @@ All components accept `className`. Icons placed directly inside kit components a
 
 **Live updates**
 
-Fibery can't push changes into a Custom App. A relay server (Fibery webhooks → Server-Sent Events) can; this hook
-listens to it and says which databases changed, so the app refetches with the viewer's own permissions. If the relay
-is down, the app works as without it.
+Fibery can't push changes into a Custom App. `useLiveUpdates` says which databases changed, so the app refetches
+with the viewer's own permissions. It has two optional sources, both delivered through the same batched `onChange`:
+
+- **Relay** (`url` + `clientKey`): a relay server turns Fibery webhooks into Server-Sent Events. Instant, but webhook
+  payloads carry field values, so use it only for databases whose data may leave Fibery. If the relay is down, the
+  app works as without it.
+- **Change detector** (`detector`): every `intervalMs` (default 15 s) the app asks Fibery for a cheap fingerprint
+  of each subscribed database and reports the ones whose fingerprint changed (no ids). Works for any database,
+  private ones included, and nothing leaves Fibery: the queries run in the app with the viewer's permissions.
 
 ```tsx
 useLiveUpdates({
-  url: "https://relay.example.com",
+  url: "https://relay.example.com",   // optional: without url + clientKey no relay connection opens
   clientKey: "…",
   types: ["Space/Task"],
   onChange: () => queryClient.invalidateQueries({queryKey: ["tasks"]}),   // batched; also fires after a reconnect
-  idleRefreshMs: 30_000,   // optional fallback, see below
+  detector: {fingerprint: fetchFingerprint, intervalMs: 15_000},           // optional
 });
 ```
 
-`idleRefreshMs` (off by default) is a safety net for missed events and a relay that is down: when no batch has been
-delivered for that long, `onChange` gets every subscribed type with no ids (as after a reconnect), and the countdown
-starts over. Every delivered batch restarts it, and it ticks whether or not the relay connection is up. It pauses
-while the page is hidden and starts from zero when the page is shown again (React Query refetches on focus anyway).
-Fibery allows 7 API requests/s for the whole workspace, shared by every open app instance, so keep it at 15 s or more.
+The kit doesn't talk to Fibery itself, so the app supplies `fingerprint(type) => Promise<string>`. A good one is
+entity count + latest modification date: deletions change the count, creates and edits change the date. With the
+platform's `queryEntities` (from `@/lib/fibery`):
+
+```ts
+const fetchFingerprint = async (type: string) => {
+  // q/select ["q/count", "fibery/id"] makes the query return a number instead of rows.
+  const count = (await queryEntities({type, fields: ["q/count", "fibery/id"]})) as unknown as number;
+  // q/max is rejected for queries run with user permissions, so: newest row first, one row.
+  const [latest] = await queryEntities<{"fibery/modification-date": string}>({
+    type,
+    fields: ["fibery/modification-date"],
+    orderBy: {field: "fibery/modification-date", direction: "desc"},
+    limit: 1,
+  });
+  return `${count}|${latest?.["fibery/modification-date"] ?? ""}`;
+};
+```
+
+How the detector behaves:
+
+- The first fingerprint after mount, and after the page becomes visible again, is a baseline, not a change. It pauses
+  while the page is hidden (React Query refetches on focus anyway).
+- A failed fingerprint (network, HTTP 429) reports nothing for that database that round and keeps the old baseline
+  (logged with `console.warn`). A round is skipped while the previous one is still running; types are probed one
+  after another.
+- Cost: with the fingerprint above, 2 tiny requests per database per interval, in every open app instance. Fibery
+  allows 7 API requests/s for the whole workspace, shared by all of them, so keep `intervalMs` at 10 s or more.
+- It doesn't catch changes that move no fingerprint, e.g. renamed select options (an option is not an entity of the
+  database and has no modification date there). Announce those with `notifyChange` (below).
 
 When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the whole app page:
 
