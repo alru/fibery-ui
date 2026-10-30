@@ -56,9 +56,9 @@ const run = async (databases: string[]): Promise<Report> => {
       // The schema may come bare or in a {success, result} envelope; anything else is reported by its top-level keys.
       const json = (await res.json()) as Record<string, unknown>;
       const root = (json.result ?? json) as Record<string, unknown>;
-      const types = root["schema/types"];
+      const types = root["fibery/types"];
       if (Array.isArray(types)) schemaTypes = types as Record<string, unknown>[];
-      else schemaError = `нет schema/types; ключи ответа: ${short(Object.keys(root).join(", "))}`;
+      else schemaError = `нет fibery/types; ключи ответа: ${short(Object.keys(root).join(", "))}`;
     } else schemaError = `HTTP ${res.status}: ${short(await res.text())}`;
   } catch (error) {
     schemaError = error instanceof Error ? error.message : String(error);
