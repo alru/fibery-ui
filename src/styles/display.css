@@ -1,4 +1,12 @@
 @layer components {
+  /* ─── AccessDiagnostics: test-phase panel at the bottom of an app ─── */
+  .fui-access-diagnostics__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .fui-access-diagnostics__note { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+  .fui-access-diagnostics__result { margin-top: 8px; }
+  .fui-table.fui-access-diagnostics__table { font-size: 12px; line-height: 16px; }
+  .fui-table.fui-access-diagnostics__table td { vertical-align: top; overflow-wrap: anywhere; }
+  .fui-access-diagnostics__fail { color: var(--destructive); }
+
   /* ─── Badge ─── */
   .fui-badge {
     display: inline-flex;
