@@ -119,6 +119,12 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <PropertyList>                                          // entity field grid
   <Property icon={<Mail />} label="Email">a@b.c</Property>
 </PropertyList>
+
+// Titled block of a details card: bold title with an icon, a hairline above every group but the first,
+// denser rows with smaller muted labels and heavier values. Children: a PropertyList, form fields, anything.
+<PropertyGroup icon={<Briefcase />} title="Работа" actions={<IconButton … />}>
+  <PropertyList>…</PropertyList>
+</PropertyGroup>
 ```
 
 **Layout**

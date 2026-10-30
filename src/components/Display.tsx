@@ -130,3 +130,32 @@ export function Property({label, icon, children}: PropertyProps) {
     </>
   );
 }
+
+export type PropertyGroupProps = {
+  title: ReactNode;
+  /** Lucide icon before the title: the anchor the eye finds when scanning a long card. */
+  icon?: ReactNode;
+  actions?: ReactNode;
+  /** A PropertyList (rows get denser inside a group), form fields or any other content. */
+  children: ReactNode;
+  className?: string;
+};
+
+/**
+ * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ */
+export function PropertyGroup({title, icon, actions, children, className}: PropertyGroupProps) {
+  return (
+    <section className={cx("fui-property-group", className)}>
+      <div className="fui-property-group__header">
+        <h3 className="fui-property-group__title">
+          {icon}
+          {title}
+        </h3>
+        {actions && <div className="fui-property-group__actions">{actions}</div>}
+      </div>
+      {children}
+    </section>
+  );
+}
