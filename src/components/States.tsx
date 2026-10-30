@@ -123,3 +123,45 @@ export function Callout({tone = "info", icon, children, className}: CalloutProps
     </div>
   );
 }
+
+export type RefreshWarningProps = {
+  error: unknown;
+  onRetry: () => void;
+  /** Spinner on «Повторить» while the refetch runs. */
+  retrying?: boolean;
+  /** Lead text; default «Не удалось обновить данные.» */
+  title?: ReactNode;
+  className?: string;
+};
+
+/**
+ * Compact warning above a screen whose background refetch failed. The data already on screen stays usable (it may
+ * only be stale), so a full-screen ErrorState would hide it for nothing; ErrorState is for screens with no data yet.
+ * Shows the plain-words reason, «Повторить», and the raw message (clamped: a gateway error may carry a whole page).
+ */
+export function RefreshWarning({
+  error,
+  onRetry,
+  retrying,
+  title = "Не удалось обновить данные.",
+  className,
+}: RefreshWarningProps) {
+  const message = error instanceof Error ? error.message : String(error);
+  const friendly = friendlyErrorMessage(error);
+  return (
+    <Callout tone="warning" className={cx("fui-refresh-warning", className)}>
+      <div className="fui-refresh-warning__row">
+        <span>
+          {title}
+          {friendly && ` ${friendly}`}
+        </span>
+        <Button variant="outline" size="sm" icon={<RotateCw />} loading={retrying} onClick={onRetry}>
+          Повторить
+        </Button>
+      </div>
+      <div className="fui-refresh-warning__message" title={message}>
+        {message}
+      </div>
+    </Callout>
+  );
+}
