@@ -62,9 +62,11 @@ export function friendlyErrorMessage(error: unknown): string | undefined {
  * useMutation({mutationFn: update, retry: transientRetry(2), retryDelay});
  * queryClient.setDefaultOptions({queries: {retry: transientRetry(3), retryDelay}});
  *
- * @returns A `retry(failureCount, error)` function; React Query passes 0 on the first failure.
+ * @returns A `retry(failureCount, error)` function; React Query passes 0 on the first failure. Its `error` is
+ *   typed `Error` (React Query's default), not `unknown`: React Query infers a mutation's error type from it, and
+ *   `unknown` would make `mutation.error` a value JSX can't render.
  */
-export function transientRetry(maxRetries: number): (failureCount: number, error: unknown) => boolean {
+export function transientRetry(maxRetries: number): (failureCount: number, error: Error) => boolean {
   return (failureCount, error) => failureCount < maxRetries && isTransientError(error);
 }
 
