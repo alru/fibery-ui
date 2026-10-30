@@ -292,6 +292,21 @@ loaded data before they are applied, so a stale id never becomes an invisible fi
 
 All components accept `className`. Icons placed directly inside kit components are sized to 16px by CSS.
 
+**Live updates**
+
+Fibery can't push changes into a Custom App. A relay server (Fibery webhooks → Server-Sent Events) can; this hook
+listens to it and says which databases changed, so the app refetches with the viewer's own permissions. If the relay
+is down, the app works as without it.
+
+```tsx
+useLiveUpdates({
+  url: "https://relay.example.com",
+  clientKey: "…",
+  types: ["Space/Task"],
+  onChange: () => queryClient.invalidateQueries({queryKey: ["tasks"]}),   // batched; also fires after a reconnect
+});
+```
+
 ## Theme rules (from Fibery's Custom Apps guide)
 
 - Color only through theme variables or Tailwind tokens; no hard-coded hex in components.
