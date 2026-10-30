@@ -313,6 +313,18 @@ A saved value that fails `validate` (or is not valid JSON) is replaced by the in
 from older app versions. Ids that may have been deleted since (options, entities) still need a check against the
 loaded data before they are applied, so a stale id never becomes an invisible filter.
 
+**Wrapped toolbar item**
+
+```tsx
+// True while the item sits on a line below the row's first item (CSS can't select a wrapped flex item).
+// The item must be a direct child of the flex-wrap row; re-measured whenever the row resizes.
+const [countRef, countWrapped] = useWrapped<HTMLSpanElement>();
+<div className="flex flex-wrap items-center gap-3">
+  <Filters />
+  <span ref={countRef} className={countWrapped ? "text-left" : "ml-auto text-right"}>Найдено 3 из 40</span>
+</div>
+```
+
 All components accept `className`. Icons placed directly inside kit components are sized to 16px by CSS.
 
 **Live updates**

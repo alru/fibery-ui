@@ -121,6 +121,7 @@ export {FiberyUIProvider} from "./components/Provider";
 export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
 export {InlineEdit, type InlineEditProps} from "./components/InlineEdit";
 export {usePersistentState} from "./components/PersistentState";
+export {useWrapped} from "./components/Wrapped";
 export {ReloadAppButton, type ReloadAppButtonProps} from "./components/ReloadAppButton";
 export {
   notifyChange,
