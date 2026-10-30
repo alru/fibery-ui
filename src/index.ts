@@ -129,6 +129,7 @@ export {usePersistentState} from "./components/PersistentState";
 export {useWrapped} from "./components/Wrapped";
 export {ReloadAppButton, type ReloadAppButtonProps} from "./components/ReloadAppButton";
 export {AccessDiagnostics, type AccessDiagnosticsProps} from "./components/AccessDiagnostics";
+export {AccessGate, useAccess, type AccessGateProps, type AccessRequirement, type AccessValue} from "./components/Access";
 export {
   notifyChange,
   useLiveUpdates,

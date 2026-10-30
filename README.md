@@ -402,6 +402,23 @@ When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the wh
 <AccessDiagnostics databases={["Space/Database", …]} />  // test phase: «Проверка доступа» shows Fibery's raw answers for the viewer
 ```
 
+**Access**
+
+```tsx
+// Root of routes.tsx: the app renders only for viewers who can read every listed database; others get «Нет доступа».
+<AccessGate databases={["Space/Private", "Space/Public"]}>        // or {database, field} to name the field to check by
+  <Outlet />
+</AccessGate>
+
+const {canEdit, markReadOnly} = useAccess();   // hide editing tools when !canEdit
+onError: (e) => isPermissionError(e) && markReadOnly(),   // a refused save switches editing off until reload
+```
+
+Fibery returns the records of a database the viewer can't access, with only the secured fields emptied (relations,
+selects and lookups are never secured). So the gate reads a secured field (a required own one, else the title) and
+counts the database as readable when any record has it filled, or when the database is empty. `canEdit` is false for
+observers and guests; for members Fibery has no answer in advance, so a refused save is the signal.
+
 Some changes never reach webhooks (e.g. renaming a select option: the option is not an entity of the hooked
 database). After such a change succeeds, the app announces it, and the relay sends it to every open app as an ordinary
 change event (the relay's `POST /notify`):
