@@ -8,6 +8,10 @@
 // and the relay sends it to every open app as an ordinary change event.
 import {useEffect, useRef} from "react";
 
+// Reopening a relay stream that EventSource gave up on: first after 3 s, doubling up to once a minute.
+const RECONNECT_MIN_MS = 3_000;
+const RECONNECT_MAX_MS = 60_000;
+
 /** One change: entities of `type` (a "Space/Database" name) were created, changed or deleted. */
 export type LiveChange = {type: string; ids: string[]};
 
@@ -56,7 +60,8 @@ export type LiveUpdatesOptions = {
 
 /**
  * Subscribes to data changes while the component is mounted: the relay (with `url` and `clientKey`; reconnects on its
- * own through EventSource retries) and/or the change `detector`. `onChange` and `detector.fingerprint` may change
+ * own — EventSource retries, and when it gives up, e.g. on a 503 while the relay restarts, the hook reopens the
+ * stream after 3 s, backing off to once a minute) and/or the change `detector`. `onChange` and `detector.fingerprint` may change
  * between renders without reconnecting or restarting the detector.
  */
 export function useLiveUpdates({
@@ -147,31 +152,46 @@ export function useLiveUpdates({
     }
 
     let source: EventSource | undefined;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
     if (url && clientKey && typeof EventSource !== "undefined") {
       const params = new URLSearchParams({key: clientKey, types: typeList});
-      source = new EventSource(`${url.replace(/\/$/, "")}/events?${params}`);
+      const streamUrl = `${url.replace(/\/$/, "")}/events?${params}`;
       let dropped = false;
-      source.addEventListener("change", (event) => {
-        try {
-          deliver([JSON.parse((event as MessageEvent<string>).data) as LiveChange]);
-        } catch {
-          // A malformed event carries nothing usable; the next one will.
-        }
-      });
-      source.addEventListener("error", () => {
-        dropped = true;
-      });
-      source.addEventListener("open", () => {
-        if (!dropped) return;
-        dropped = false;
-        deliver(everything());
-      });
+      let retryMs = RECONNECT_MIN_MS;
+      const connect = () => {
+        source = new EventSource(streamUrl);
+        source.addEventListener("change", (event) => {
+          try {
+            deliver([JSON.parse((event as MessageEvent<string>).data) as LiveChange]);
+          } catch {
+            // A malformed event carries nothing usable; the next one will.
+          }
+        });
+        source.addEventListener("error", () => {
+          dropped = true;
+          // EventSource retries a dropped stream by itself, but gives up for good when a reconnect gets an error
+          // response — e.g. the relay host answering 503 while it restarts. Reopen it ourselves, with backoff.
+          if (source?.readyState !== EventSource.CLOSED || stopped) return;
+          source.close();
+          clearTimeout(reconnectTimer);
+          reconnectTimer = setTimeout(connect, retryMs);
+          retryMs = Math.min(retryMs * 2, RECONNECT_MAX_MS);
+        });
+        source.addEventListener("open", () => {
+          retryMs = RECONNECT_MIN_MS;
+          if (!dropped) return;
+          dropped = false;
+          deliver(everything());
+        });
+      };
+      connect();
     }
 
     return () => {
       stopped = true;
       clearTimeout(timer);
       clearInterval(interval);
+      clearTimeout(reconnectTimer);
       document.removeEventListener("visibilitychange", syncDetector);
       source?.close();
     };
