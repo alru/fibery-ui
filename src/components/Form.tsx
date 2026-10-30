@@ -68,19 +68,35 @@ export type FieldProps = {
   /** `id` of the control, so clicking the label focuses it. */
   htmlFor?: string;
   hint?: ReactNode;
-  /** Error text; replaces the hint. Mark the control `invalid` yourself. */
+  /** Error text; replaces the hint and the warning. Mark the control `invalid` yourself. */
   error?: ReactNode;
+  /** Non-blocking problem, in the warning color; replaces the hint, gives way to `error`. */
+  warning?: ReactNode;
+  /** Marks the label with an accent dot: the value differs from the saved one (edit forms with explicit Save). */
+  changed?: boolean;
   children: ReactNode;
   className?: string;
 };
 
-/** Label + control + hint/error stacked vertically. */
-export function Field({label, htmlFor, hint, error, children, className}: FieldProps) {
+/** Label + control + hint/warning/error stacked vertically. */
+export function Field({label, htmlFor, hint, error, warning, changed, children, className}: FieldProps) {
+  const note = error ? (
+    <p className="fui-field__error">{error}</p>
+  ) : warning ? (
+    <p className="fui-field__warning">{warning}</p>
+  ) : (
+    hint && <p className="fui-field__hint">{hint}</p>
+  );
   return (
     <div className={cx("fui-field", className)}>
-      {label && <Label htmlFor={htmlFor}>{label}</Label>}
+      {label && (
+        <Label htmlFor={htmlFor}>
+          {label}
+          {changed && <span className="fui-label__changed" aria-label="изменено" />}
+        </Label>
+      )}
       {children}
-      {error ? <p className="fui-field__error">{error}</p> : hint && <p className="fui-field__hint">{hint}</p>}
+      {note}
     </div>
   );
 }
