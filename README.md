@@ -244,7 +244,7 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 
 ```tsx
 {isPending && <LoadingState />}
-{error && <ErrorState error={error} action={<Button size="sm" onClick={refetch}>Retry</Button>} />}
+{error && <ErrorState error={error} onRetry={refetch} retrying={isFetching} />}   // «Повторить» button; `action` adds more
 <EmptyState title="No contractors" description="…" action={…} />
 <Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral
 <Skeleton style={{height: 20, width: 160}} />
@@ -254,6 +254,28 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 const toast = useToast();
 toast({message: "Skill removed: Jane Doe", actionLabel: "Undo", onAction: restore, duration: 6000});
 ```
+
+`ErrorState` explains transient failures in plain words (see below) and keeps the raw message under that text,
+small and muted: it is what a bug report needs.
+
+**Errors**
+
+Helpers for the errors the platform's `@/lib/fibery` throws (`Fibery command "…" failed: 503 <body>` and the like).
+The platform client has no retries of its own.
+
+```tsx
+httpStatusOf(error);          // 503 — from a numeric `status` property or "failed: <3 digits>" in the message
+isTransientError(error);      // true for 429, 502, 503, 504 and network failures ("Failed to fetch")
+friendlyErrorMessage(error);  // "Fibery временно недоступен. Попробуйте ещё раз через минуту." | undefined
+
+// React Query retry policy without the kit depending on React Query: retry only transient errors,
+// with 1 s, 2 s, 4 s … (max 8 s) between attempts.
+useMutation({mutationFn: updateLevel, retry: transientRetry(2), retryDelay});
+queryClient.setDefaultOptions({queries: {retry: transientRetry(3), retryDelay}});
+```
+
+Retry only idempotent mutations (updates, deletes). A create that failed with 503 may still have been done by the
+server, and repeating it makes a duplicate.
 
 **Remembered state**
 

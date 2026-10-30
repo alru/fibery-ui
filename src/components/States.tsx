@@ -1,8 +1,10 @@
 // Feedback placeholders: spinner, skeleton, and loading / error / empty states for React Query results, plus the
 // Callout — a short note that stays visible next to the content it explains.
 import type {HTMLAttributes, ReactNode} from "react";
-import {CircleAlert, Inbox, Info, TriangleAlert} from "lucide-react";
+import {CircleAlert, Inbox, Info, RotateCw, TriangleAlert} from "lucide-react";
 import {cx} from "../cx";
+import {friendlyErrorMessage} from "../errors";
+import {Button} from "./Button";
 
 export type SpinnerProps = {size?: "sm" | "md" | "lg"; className?: string};
 
@@ -28,21 +30,52 @@ export function LoadingState({children = "Загрузка…", className}: Load
   );
 }
 
-export type ErrorStateProps = {error: unknown; title?: ReactNode; action?: ReactNode; className?: string};
+export type ErrorStateProps = {
+  error: unknown;
+  title?: ReactNode;
+  /** Shows a «Повторить» button that calls it, before `action`. */
+  onRetry?: () => void;
+  /** Spinner on the «Повторить» button while the retry runs. */
+  retrying?: boolean;
+  /** Any extra controls under the message. */
+  action?: ReactNode;
+  className?: string;
+};
 
 /**
- * Error box that always shows the underlying message: Fibery API errors carry the exact
- * diagnostic needed to report the problem.
+ * Error box. For transient failures (Fibery unavailable, rate limit, no connection) it explains them in plain
+ * words; the underlying message is always shown too, small and muted under that text: Fibery API errors carry
+ * the exact diagnostic needed to report the problem.
  */
-export function ErrorState({error, title = "Не удалось загрузить данные", action, className}: ErrorStateProps) {
+export function ErrorState({
+  error,
+  title = "Не удалось загрузить данные",
+  onRetry,
+  retrying,
+  action,
+  className,
+}: ErrorStateProps) {
   const message = error instanceof Error ? error.message : String(error);
+  const friendly = friendlyErrorMessage(error);
   return (
     <div role="alert" className={cx("fui-error", className)}>
       <CircleAlert />
       <div className="fui-error__body">
         <strong className="fui-error__title">{title}</strong>
-        <span className="fui-error__message">{message}</span>
-        {action && <div className="fui-error__action">{action}</div>}
+        {friendly && <span className="fui-error__text">{friendly}</span>}
+        <span className="fui-error__message" data-muted={friendly ? "" : undefined}>
+          {message}
+        </span>
+        {(onRetry || action) && (
+          <div className="fui-error__action">
+            {onRetry && (
+              <Button variant="outline" size="sm" icon={<RotateCw />} loading={retrying} onClick={onRetry}>
+                Повторить
+              </Button>
+            )}
+            {action}
+          </div>
+        )}
       </div>
     </div>
   );
