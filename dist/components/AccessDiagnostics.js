@@ -7,7 +7,7 @@ import { ShieldCheck } from "lucide-react";
 import { Button } from "./Button";
 import { Table } from "./Table";
 const MAX_TEXT = 400;
-const short = (text) => (text.length > MAX_TEXT ? `${text.slice(0, MAX_TEXT)}…` : text);
+const short = (text, max = MAX_TEXT) => (text.length > max ? `${text.slice(0, max)}…` : text);
 /** One /api/commands call; any failure comes back as text instead of throwing, since failures are the point. */
 const runCommand = async (command, args) => {
     try {
@@ -49,8 +49,16 @@ const run = async (databases) => {
     let schemaError = "";
     try {
         const res = await fetch("/api/schema?with-description=false&with-soft-deleted=false", { credentials: "same-origin" });
-        if (res.ok)
-            schemaTypes = (await res.json())["schema/types"];
+        if (res.ok) {
+            // The schema may come bare or in a {success, result} envelope; anything else is reported by its top-level keys.
+            const json = (await res.json());
+            const root = (json.result ?? json);
+            const types = root["schema/types"];
+            if (Array.isArray(types))
+                schemaTypes = types;
+            else
+                schemaError = `нет schema/types; ключи ответа: ${short(Object.keys(root).join(", "))}`;
+        }
         else
             schemaError = `HTTP ${res.status}: ${short(await res.text())}`;
     }
@@ -76,15 +84,27 @@ const run = async (databases) => {
         });
         const count = await runCommand("fibery.entity/query", { query: { "q/from": name, "q/select": ["q/count", "fibery/id"] } });
         probes.push({ label: "Чтение (count)", ok: count.ok, text: count.ok ? `записей видно: ${JSON.stringify(count.result)}` : count.text });
+        // Rows themselves, not an aggregate: tells whether the count above is filtered by the viewer's access.
+        const rows = await runCommand("fibery.entity/query", {
+            query: { "q/from": name, "q/select": ["fibery/id"], "q/limit": "q/no-limit" },
+        });
+        probes.push({
+            label: "Чтение (строки)",
+            ok: rows.ok,
+            text: rows.ok ? `строк получено: ${rows.result.length}` : rows.text,
+        });
         const caps = await runCommand("fibery.type/query-capability-sources", { type: name });
         let capsText = caps.text;
         if (caps.ok) {
-            // The answer lists every user; only the viewer's own part is shown (others' access is not ours to print).
-            const list = Array.isArray(caps.result) ? caps.result : Object.values((caps.result ?? {}));
-            const mine = myId ? list.find((entry) => JSON.stringify(entry).includes(myId)) : undefined;
-            capsText = mine
-                ? `моя запись: ${short(JSON.stringify(mine))}`
-                : `ответ получен (${list.length} записей), моей записи нет; ключи: ${short(Object.keys((caps.result ?? {})).join(", "))}`;
+            // The answer maps user ids to their access; only the viewer's own part is shown (others' is not ours to print).
+            const result = (caps.result ?? {});
+            const total = Array.isArray(result) ? result.length : Object.keys(result).length;
+            const mine = myId
+                ? Array.isArray(result)
+                    ? result.find((entry) => JSON.stringify(entry).includes(myId))
+                    : result[myId]
+                : undefined;
+            capsText = mine ? `моя запись: ${short(JSON.stringify(mine), 1500)}` : `пользователей в ответе: ${total}, меня среди них нет`;
         }
         probes.push({ label: "Права (capability-sources)", ok: caps.ok, text: capsText });
         results.push({ name, probes });
