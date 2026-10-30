@@ -43,4 +43,21 @@ export type SegmentedControlProps<T extends string> = {
  * Arrow keys move the selection, like native radio buttons.
  */
 export declare function SegmentedControl<T extends string>({ options, value, onValueChange, scale, label, className, ...props }: SegmentedControlProps<T>): import("react").JSX.Element;
+export type SegmentedTogglesProps<T extends string> = {
+    options: SegmentedOption<T>[];
+    /** Options that are on, in any order. */
+    value: T[];
+    /** Gets the options that are on, in the order of `options`. */
+    onValueChange: (value: T[]) => void;
+    /** Describes the group for screen readers, e.g. "Levels". */
+    "aria-label"?: string;
+    /** Muted caption inside an input-styled frame, as on SegmentedControl. */
+    label?: ReactNode;
+    className?: string;
+};
+/**
+ * SegmentedControl's look with independent toggles: each option turns on and off by itself and is filled while on,
+ * e.g. a filter that shows any combination of levels. Every option may be off; what that means is up to the caller.
+ */
+export declare function SegmentedToggles<T extends string>({ options, value, onValueChange, label, className, ...props }: SegmentedTogglesProps<T>): import("react").JSX.Element;
 export {};

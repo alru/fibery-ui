@@ -7,7 +7,7 @@ export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, Inset, } 
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, } from "./components/Overlay";
-export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, } from "./components/Tabs";
+export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedToggles, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
 export { Table, TableGroupRow } from "./components/Table";
 export { HeatValue } from "./components/HeatValue";

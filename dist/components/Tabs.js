@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // Tabs on Radix in two looks: Fibery's segmented switch ("Workspace / Personal") and underlined page tabs,
-// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels.
+// plus SegmentedControl — the same segmented look for picking a value (filters) rather than switching panels — and
+// SegmentedToggles, the same look with options toggled on and off independently.
 import { createContext, forwardRef, useContext, } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cx } from "../cx";
@@ -31,6 +32,18 @@ export function SegmentedControl({ options, value, onValueChange, scale, label, 
     const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
             return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": (scale === "from" ? index >= selectedIndex : scale && index <= selectedIndex) ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
+        }) }));
+    return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
+}
+/**
+ * SegmentedControl's look with independent toggles: each option turns on and off by itself and is filled while on,
+ * e.g. a filter that shows any combination of levels. Every option may be off; what that means is up to the caller.
+ */
+export function SegmentedToggles({ options, value, onValueChange, label, className, ...props }) {
+    const toggle = (option) => onValueChange(options.map((o) => o.value).filter((v) => (v === option ? !value.includes(v) : value.includes(v))));
+    const group = (_jsx("div", { role: "group", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": "", className: cx("fui-tabs-list", !label && className), children: options.map((option) => {
+            const on = value.includes(option.value);
+            return (_jsx("button", { type: "button", "aria-pressed": on, "data-variant": "segmented", "data-filled": on ? "" : undefined, className: "fui-tabs-trigger", onClick: () => toggle(option.value), children: option.label }, option.value));
         }) }));
     return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
 }

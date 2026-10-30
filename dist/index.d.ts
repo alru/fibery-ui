@@ -6,7 +6,7 @@ export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, Inset, ty
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, type InputProps, type TextareaProps, type FieldProps, type CheckboxProps, type SwitchProps, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, type SelectTriggerProps, type MultiSelectOption, type MultiSelectProps, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, type DropdownMenuItemProps, type TooltipProps, type DialogContentProps, } from "./components/Overlay";
-export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, type TabsListProps, type TabsContentProps, type SegmentedControlProps, type SegmentedOption, } from "./components/Tabs";
+export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedToggles, type TabsListProps, type TabsContentProps, type SegmentedControlProps, type SegmentedTogglesProps, type SegmentedOption, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens, type HighlightProps } from "./components/Highlight";
 export { Table, TableGroupRow, type TableProps, type TableGroupRowProps } from "./components/Table";
 export { HeatValue, type HeatValueProps } from "./components/HeatValue";
