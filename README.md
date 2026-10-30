@@ -399,7 +399,6 @@ When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the wh
 
 ```tsx
 <ReloadAppButton />   // icon button «Перезагрузить приложение»; usePersistentState values survive, unsaved edits don't
-<AccessDiagnostics databases={["Space/Database", …]} />  // test phase: «Проверка доступа» shows Fibery's raw answers for the viewer
 ```
 
 **Access**
