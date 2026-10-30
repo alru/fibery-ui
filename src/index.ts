@@ -117,4 +117,5 @@ export {FiberyUIProvider} from "./components/Provider";
 export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
 export {InlineEdit, type InlineEditProps} from "./components/InlineEdit";
 export {usePersistentState} from "./components/PersistentState";
+export {friendlyErrorMessage, httpStatusOf, isTransientError, retryDelay, transientRetry} from "./errors";
 export {cx} from "./cx";
