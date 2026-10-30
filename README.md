@@ -115,7 +115,33 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 
 // Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
 <HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default
+```
 
+**Charts** — counts for stats pages. Every number is printed (no hover needed); a clickable number has a dotted
+underline and turns to the accent on hover; zero values are a muted dash and never clickable.
+
+```tsx
+// Rows "label, bar, value[, share]". Fixed label column (--fui-bar-label, 13rem), so bars stay put when rows change.
+<BarList total={40} max={40} items={[
+  {key: "a", label: "Full-Time", value: 24, onClick: () => openList("a")},
+  {key: "x", label: "Neverland", value: 12, placeholder: "заглушка"},   // hatched bar: a stand-in, not real data
+  {key: "none", label: "не указан", value: 4, muted: true},
+]} />
+<BarList hue="red" items={…} />                          // neutral by default
+
+// Parts of one whole: a 10px bar and a legend "swatch, label, value, share" (legend entries are the buttons).
+<StackedBar segments={[
+  {key: "err", label: "С ошибками", value: 8, hue: "red", onClick: …},
+  {key: "ok", label: "Без проблем", value: 30, hue: "green"},
+]} />
+
+// Per-period flow: ins above the axis, outs below, numbers on every bar; `level` draws a line with its values.
+<FlowChart upLabel="Пришли" downLabel="Ушли" levelLabel="В работе на конец месяца" periods={months.map((m) => ({
+  key: m.id, label: "янв", name: "январь 2026", up: m.in, down: m.out, level: m.headcount, onUpClick: () => open(m),
+}))} />
+```
+
+```tsx
 <PropertyList>                                          // entity field grid
   <Property icon={<Mail />} label="Email">a@b.c</Property>
 </PropertyList>

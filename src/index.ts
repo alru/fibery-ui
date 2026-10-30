@@ -101,6 +101,17 @@ export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from 
 export {Table, TableGroupRow, type TableProps, type TableGroupRowProps} from "./components/Table";
 export {HeatValue, type HeatValueProps} from "./components/HeatValue";
 export {
+  BarList,
+  StackedBar,
+  FlowChart,
+  type BarListItem,
+  type BarListProps,
+  type StackedBarSegment,
+  type StackedBarProps,
+  type FlowPeriod,
+  type FlowChartProps,
+} from "./components/Chart";
+export {
   Combobox,
   Autocomplete,
   PickerButton,

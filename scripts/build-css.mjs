@@ -2,7 +2,7 @@
 import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
 
 // base.css first: it declares the layer order and the helper tokens the rest rely on.
-const files = ["base", "button", "display", "form", "overlay"];
+const files = ["base", "button", "display", "chart", "form", "overlay"];
 
 mkdirSync("dist", {recursive: true});
 writeFileSync(
