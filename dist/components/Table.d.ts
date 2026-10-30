@@ -1,6 +1,10 @@
 import type { ReactNode, TableHTMLAttributes } from "react";
+export type TableProps = TableHTMLAttributes<HTMLTableElement> & {
+    /** Accent ring and tinted header, like SidePanel's: makes an explicit edit mode obvious. */
+    editing?: boolean;
+};
 /** Table on a card-like surface; scrolls horizontally when wider than its container. */
-export declare function Table({ className, ...props }: TableHTMLAttributes<HTMLTableElement>): import("react").JSX.Element;
+export declare function Table({ editing, className, ...props }: TableProps): import("react").JSX.Element;
 export type TableGroupRowProps = {
     label: ReactNode;
     /** Columns the label spans when the row has no cells of its own. */

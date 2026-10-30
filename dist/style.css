@@ -364,6 +364,13 @@
   .fui-table__group[data-level="2"] > th { color: var(--muted-foreground); font-weight: 500; }
   .fui-table [data-indent="1"] { padding-left: 28px; }
   .fui-table [data-indent="2"] { padding-left: 44px; }
+  .fui-table tbody tr[data-interactive] { cursor: pointer; }
+  .fui-table tbody tr[data-interactive]:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+  /* Same accent as an editing SidePanel. */
+  .fui-table-wrap[data-editing] {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 60%, transparent), 0 2px 6px 0 rgb(23 23 23 / 0.06);
+  }
+  .fui-table-wrap[data-editing] thead th { background: color-mix(in oklab, var(--primary) 7%, var(--card)); }
 
   /* ─── HeatValue: --fui-heat (0..1) is set inline; tint tops out at 45% so regular text stays readable ─── */
   .fui-heat {

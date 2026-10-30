@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type ButtonHTMLAttributes, type ReactElement, type ReactNode } from "react";
 import { type InputProps } from "./Form";
 export type ComboboxOption = {
     value: string;
@@ -12,6 +12,13 @@ export type ComboboxOption = {
 export type ComboboxProps = {
     options: ComboboxOption[];
     onSelect: (value: string) => void;
+    /**
+     * Adds a last row "Создать «…»" while the search text matches no option exactly; called with the trimmed text.
+     * The caller creates the value and selects it.
+     */
+    onCreate?: (text: string) => void;
+    /** Text of the create row; defaults to `Создать «text»`. */
+    createText?: (text: string) => string;
     /** Trigger element (e.g. a Button); must accept a ref. */
     children: ReactElement;
     placeholder?: string;
@@ -22,8 +29,23 @@ export type ComboboxProps = {
     /** Classes for the popup, e.g. to change its 320px width. */
     className?: string;
 };
-/** Picker with search, groups and ↑ ↓ Enter navigation. Closes after a pick. */
-export declare function Combobox({ options, onSelect, children, placeholder, emptyText, align, separator, className, }: ComboboxProps): import("react").JSX.Element;
+/** Picker with search, groups and ↑ ↓ Enter navigation; optionally creates a new value. Closes after a pick. */
+export declare function Combobox({ options, onSelect, onCreate, createText, children, placeholder, emptyText, align, separator, className, }: ComboboxProps): import("react").JSX.Element;
+export type PickerButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+    /** Current value; `placeholder` is shown while it is empty. */
+    children?: ReactNode;
+    placeholder?: ReactNode;
+    size?: "sm" | "md";
+    invalid?: boolean;
+};
+/** Input-styled button that shows a picked value, e.g. a Combobox trigger inside a form Field. */
+export declare const PickerButton: import("react").ForwardRefExoticComponent<Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+    /** Current value; `placeholder` is shown while it is empty. */
+    children?: ReactNode;
+    placeholder?: ReactNode;
+    size?: "sm" | "md";
+    invalid?: boolean;
+} & import("react").RefAttributes<HTMLButtonElement>>;
 export type AutocompleteProps = Omit<InputProps, "value" | "onChange" | "onSelect" | "icon"> & {
     value: string;
     onValueChange: (value: string) => void;
