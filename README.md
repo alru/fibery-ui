@@ -102,6 +102,11 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Table editing>…<tr data-interactive tabIndex={0} onClick={edit}>…</tr>…</Table>  // explicit edit mode, clickable rows
 <tr data-interactive data-selected={open ? "" : undefined} onClick={select}>…</tr>   // row shown in a SidePanel
 
+// Rename in place: pencil on hover (also of the table row), Enter / blur saves, Escape cancels.
+<InlineEdit value={group.name} label="Rename group" hint="Renames it in 12 skills" onSave={(name) => rename(name)}>
+  <Highlight text={group.name} query={tokens} />
+</InlineEdit>
+
 // Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
 <HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default
 
@@ -243,6 +248,10 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 <EmptyState title="No contractors" description="…" action={…} />
 <Skeleton style={{height: 20, width: 160}} />
 <Spinner size="sm" />
+
+// Notice in the bottom-right corner with a time bar; closes by itself (hover pauses it). Needs FiberyUIProvider.
+const toast = useToast();
+toast({message: "Skill removed: Jane Doe", actionLabel: "Undo", onAction: restore, duration: 6000});
 ```
 
 All components accept `className`. Icons placed directly inside kit components are sized to 16px by CSS.
