@@ -132,7 +132,7 @@ export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
 
 export type InsetProps = HTMLAttributes<HTMLDivElement>;
 
-/** Grey backing that sets one item apart inside a card, e.g. a record's key field together with its description. */
+/** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
 export function Inset({className, ...props}: InsetProps) {
   return <div className={cx("fui-inset", className)} {...props} />;
 }

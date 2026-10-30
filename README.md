@@ -134,7 +134,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
 <Separator />
 <Separator label="На английском" />                       // captioned divider splitting one block into parts
-<Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // grey backing for a key field
+<Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // raised block (shadow) for a key field
 
 // Master–detail: list on the left, details on the right. Mark the open row with <ListItem selected>.
 // Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.
