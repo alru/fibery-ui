@@ -79,6 +79,7 @@
   /* ─── Label / Field ─── */
   .fui-label { color: var(--foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-field { display: flex; flex-direction: column; gap: 6px; }
+  .fui-label__required { margin-left: 2px; color: var(--destructive); }
   /* Changed-value marker: a small accent dot after the label text (nothing sits to the right of a label, so the
      extra width moves nothing). */
   .fui-label__changed {
