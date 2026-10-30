@@ -1,4 +1,7 @@
 @layer components {
+  /* ─── AccessGate: the checking / no-access / error screen in place of the app ─── */
+  .fui-access-gate { padding: 24px; }
+
   /* ─── AccessDiagnostics: test-phase panel at the bottom of an app ─── */
   .fui-access-diagnostics__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
   .fui-access-diagnostics__note { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
