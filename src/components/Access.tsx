@@ -67,9 +67,9 @@ const readable = async (database: string, field: string): Promise<boolean> => {
       query: {"q/from": database, "q/select": ["fibery/id", field], "q/limit": SAMPLE},
     });
     if (rows.some((r) => r[field] != null && r[field] !== "")) return true;
-    // No readable row: either the database is empty, or Fibery hid the rows (with no access to the whole space it
-    // returns none at all, while q/count still counts every record). Only a truly empty one lets the viewer in; the
-    // app shows its own empty state.
+    // No readable row: either the database is empty, or the rows were hidden (some Fibery query paths, e.g. Fibery
+    // AI's, drop unreadable records entirely, while q/count still counts every record). Only a truly empty one lets
+    // the viewer in; the app shows its own empty state.
     const count = await command<number>("fibery.entity/query", {query: {"q/from": database, "q/select": ["q/count", "fibery/id"]}});
     return count === 0;
   } catch (error) {
