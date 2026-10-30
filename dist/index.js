@@ -16,6 +16,6 @@ export { FiberyUIProvider } from "./components/Provider";
 export { ToastProvider, useToast } from "./components/Toast";
 export { InlineEdit } from "./components/InlineEdit";
 export { usePersistentState } from "./components/PersistentState";
-export { useLiveUpdates } from "./components/LiveUpdates";
+export { notifyChange, useLiveUpdates, } from "./components/LiveUpdates";
 export { friendlyErrorMessage, httpStatusOf, isTransientError, retryDelay, transientRetry } from "./errors";
 export { cx } from "./cx";

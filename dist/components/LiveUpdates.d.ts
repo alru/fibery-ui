@@ -25,3 +25,20 @@ export type LiveUpdatesOptions = {
  * `onChange` may change between renders without reconnecting.
  */
 export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, enabled }: LiveUpdatesOptions): void;
+export type NotifyChangeOptions = {
+    /** Relay base URL, the same as for `useLiveUpdates`. */
+    url: string;
+    /** The relay's client key (`?key=`). */
+    clientKey: string;
+    /** The database that changed, e.g. `"Space/Task"`. */
+    type: string;
+    /** Ids of the changed entities, if known. Default `[]`: listeners refetch the whole database. */
+    ids?: string[];
+};
+/**
+ * Tells every open app, through the relay's `POST /notify`, that entities of `type` changed. Call it after the
+ * user's change has succeeded, for changes webhooks don't report. Fire and forget: returns at once, never throws and
+ * never rejects — a lost notice only means other apps see the change on their next refetch, so it must not fail the
+ * user's action. Problems are logged with `console.warn`.
+ */
+export declare function notifyChange({ url, clientKey, type, ids }: NotifyChangeOptions): void;
