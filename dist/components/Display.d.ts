@@ -72,10 +72,18 @@ export type PropertyGroupProps = {
     actions?: ReactNode;
     /** A PropertyList (rows get denser inside a group), form fields or any other content. */
     children: ReactNode;
+    /** Adds a chevron at the right end of the header; the whole header then toggles the content. */
+    collapsible?: boolean;
+    /** Controlled open state of a collapsible group, e.g. from `usePersistentState` to keep it across cards. */
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    /** Initial state when uncontrolled. Default true. */
+    defaultOpen?: boolean;
     className?: string;
 };
 /**
  * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
- * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance. With
+ * `collapsible`, the header becomes a toggle with a chevron on the right.
  */
-export declare function PropertyGroup({ title, icon, actions, children, className }: PropertyGroupProps): import("react").JSX.Element;
+export declare function PropertyGroup({ title, icon, actions, children, collapsible, open: openProp, onOpenChange, defaultOpen, className, }: PropertyGroupProps): import("react").JSX.Element;

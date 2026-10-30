@@ -1,6 +1,7 @@
 import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // Content building blocks modeled on Fibery entity pages: avatar, card, relation-style list rows, property list.
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { cx } from "../cx";
 const initials = (name) => name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
 /** Round avatar, 20 / 24 / 32px; falls back to initials. */
@@ -41,8 +42,16 @@ export function Property({ label, icon, children }) {
 }
 /**
  * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
- * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance. With
+ * `collapsible`, the header becomes a toggle with a chevron on the right.
  */
-export function PropertyGroup({ title, icon, actions, children, className }) {
-    return (_jsxs("section", { className: cx("fui-property-group", className), children: [_jsxs("div", { className: "fui-property-group__header", children: [_jsxs("h3", { className: "fui-property-group__title", children: [icon, title] }), actions && _jsx("div", { className: "fui-property-group__actions", children: actions })] }), children] }));
+export function PropertyGroup({ title, icon, actions, children, collapsible, open: openProp, onOpenChange, defaultOpen = true, className, }) {
+    const [ownOpen, setOwnOpen] = useState(defaultOpen);
+    const open = !collapsible || (openProp ?? ownOpen);
+    const toggle = () => {
+        setOwnOpen(!open);
+        onOpenChange?.(!open);
+    };
+    const heading = (_jsxs(_Fragment, { children: [icon, title] }));
+    return (_jsxs("section", { className: cx("fui-property-group", className), "data-collapsed": open ? undefined : "", children: [_jsxs("div", { className: "fui-property-group__header", children: [_jsx("h3", { className: "fui-property-group__title", children: collapsible ? (_jsxs("button", { type: "button", className: "fui-property-group__toggle", "aria-expanded": open, onClick: toggle, children: [_jsx("span", { className: "fui-property-group__heading", children: heading }), _jsx(ChevronDown, { className: "fui-property-group__chevron", "aria-hidden": true })] })) : (heading) }), actions && _jsx("div", { className: "fui-property-group__actions", children: actions })] }), open && children] }));
 }

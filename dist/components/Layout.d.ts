@@ -54,8 +54,11 @@ export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
     /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */
     label?: ReactNode;
 };
-export type InsetProps = HTMLAttributes<HTMLDivElement>;
+export type InsetProps = HTMLAttributes<HTMLDivElement> & {
+    /** Strip under a hairline at the bottom, for small marks that belong to the item, e.g. link states as badges. */
+    footer?: ReactNode;
+};
 /** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
-export declare function Inset({ className, ...props }: InsetProps): import("react").JSX.Element;
+export declare function Inset({ footer, className, children, ...props }: InsetProps): import("react").JSX.Element;
 /** Hairline divider; with `label`, a captioned one ("На английском ————"). */
 export declare function Separator({ orientation, label, className, ...props }: SeparatorProps): import("react").JSX.Element;
