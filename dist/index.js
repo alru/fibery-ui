@@ -15,4 +15,5 @@ export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, } from "./comp
 export { FiberyUIProvider } from "./components/Provider";
 export { ToastProvider, useToast } from "./components/Toast";
 export { InlineEdit } from "./components/InlineEdit";
+export { usePersistentState } from "./components/PersistentState";
 export { cx } from "./cx";
