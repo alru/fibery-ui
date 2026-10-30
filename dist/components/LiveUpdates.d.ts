@@ -46,7 +46,8 @@ export type LiveUpdatesOptions = {
 };
 /**
  * Subscribes to data changes while the component is mounted: the relay (with `url` and `clientKey`; reconnects on its
- * own through EventSource retries) and/or the change `detector`. `onChange` and `detector.fingerprint` may change
+ * own — EventSource retries, and when it gives up, e.g. on a 503 while the relay restarts, the hook reopens the
+ * stream after 3 s, backing off to once a minute) and/or the change `detector`. `onChange` and `detector.fingerprint` may change
  * between renders without reconnecting or restarting the detector.
  */
 export declare function useLiveUpdates({ url, clientKey, types, onChange, debounceMs, detector, enabled, }: LiveUpdatesOptions): void;
