@@ -1,4 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { X } from "lucide-react";
 import { cx } from "../cx";
 import { IconButton } from "./Button";
@@ -22,6 +22,14 @@ export function SidePanel({ title, description, actions, onClose, editing, class
         }
     };
     return (_jsxs("aside", { "data-editing": editing ? "" : undefined, className: cx("fui-side-panel", className), onKeyDown: onKeyDown, ...props, children: [_jsxs("header", { className: "fui-side-panel__header", children: [_jsxs("div", { className: "fui-side-panel__heading", children: [_jsx("h2", { className: "fui-side-panel__title", children: title }), description && _jsx("p", { className: "fui-side-panel__description", children: description })] }), _jsxs("div", { className: "fui-side-panel__actions", children: [actions, onClose && _jsx(IconButton, { icon: _jsx(X, {}), "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C", size: "sm", onClick: onClose })] })] }), _jsx("div", { className: "fui-side-panel__body", children: children })] }));
+}
+/**
+ * List + details panel. Wide (≥ 1024px): side by side, the panel's own classes set its width and stickiness.
+ * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
+ * clicking the veil calls `onDismiss`.
+ */
+export function PanelLayout({ children, panel, onDismiss, className }) {
+    return (_jsxs("div", { className: cx("fui-panel-layout", className), "data-open": panel ? "" : undefined, children: [_jsx("div", { className: "fui-panel-layout__main", children: children }), panel && (_jsxs(_Fragment, { children: [_jsx("div", { className: "fui-panel-layout__veil", "aria-hidden": true, onClick: onDismiss }), _jsx("div", { className: "fui-panel-layout__panel", children: panel })] }))] }));
 }
 /** Hairline divider. */
 export function Separator({ orientation = "horizontal", className, ...props }) {

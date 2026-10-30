@@ -34,6 +34,21 @@ export type SidePanelProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
  * Position and width come from the parent layout, e.g. `className="sticky top-6 flex-1"`.
  */
 export declare function SidePanel({ title, description, actions, onClose, editing, className, children, ...props }: SidePanelProps): import("react").JSX.Element;
+export type PanelLayoutProps = {
+    /** The list or table. */
+    children: ReactNode;
+    /** The open details panel (usually a SidePanel); nothing while closed. */
+    panel?: ReactNode;
+    /** Click on the veil over the list on narrow screens, usually the panel's close. */
+    onDismiss?: () => void;
+    className?: string;
+};
+/**
+ * List + details panel. Wide (≥ 1024px): side by side, the panel's own classes set its width and stickiness.
+ * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
+ * clicking the veil calls `onDismiss`.
+ */
+export declare function PanelLayout({ children, panel, onDismiss, className }: PanelLayoutProps): import("react").JSX.Element;
 export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
     orientation?: "horizontal" | "vertical";
 };
