@@ -19,6 +19,7 @@ export { usePersistentState } from "./components/PersistentState";
 export { useWrapped } from "./components/Wrapped";
 export { ReloadAppButton, type ReloadAppButtonProps } from "./components/ReloadAppButton";
 export { AccessDiagnostics, type AccessDiagnosticsProps } from "./components/AccessDiagnostics";
+export { AccessGate, useAccess, type AccessGateProps, type AccessRequirement, type AccessValue } from "./components/Access";
 export { notifyChange, useLiveUpdates, type ChangeDetector, type LiveChange, type LiveUpdatesOptions, type NotifyChangeOptions, } from "./components/LiveUpdates";
 export { friendlyErrorMessage, httpStatusOf, isTransientError, retryDelay, transientRetry } from "./errors";
 export { cx } from "./cx";
