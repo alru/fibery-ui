@@ -348,6 +348,27 @@
     overflow-wrap: anywhere;
   }
 
+  /* ─── PropertyGroup: titled block of a details card. Contrast does the grouping: a dark semibold title with an
+     icon, a hairline between groups, and inside it smaller muted labels against darker, heavier values. ─── */
+  .fui-property-group { display: flex; flex-direction: column; gap: 8px; }
+  * + .fui-property-group { padding-top: 16px; border-top: 1px solid var(--border); }
+  .fui-property-group__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+  .fui-property-group__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+  }
+  .fui-property-group__title > svg { width: 16px; height: 16px; color: var(--muted-foreground); }
+  .fui-property-group__actions { display: flex; gap: 4px; }
+  .fui-property-group .fui-properties { grid-template-columns: minmax(112px, 148px) minmax(0, 1fr); }
+  .fui-property-group .fui-property__label { min-height: 28px; font-size: 13px; }
+  .fui-property-group .fui-property__value { min-height: 28px; font-weight: 500; }
+
   /* ─── Callout: a highlight-palette note; the icon takes the text color ─── */
   .fui-callout {
     display: flex;

@@ -39,3 +39,10 @@ PropertyList.displayName = "PropertyList";
 export function Property({ label, icon, children }) {
     return (_jsxs(_Fragment, { children: [_jsxs("dt", { className: "fui-property__label", children: [icon, label] }), _jsx("dd", { className: "fui-property__value", children: children })] }));
 }
+/**
+ * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ */
+export function PropertyGroup({ title, icon, actions, children, className }) {
+    return (_jsxs("section", { className: cx("fui-property-group", className), children: [_jsxs("div", { className: "fui-property-group__header", children: [_jsxs("h3", { className: "fui-property-group__title", children: [icon, title] }), actions && _jsx("div", { className: "fui-property-group__actions", children: actions })] }), children] }));
+}

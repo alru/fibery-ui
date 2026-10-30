@@ -1,7 +1,7 @@
 export { Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize } from "./components/Button";
 export { CopyButton, type CopyButtonProps } from "./components/CopyButton";
 export { Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue } from "./components/Badge";
-export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, type AvatarProps, type CardProps, type CardHeaderProps, type ListItemProps, type PropertyProps, } from "./components/Display";
+export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, PropertyGroup, type AvatarProps, type CardProps, type CardHeaderProps, type ListItemProps, type PropertyProps, type PropertyGroupProps, } from "./components/Display";
 export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, type PageHeaderProps, type SectionHeaderProps, type SidePanelProps, type PanelLayoutProps, type SeparatorProps, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, type InputProps, type TextareaProps, type FieldProps, type CheckboxProps, type SwitchProps, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, type SelectTriggerProps, type MultiSelectOption, type MultiSelectProps, } from "./components/Select";

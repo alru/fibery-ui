@@ -65,3 +65,17 @@ export type PropertyProps = {
 };
 /** One row of a PropertyList. */
 export declare function Property({ label, icon, children }: PropertyProps): import("react").JSX.Element;
+export type PropertyGroupProps = {
+    title: ReactNode;
+    /** Lucide icon before the title: the anchor the eye finds when scanning a long card. */
+    icon?: ReactNode;
+    actions?: ReactNode;
+    /** A PropertyList (rows get denser inside a group), form fields or any other content. */
+    children: ReactNode;
+    className?: string;
+};
+/**
+ * Titled block of a details card ("Работа", "Контакты"): a bold title with an icon, a hairline above every group but
+ * the first, and denser property rows with smaller muted labels, so groups read apart at a glance.
+ */
+export declare function PropertyGroup({ title, icon, actions, children, className }: PropertyGroupProps): import("react").JSX.Element;
