@@ -405,7 +405,7 @@ When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the wh
 **Access**
 
 ```tsx
-// Root of routes.tsx: the app renders only for viewers who can read every listed database; others get «Нет доступа».
+// Root of routes.tsx: the app renders only for viewers who can read every listed database; others get «Недостаточно доступа» with the number of missing databases.
 <AccessGate databases={["Space/Private", "Space/Public"]}>        // or {database, field} to name the field to check by
   <Outlet />
 </AccessGate>
