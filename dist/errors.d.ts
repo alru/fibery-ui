@@ -12,6 +12,8 @@ export declare function httpStatusOf(error: unknown): number | undefined;
  * Anything else (validation, permissions, missing entity) will fail the same way again.
  */
 export declare function isTransientError(error: unknown): boolean;
+/** Whether Fibery refused the call for lack of rights (403, or a "no access" / "permission" message in the result). */
+export declare function isPermissionError(error: unknown): boolean;
 /**
  * Human text for a transient failure, in Russian; `undefined` for other errors, whose raw message is the only
  * useful description. Show the raw message too: it carries the diagnostic needed to report the problem.

@@ -4,12 +4,10 @@ import { jsx as _jsx } from "react/jsx-runtime";
 // never secured), so neither a successful query nor a row count proves access; a filled secured field does.
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Lock } from "lucide-react";
+import { isPermissionError } from "../errors";
 import { Button } from "./Button";
 import { EmptyState, ErrorState, LoadingState } from "./States";
-class PermissionError extends Error {
-}
-const PERMISSION = /\b403\b|forbidden|access denied|no access|not enough permissions/i;
-/** One /api/commands call in the viewer's session; a refusal becomes a PermissionError. */
+/** One /api/commands call in the viewer's session; failures carry "failed: <status>" for isPermissionError. */
 const command = async (name, args) => {
     const res = await fetch(`/api/commands?reason=custom-app-access&_=${encodeURIComponent(name)}`, {
         method: "POST",
@@ -19,13 +17,11 @@ const command = async (name, args) => {
     });
     const body = await res.text();
     if (!res.ok) {
-        const message = `Fibery command "${name}" failed: ${res.status} ${body}`;
-        throw res.status === 403 || PERMISSION.test(body) ? new PermissionError(message) : new Error(message);
+        throw new Error(`Fibery command "${name}" failed: ${res.status} ${body}`);
     }
     const [envelope] = JSON.parse(body);
     if (!envelope?.success) {
-        const message = `Fibery command "${name}" failed: ${JSON.stringify(envelope?.result)}`;
-        throw PERMISSION.test(message) ? new PermissionError(message) : new Error(message);
+        throw new Error(`Fibery command "${name}" failed: ${JSON.stringify(envelope?.result)}`);
     }
     return envelope.result;
 };
@@ -58,7 +54,7 @@ const readable = async (database, field) => {
         return rows.length === 0 || rows.some((r) => r[field] != null && r[field] !== "");
     }
     catch (error) {
-        if (error instanceof PermissionError)
+        if (isPermissionError(error))
             return false;
         throw error;
     }
