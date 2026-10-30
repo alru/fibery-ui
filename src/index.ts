@@ -11,11 +11,13 @@ export {
   ListItem,
   PropertyList,
   Property,
+  PropertyGroup,
   type AvatarProps,
   type CardProps,
   type CardHeaderProps,
   type ListItemProps,
   type PropertyProps,
+  type PropertyGroupProps,
 } from "./components/Display";
 export {
   PageHeader,
