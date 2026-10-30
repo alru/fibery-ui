@@ -74,12 +74,14 @@ export type FieldProps = {
   warning?: ReactNode;
   /** Marks the label with an accent dot: the value differs from the saved one (edit forms with explicit Save). */
   changed?: boolean;
+  /** Marks the label with a red asterisk: the field must be filled. */
+  required?: boolean;
   children: ReactNode;
   className?: string;
 };
 
 /** Label + control + hint/warning/error stacked vertically. */
-export function Field({label, htmlFor, hint, error, warning, changed, children, className}: FieldProps) {
+export function Field({label, htmlFor, hint, error, warning, changed, required, children, className}: FieldProps) {
   const note = error ? (
     <p className="fui-field__error">{error}</p>
   ) : warning ? (
@@ -92,6 +94,11 @@ export function Field({label, htmlFor, hint, error, warning, changed, children, 
       {label && (
         <Label htmlFor={htmlFor}>
           {label}
+          {required && (
+            <span className="fui-label__required" aria-label="обязательное поле">
+              *
+            </span>
+          )}
           {changed && <span className="fui-label__changed" aria-label="изменено" />}
         </Label>
       )}

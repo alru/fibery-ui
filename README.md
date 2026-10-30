@@ -148,6 +148,9 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Field label="Phone" htmlFor="phone" changed={phone !== saved.phone} warning="Same number as Jane Doe">
   <Input id="phone" />
 </Field>
+<Field label="Email" htmlFor="email" required>   // red asterisk after the label
+  <Input id="email" />
+</Field>
 <SearchInput placeholder="Search…" size="sm" />
 <Textarea rows={4} />
 <Checkbox label="Only experts" checked={v} onCheckedChange={setV} />
@@ -204,6 +207,10 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <Autocomplete size="sm" value={query} onValueChange={setQuery} options={skillOptions}
   onSelect={(id) => { setSkill(id); setQuery(""); }} />
 <Badge onRemove={() => setSkill(null)}>3D › Handpaint</Badge>          // removable filter chip
+
+// Form input with suggested values (instead of a native <datalist>): all show on focus, any text is accepted.
+<Autocomplete variant="input" id="unit" value={unit} onValueChange={setUnit}
+  options={["apt.", "room"].map((v) => ({value: v, text: v}))} onSelect={setUnit} />
 
 <Dialog>
   <DialogTrigger asChild><Button>New</Button></DialogTrigger>
