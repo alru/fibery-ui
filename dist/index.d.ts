@@ -1,4 +1,5 @@
 export { Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize } from "./components/Button";
+export { CopyButton, type CopyButtonProps } from "./components/CopyButton";
 export { Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue } from "./components/Badge";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Property, type AvatarProps, type CardProps, type CardHeaderProps, type ListItemProps, type PropertyProps, } from "./components/Display";
 export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, type PageHeaderProps, type SectionHeaderProps, type SidePanelProps, type PanelLayoutProps, type SeparatorProps, } from "./components/Layout";
