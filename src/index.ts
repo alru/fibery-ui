@@ -20,10 +20,12 @@ export {
   PageHeader,
   SectionHeader,
   SidePanel,
+  PanelLayout,
   Separator,
   type PageHeaderProps,
   type SectionHeaderProps,
   type SidePanelProps,
+  type PanelLayoutProps,
   type SeparatorProps,
 } from "./components/Layout";
 export {
