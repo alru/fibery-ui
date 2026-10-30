@@ -3,6 +3,7 @@
 // never secured), so neither a successful query nor a row count proves access; a filled secured field does.
 import {createContext, useCallback, useContext, useEffect, useState, type ReactNode} from "react";
 import {Lock} from "lucide-react";
+import {isPermissionError} from "../errors";
 import {Button} from "./Button";
 import {EmptyState, ErrorState, LoadingState} from "./States";
 
@@ -16,11 +17,7 @@ type Check =
   | {status: "denied"; databases: string[]}
   | {status: "error"; error: unknown};
 
-class PermissionError extends Error {}
-
-const PERMISSION = /\b403\b|forbidden|access denied|no access|not enough permissions/i;
-
-/** One /api/commands call in the viewer's session; a refusal becomes a PermissionError. */
+/** One /api/commands call in the viewer's session; failures carry "failed: <status>" for isPermissionError. */
 const command = async <T,>(name: string, args: unknown): Promise<T> => {
   const res = await fetch(`/api/commands?reason=custom-app-access&_=${encodeURIComponent(name)}`, {
     method: "POST",
@@ -30,13 +27,11 @@ const command = async <T,>(name: string, args: unknown): Promise<T> => {
   });
   const body = await res.text();
   if (!res.ok) {
-    const message = `Fibery command "${name}" failed: ${res.status} ${body}`;
-    throw res.status === 403 || PERMISSION.test(body) ? new PermissionError(message) : new Error(message);
+    throw new Error(`Fibery command "${name}" failed: ${res.status} ${body}`);
   }
   const [envelope] = JSON.parse(body) as {success: boolean; result: unknown}[];
   if (!envelope?.success) {
-    const message = `Fibery command "${name}" failed: ${JSON.stringify(envelope?.result)}`;
-    throw PERMISSION.test(message) ? new PermissionError(message) : new Error(message);
+    throw new Error(`Fibery command "${name}" failed: ${JSON.stringify(envelope?.result)}`);
   }
   return envelope.result as T;
 };
@@ -74,7 +69,7 @@ const readable = async (database: string, field: string): Promise<boolean> => {
     // An empty database proves nothing either way; the app shows its own empty state.
     return rows.length === 0 || rows.some((r) => r[field] != null && r[field] !== "");
   } catch (error) {
-    if (error instanceof PermissionError) return false;
+    if (isPermissionError(error)) return false;
     throw error;
   }
 };
