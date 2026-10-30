@@ -77,7 +77,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 ```tsx
 <Badge>Draft</Badge>  <Badge hue="green">Done</Badge>  <Badge variant="outline" hue="red">Blocked</Badge>
 <Badge caps>Contractor</Badge>                          // Fibery's uppercase type label
-<EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name
+<EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name; a long name ends with "…" at its container's width
 <EnumBadge name="A" color="#4FAF54" variant="circle" />                         // letter in a ring
 <Avatar name="Jane Doe" src={url} size="sm" />
 
