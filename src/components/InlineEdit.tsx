@@ -1,7 +1,7 @@
 // Rename in place: a value with a pencil that shows on hover (of itself or of its table row); the pencil turns the
-// value into a field. Enter or leaving the field saves, Escape cancels.
+// value into a field. Enter or leaving the field saves, Escape or the × next to the field cancels.
 import {useRef, useState, type ReactNode} from "react";
-import {Pencil} from "lucide-react";
+import {Pencil, X} from "lucide-react";
 import {cx} from "../cx";
 import {IconButton} from "./Button";
 import {Input} from "./Form";
@@ -53,25 +53,38 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
   if (draft != null) {
     return (
       <span data-editing="" className={cx("fui-inline-edit", className)} onClick={stop} onKeyDown={stop}>
-        <Input
-          size="sm"
-          autoFocus
-          aria-label={label}
-          value={draft}
-          disabled={saving}
-          invalid={error != null}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              commit();
-            } else if (e.key === "Escape") {
-              e.preventDefault();
-              close();
-            }
-          }}
-        />
+        <span className="fui-inline-edit__row">
+          <Input
+            size="sm"
+            autoFocus
+            aria-label={label}
+            value={draft}
+            disabled={saving}
+            invalid={error != null}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commit();
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                close();
+              }
+            }}
+          />
+          <IconButton
+            icon={<X />}
+            size="sm"
+            aria-label="Отменить (Esc)"
+            title="Отменить (Esc)"
+            className="fui-inline-edit__button"
+            disabled={saving}
+            // Keeps focus in the field: its blur would save before the click could cancel.
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={close}
+          />
+        </span>
         {(error ?? hint) && <span className={error ? "fui-field__error" : "fui-field__hint"}>{error ?? hint}</span>}
       </span>
     );
