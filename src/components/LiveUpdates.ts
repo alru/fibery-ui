@@ -1,7 +1,8 @@
 // useLiveUpdates: hears about data changes as they happen. Fibery can't push into a Custom App, so a small relay
 // server turns Fibery webhooks into Server-Sent Events ("database X changed, ids …"); this hook subscribes to it and
 // tells the app which databases changed, so it can refetch with the viewer's own permissions. Without the relay
-// (down, blocked, not configured) the app simply works as before.
+// (down, blocked, not configured) the app simply works as before; the optional idle refresh is the safety net for
+// events lost on the way.
 // notifyChange: the other direction — an app announces a change webhooks don't report (e.g. a renamed select option),
 // and the relay sends it to every open app as an ordinary change event.
 import {useEffect, useRef} from "react";
@@ -23,26 +24,50 @@ export type LiveUpdatesOptions = {
   onChange: (changes: LiveChange[]) => void;
   /** Changes arriving within this many ms are delivered as one batch. Default 500. */
   debounceMs?: number;
-  /** Set false to stay disconnected. Default true. */
+  /**
+   * Fallback refresh: when no batch has been delivered for this many ms, `onChange` is called with every subscribed
+   * type and no ids (as after a reconnect), then the countdown starts over. Covers lost events and a relay that is
+   * down or unreachable — it runs whether or not the connection is up. Every delivered batch restarts the countdown,
+   * so with a working relay and steady changes it never fires. Paused while the page is hidden; on becoming visible
+   * the countdown starts from zero (React Query refetches on focus by itself). The Fibery API budget (7 requests/s)
+   * is shared by every open app instance in the workspace: keep it at 15 000 ms or more. Default off.
+   */
+  idleRefreshMs?: number;
+  /** Set false to stay disconnected (and skip the idle refresh). Default true. */
   enabled?: boolean;
 };
 
 /**
  * Subscribes to the change relay while the component is mounted. Reconnects on its own (EventSource retries).
- * `onChange` may change between renders without reconnecting.
+ * `onChange` may change between renders without reconnecting. With `idleRefreshMs` it also calls `onChange` for
+ * every type after that long without a delivered batch.
  */
-export function useLiveUpdates({url, clientKey, types, onChange, debounceMs = 500, enabled = true}: LiveUpdatesOptions) {
+export function useLiveUpdates({
+  url,
+  clientKey,
+  types,
+  onChange,
+  debounceMs = 500,
+  idleRefreshMs,
+  enabled = true,
+}: LiveUpdatesOptions) {
   const handler = useRef(onChange);
   handler.current = onChange;
   const typeList = types.join(",");
 
   useEffect(() => {
-    if (!enabled || typeof EventSource === "undefined") return;
-    const params = new URLSearchParams({key: clientKey, types: typeList});
-    const source = new EventSource(`${url.replace(/\/$/, "")}/events?${params}`);
+    if (!enabled) return;
+    const everything = () => typeList.split(",").map((type) => ({type, ids: []}));
     let pending: LiveChange[] = [];
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let dropped = false;
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
+
+    // A hidden page needs no fresh data; clearing without re-arming is the pause.
+    const restartIdle = () => {
+      clearTimeout(idleTimer);
+      if (!idleRefreshMs || document.visibilityState === "hidden") return;
+      idleTimer = setTimeout(() => deliver(everything()), idleRefreshMs);
+    };
 
     const deliver = (changes: LiveChange[]) => {
       pending.push(...changes);
@@ -51,30 +76,44 @@ export function useLiveUpdates({url, clientKey, types, onChange, debounceMs = 50
         const batch = pending;
         pending = [];
         handler.current(batch);
+        restartIdle();
       }, debounceMs);
     };
 
-    source.addEventListener("change", (event) => {
-      try {
-        deliver([JSON.parse((event as MessageEvent<string>).data) as LiveChange]);
-      } catch {
-        // A malformed event carries nothing usable; the next one will.
-      }
-    });
-    source.addEventListener("error", () => {
-      dropped = true;
-    });
-    source.addEventListener("open", () => {
-      if (!dropped) return;
-      dropped = false;
-      deliver(typeList.split(",").map((type) => ({type, ids: []})));
-    });
+    document.addEventListener("visibilitychange", restartIdle);
+    restartIdle();
+
+    // The idle timer above is armed before and independently of the connection, so it keeps ticking while the
+    // relay is unreachable or EventSource is missing.
+    let source: EventSource | undefined;
+    if (typeof EventSource !== "undefined") {
+      const params = new URLSearchParams({key: clientKey, types: typeList});
+      source = new EventSource(`${url.replace(/\/$/, "")}/events?${params}`);
+      let dropped = false;
+      source.addEventListener("change", (event) => {
+        try {
+          deliver([JSON.parse((event as MessageEvent<string>).data) as LiveChange]);
+        } catch {
+          // A malformed event carries nothing usable; the next one will.
+        }
+      });
+      source.addEventListener("error", () => {
+        dropped = true;
+      });
+      source.addEventListener("open", () => {
+        if (!dropped) return;
+        dropped = false;
+        deliver(everything());
+      });
+    }
 
     return () => {
       clearTimeout(timer);
-      source.close();
+      clearTimeout(idleTimer);
+      document.removeEventListener("visibilitychange", restartIdle);
+      source?.close();
     };
-  }, [url, clientKey, typeList, debounceMs, enabled]);
+  }, [url, clientKey, typeList, debounceMs, idleRefreshMs, enabled]);
 }
 
 export type NotifyChangeOptions = {

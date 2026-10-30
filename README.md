@@ -305,7 +305,20 @@ useLiveUpdates({
   clientKey: "…",
   types: ["Space/Task"],
   onChange: () => queryClient.invalidateQueries({queryKey: ["tasks"]}),   // batched; also fires after a reconnect
+  idleRefreshMs: 30_000,   // optional fallback, see below
 });
+```
+
+`idleRefreshMs` (off by default) is a safety net for missed events and a relay that is down: when no batch has been
+delivered for that long, `onChange` gets every subscribed type with no ids (as after a reconnect), and the countdown
+starts over. Every delivered batch restarts it, and it ticks whether or not the relay connection is up. It pauses
+while the page is hidden and starts from zero when the page is shown again (React Query refetches on focus anyway).
+Fibery allows 7 API requests/s for the whole workspace, shared by every open app instance, so keep it at 15 s or more.
+
+When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the whole app page:
+
+```tsx
+<ReloadAppButton />   // icon button «Перезагрузить приложение»; usePersistentState values survive, unsaved edits don't
 ```
 
 Some changes never reach webhooks (e.g. renaming a select option: the option is not an entity of the hooked
