@@ -99,6 +99,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
     <tr><td data-indent="1">Handpaint</td><td data-align="right">2</td></tr>
   </tbody>
 </Table>
+<Table editing>…<tr data-interactive tabIndex={0} onClick={edit}>…</tr>…</Table>  // explicit edit mode, clickable rows
 
 // Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
 <HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default
@@ -178,6 +179,13 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 >
   <Button variant="ghost" size="sm" icon={<Plus />}>Add</Button>
 </Combobox>
+
+// As a form field: PickerButton shows the value; onCreate adds a "Создать «…»" row for text that matches nothing.
+<Field label="Group">
+  <Combobox options={groups} onSelect={setGroup} onCreate={createGroup}>
+    <PickerButton placeholder="Choose…">{groupName}</PickerButton>
+  </Combobox>
+</Field>
 
 // Search field with suggestions under it while typing; pick one to apply an exact filter.
 <Autocomplete size="sm" value={query} onValueChange={setQuery} options={skillOptions}
