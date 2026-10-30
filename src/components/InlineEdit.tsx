@@ -5,6 +5,7 @@ import {Pencil, X} from "lucide-react";
 import {cx} from "../cx";
 import {IconButton} from "./Button";
 import {Input} from "./Form";
+import {friendlyErrorMessage} from "../errors";
 
 export type InlineEditProps = {
   value: string;
@@ -41,7 +42,10 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
       await onSave(next);
       close();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      const raw = e instanceof Error ? e.message : String(e);
+      const friendly = friendlyErrorMessage(e);
+      // Raw text stays as the diagnostic, cut short: a gateway error may carry a whole HTML page.
+      setError(friendly ? `${friendly} (${raw.slice(0, 200)})` : raw.slice(0, 300));
     } finally {
       busy.current = false;
       setSaving(false);

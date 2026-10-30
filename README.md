@@ -245,6 +245,7 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 ```tsx
 {isPending && <LoadingState />}
 {error && <ErrorState error={error} onRetry={refetch} retrying={isFetching} />}   // «Повторить» button; `action` adds more
+<RefreshWarning error={error} onRetry={refetch} retrying={isFetching} />   // data on screen, refetch failed
 <EmptyState title="No contractors" description="…" action={…} />
 <Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral
 <Skeleton style={{height: 20, width: 160}} />
