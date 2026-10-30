@@ -100,6 +100,7 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
   </tbody>
 </Table>
 <Table editing>…<tr data-interactive tabIndex={0} onClick={edit}>…</tr>…</Table>  // explicit edit mode, clickable rows
+<tr data-interactive data-selected={open ? "" : undefined} onClick={select}>…</tr>   // row shown in a SidePanel
 
 // Heatmap cell: background strength by value within the table's [min, max]; 0 renders as a muted dash.
 <HeatValue value={count} min={tableMin} max={tableMax} />            // hue="blue" by default

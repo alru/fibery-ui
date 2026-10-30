@@ -1,7 +1,8 @@
 // Data table in Fibery's style: ringed surface, hairline row separators, muted small header.
 // Use native <thead>/<tbody>/<tr>/<th>/<td> inside; `data-align="right"` on a cell right-aligns it with tabular digits,
 // `data-indent="1" | "2"` on a first cell nests the row under group captions of that depth,
-// `data-interactive` on a body <tr> gives it a pointer cursor and a focus ring (add onClick/tabIndex yourself).
+// `data-interactive` on a body <tr> gives it a pointer cursor and a focus ring (add onClick/tabIndex yourself),
+// `data-selected` tints the row whose details are open (master–detail with a SidePanel).
 import type {ReactNode, TableHTMLAttributes} from "react";
 import {cx} from "../cx";
 

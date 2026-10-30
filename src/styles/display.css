@@ -246,6 +246,9 @@
   .fui-table [data-indent="2"] { padding-left: 44px; }
   .fui-table tbody tr[data-interactive] { cursor: pointer; }
   .fui-table tbody tr[data-interactive]:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+  /* The row whose details are open, e.g. in a SidePanel; same tint as a selected ListItem. */
+  .fui-table tbody tr[data-selected] > td,
+  .fui-table tbody tr[data-selected]:hover > td { background: color-mix(in oklab, var(--primary) 7%, var(--card)); }
   /* Same accent as an editing SidePanel. */
   .fui-table-wrap[data-editing] {
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 60%, transparent), 0 2px 6px 0 rgb(23 23 23 / 0.06);
