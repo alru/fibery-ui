@@ -3,7 +3,7 @@
 //   for a form field);
 // - Autocomplete: the page's search field itself suggests options while typing (e.g. pick an exact skill), or, as
 //   `variant="input"`, a form field with suggested values (e.g. "apt." for a unit type).
-import {forwardRef, useId, useState, type ButtonHTMLAttributes, type KeyboardEvent, type ReactElement, type ReactNode} from "react";
+import {forwardRef, useId, useRef, useState, type ButtonHTMLAttributes, type KeyboardEvent, type ReactElement, type ReactNode} from "react";
 import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 import {Input, SearchInput, type InputProps} from "./Form";
@@ -26,7 +26,7 @@ const filterOptions = (options: ComboboxOption[], tokens: string[]) =>
     return tokens.every((t) => haystack.includes(t));
   });
 
-// Active-option state and the ↑ ↓ Enter handler shared by both pickers.
+// Active-option state and the ↑ ↓ Enter handler shared by both pickers. Active -1 means no row is chosen yet.
 function useOptionNavigation(filtered: ComboboxOption[], pick: (option: ComboboxOption | undefined) => void) {
   const [active, setActive] = useState(0);
   const listId = useId();
@@ -39,7 +39,7 @@ function useOptionNavigation(filtered: ComboboxOption[], pick: (option: Combobox
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      if (filtered.length) moveTo((active + (e.key === "ArrowDown" ? 1 : -1) + filtered.length) % filtered.length);
+      if (filtered.length) moveTo(e.key === "ArrowDown" ? (active + 1) % filtered.length : (active <= 0 ? filtered.length : active) - 1);
       return true;
     }
     if (e.key === "Enter") {
@@ -52,7 +52,7 @@ function useOptionNavigation(filtered: ComboboxOption[], pick: (option: Combobox
   const inputProps = {
     role: "combobox",
     "aria-controls": listId,
-    "aria-activedescendant": filtered.length ? optionId(active) : undefined,
+    "aria-activedescendant": filtered.length && active >= 0 ? optionId(active) : undefined,
   };
   return {active, setActive, listId, optionId, handleKey, inputProps};
 }
@@ -227,6 +227,11 @@ export type AutocompleteProps =Omit<InputProps, "value" | "onChange" | "onSelect
    * (replaces a native `<datalist>`), all suggestions show on focus while it is empty; any other text is accepted too.
    */
   variant?: "search" | "input";
+  /**
+   * For `"search"`: all options show when an empty field is focused or clicked, before anything is typed. No row is
+   * chosen then, so Enter picks nothing until an arrow key or the mouse chooses one.
+   */
+  suggestOnFocus?: boolean;
 };
 
 /**
@@ -240,16 +245,19 @@ export function Autocomplete({
   onSelect,
   separator,
   variant = "search",
+  suggestOnFocus = false,
   onKeyDown,
   onFocus,
   onBlur,
+  onClick,
   className,
   ...props
 }: AutocompleteProps) {
   const [focused, setFocused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const anchorRef = useRef<HTMLSpanElement>(null);
   const tokens = searchTokens(value);
-  const filtered = tokens.length ? filterOptions(options, tokens) : variant === "input" ? options : [];
+  const filtered = tokens.length ? filterOptions(options, tokens) : variant === "input" || suggestOnFocus ? options : [];
   // An input whose value is typed in full needs no suggestion of itself. A search keeps it: picking may mean more
   // than the text (e.g. "exactly this skill").
   const exact =
@@ -263,11 +271,17 @@ export function Autocomplete({
     setDismissed(true);
   };
   const nav = useOptionNavigation(filtered, pick);
+  // Also on click: a field that keeps focus after Escape gets no new focus event.
+  const showAllIfEmpty = () => {
+    if (!suggestOnFocus || tokens.length) return;
+    setDismissed(false);
+    nav.setActive(-1);
+  };
 
   return (
     <Popover open={open} onOpenChange={(next) => !next && setDismissed(true)}>
       <PopoverAnchor asChild>
-        <span className={cx("fui-autocomplete-anchor", className)}>
+        <span ref={anchorRef} className={cx("fui-autocomplete-anchor", className)}>
           <Field
             {...props}
             {...nav.inputProps}
@@ -276,10 +290,15 @@ export function Autocomplete({
             onChange={(e) => {
               onValueChange(e.target.value);
               setDismissed(false);
-              nav.setActive(0);
+              nav.setActive(suggestOnFocus && !searchTokens(e.target.value).length ? -1 : 0);
+            }}
+            onClick={(e) => {
+              showAllIfEmpty();
+              onClick?.(e);
             }}
             onFocus={(e) => {
               setFocused(true);
+              showAllIfEmpty();
               onFocus?.(e);
             }}
             onBlur={(e) => {
@@ -303,6 +322,12 @@ export function Autocomplete({
         className="fui-autocomplete"
         // Focus stays in the field: typing continues while suggestions are shown.
         onOpenAutoFocus={(e) => e.preventDefault()}
+        // A press on the list's scrollbar or a group caption would blur the field, and that closes the list.
+        onMouseDown={(e) => e.preventDefault()}
+        // Without this a press on the field closes the list and the click reopens it: a visible flicker.
+        onInteractOutside={(e) => {
+          if (suggestOnFocus && anchorRef.current?.contains(e.target as Node)) e.preventDefault();
+        }}
       >
         <OptionList options={filtered} tokens={tokens} separator={separator} nav={nav} onPick={pick} />
       </PopoverContent>

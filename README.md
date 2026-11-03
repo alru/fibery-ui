@@ -251,6 +251,8 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 // Search field with suggestions under it while typing; pick one to apply an exact filter.
 <Autocomplete size="sm" value={query} onValueChange={setQuery} options={skillOptions}
   onSelect={(id) => { setSkill(id); setQuery(""); }} />
+// suggestOnFocus: all options show as soon as the empty field is focused or clicked; Enter picks only a chosen row.
+<Autocomplete suggestOnFocus size="sm" value={query} onValueChange={setQuery} options={skillOptions} onSelect={pick} />
 <Badge onRemove={() => setSkill(null)}>3D › Handpaint</Badge>          // removable filter chip
 
 // Form input with suggested values (instead of a native <datalist>): all show on focus, any text is accepted.
