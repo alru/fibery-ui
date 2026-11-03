@@ -60,9 +60,14 @@ export type AutocompleteProps = Omit<InputProps, "value" | "onChange" | "onSelec
      * (replaces a native `<datalist>`), all suggestions show on focus while it is empty; any other text is accepted too.
      */
     variant?: "search" | "input";
+    /**
+     * For `"search"`: all options show when an empty field is focused or clicked, before anything is typed. No row is
+     * chosen then, so Enter picks nothing until an arrow key or the mouse chooses one.
+     */
+    suggestOnFocus?: boolean;
 };
 /**
  * Field that suggests matching options under itself while typing. The popup only shows when there are matches;
  * Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export declare function Autocomplete({ value, onValueChange, options, onSelect, separator, variant, onKeyDown, onFocus, onBlur, className, ...props }: AutocompleteProps): import("react").JSX.Element;
+export declare function Autocomplete({ value, onValueChange, options, onSelect, separator, variant, suggestOnFocus, onKeyDown, onFocus, onBlur, onClick, className, ...props }: AutocompleteProps): import("react").JSX.Element;

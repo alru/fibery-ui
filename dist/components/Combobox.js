@@ -4,7 +4,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 //   for a form field);
 // - Autocomplete: the page's search field itself suggests options while typing (e.g. pick an exact skill), or, as
 //   `variant="input"`, a form field with suggested values (e.g. "apt." for a unit type).
-import { forwardRef, useId, useState } from "react";
+import { forwardRef, useId, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cx } from "../cx";
 import { Input, SearchInput } from "./Form";
@@ -14,7 +14,7 @@ const filterOptions = (options, tokens) => options.filter((o) => {
     const haystack = normalizeSearchText(`${o.text} ${o.keywords ?? ""}`);
     return tokens.every((t) => haystack.includes(t));
 });
-// Active-option state and the ↑ ↓ Enter handler shared by both pickers.
+// Active-option state and the ↑ ↓ Enter handler shared by both pickers. Active -1 means no row is chosen yet.
 function useOptionNavigation(filtered, pick) {
     const [active, setActive] = useState(0);
     const listId = useId();
@@ -28,7 +28,7 @@ function useOptionNavigation(filtered, pick) {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") {
             e.preventDefault();
             if (filtered.length)
-                moveTo((active + (e.key === "ArrowDown" ? 1 : -1) + filtered.length) % filtered.length);
+                moveTo(e.key === "ArrowDown" ? (active + 1) % filtered.length : (active <= 0 ? filtered.length : active) - 1);
             return true;
         }
         if (e.key === "Enter") {
@@ -41,7 +41,7 @@ function useOptionNavigation(filtered, pick) {
     const inputProps = {
         role: "combobox",
         "aria-controls": listId,
-        "aria-activedescendant": filtered.length ? optionId(active) : undefined,
+        "aria-activedescendant": filtered.length && active >= 0 ? optionId(active) : undefined,
     };
     return { active, setActive, listId, optionId, handleKey, inputProps };
 }
@@ -98,11 +98,12 @@ PickerButton.displayName = "PickerButton";
  * Field that suggests matching options under itself while typing. The popup only shows when there are matches;
  * Escape closes it first, and a second Escape reaches the field's own `onKeyDown`.
  */
-export function Autocomplete({ value, onValueChange, options, onSelect, separator, variant = "search", onKeyDown, onFocus, onBlur, className, ...props }) {
+export function Autocomplete({ value, onValueChange, options, onSelect, separator, variant = "search", suggestOnFocus = false, onKeyDown, onFocus, onBlur, onClick, className, ...props }) {
     const [focused, setFocused] = useState(false);
     const [dismissed, setDismissed] = useState(false);
+    const anchorRef = useRef(null);
     const tokens = searchTokens(value);
-    const filtered = tokens.length ? filterOptions(options, tokens) : variant === "input" ? options : [];
+    const filtered = tokens.length ? filterOptions(options, tokens) : variant === "input" || suggestOnFocus ? options : [];
     // An input whose value is typed in full needs no suggestion of itself. A search keeps it: picking may mean more
     // than the text (e.g. "exactly this skill").
     const exact = variant === "input" && filtered.length === 1 && normalizeSearchText(filtered[0].text) === normalizeSearchText(value.trim());
@@ -115,12 +116,23 @@ export function Autocomplete({ value, onValueChange, options, onSelect, separato
         setDismissed(true);
     };
     const nav = useOptionNavigation(filtered, pick);
-    return (_jsxs(Popover, { open: open, onOpenChange: (next) => !next && setDismissed(true), children: [_jsx(PopoverAnchor, { asChild: true, children: _jsx("span", { className: cx("fui-autocomplete-anchor", className), children: _jsx(Field, { ...props, ...nav.inputProps, "aria-expanded": open, value: value, onChange: (e) => {
+    // Also on click: a field that keeps focus after Escape gets no new focus event.
+    const showAllIfEmpty = () => {
+        if (!suggestOnFocus || tokens.length)
+            return;
+        setDismissed(false);
+        nav.setActive(-1);
+    };
+    return (_jsxs(Popover, { open: open, onOpenChange: (next) => !next && setDismissed(true), children: [_jsx(PopoverAnchor, { asChild: true, children: _jsx("span", { ref: anchorRef, className: cx("fui-autocomplete-anchor", className), children: _jsx(Field, { ...props, ...nav.inputProps, "aria-expanded": open, value: value, onChange: (e) => {
                             onValueChange(e.target.value);
                             setDismissed(false);
-                            nav.setActive(0);
+                            nav.setActive(suggestOnFocus && !searchTokens(e.target.value).length ? -1 : 0);
+                        }, onClick: (e) => {
+                            showAllIfEmpty();
+                            onClick?.(e);
                         }, onFocus: (e) => {
                             setFocused(true);
+                            showAllIfEmpty();
                             onFocus?.(e);
                         }, onBlur: (e) => {
                             setFocused(false);
@@ -136,5 +148,12 @@ export function Autocomplete({ value, onValueChange, options, onSelect, separato
                             onKeyDown?.(e);
                         } }) }) }), _jsx(PopoverContent, { align: "start", className: "fui-autocomplete", 
                 // Focus stays in the field: typing continues while suggestions are shown.
-                onOpenAutoFocus: (e) => e.preventDefault(), children: _jsx(OptionList, { options: filtered, tokens: tokens, separator: separator, nav: nav, onPick: pick }) })] }));
+                onOpenAutoFocus: (e) => e.preventDefault(), 
+                // A press on the list's scrollbar or a group caption would blur the field, and that closes the list.
+                onMouseDown: (e) => e.preventDefault(), 
+                // Without this a press on the field closes the list and the click reopens it: a visible flicker.
+                onInteractOutside: (e) => {
+                    if (suggestOnFocus && anchorRef.current?.contains(e.target))
+                        e.preventDefault();
+                }, children: _jsx(OptionList, { options: filtered, tokens: tokens, separator: separator, nav: nav, onPick: pick }) })] }));
 }
