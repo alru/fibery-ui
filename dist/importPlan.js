@@ -28,8 +28,9 @@ export function matchHeaders(headers, columns) {
 const defaultNormalizeKey = (value) => value.trim().toLowerCase();
 /**
  * Plans an import: for each row, create, update (with the app's patch), unchanged, or error. A row with an empty key,
- * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
- * whose cells are all empty are left out.
+ * a key repeated in the file, or a key matching several existing records is an error without asking the app. A cell
+ * with a spreadsheet error value ("#ERROR!") is an error too, and the app gets it as empty. Rows whose cells are all
+ * empty are left out.
  */
 export function planImport(input) {
     const normalize = input.normalizeKey ?? defaultNormalizeKey;
@@ -37,6 +38,7 @@ export function planImport(input) {
         missingKey: "Не заполнен ключ",
         repeatedKey: (rows) => `Ключ повторяется в строках ${rows.join(", ")}`,
         ambiguousKey: "Ключ совпадает с несколькими записями",
+        spreadsheetError: (value) => `Вместо значения ошибка таблицы «${value}». Исправьте ячейку; чтобы таблица не считала текст формулой, начните его с апострофа: '+7 999 123-45-67`,
         ...input.messages,
     };
     const existingByKey = new Map();
@@ -54,7 +56,17 @@ export function planImport(input) {
     }
     const planned = [];
     const toPrepare = [];
-    for (const source of rows) {
+    for (const original of rows) {
+        // Error values are reported here and reach the app as empty cells, so it doesn't report them a second time.
+        const broken = [];
+        const cells = { ...original.cells };
+        for (const [column, value] of Object.entries(cells)) {
+            if (!isSpreadsheetError(value))
+                continue;
+            broken.push({ level: "error", column, message: messages.spreadsheetError(value.trim()) });
+            cells[column] = "";
+        }
+        const source = { ...original, cells };
         const key = normalize(source.cells[input.key] ?? "");
         const base = { ...source, key, existingId: null, patch: null, changes: [] };
         const same = rowsByKey.get(key) ?? [];
@@ -71,12 +83,13 @@ export function planImport(input) {
             continue;
         }
         const existing = matches[0] ?? null;
-        toPrepare.push({ index: planned.length, source, existing });
+        toPrepare.push({ index: planned.length, source, existing, broken });
         planned.push({ ...base, existingId: existing ? input.idOf(existing) : null, action: "unchanged", issues: [] });
     }
     const prepared = input.prepare(toPrepare.map(({ source, existing }) => ({ source, existing })));
-    toPrepare.forEach(({ index }, i) => {
-        const { patch, issues, changes = [] } = prepared[i];
+    toPrepare.forEach(({ index, broken }, i) => {
+        const { patch, changes = [] } = prepared[i];
+        const issues = [...broken, ...prepared[i].issues];
         const row = planned[index];
         row.issues = issues;
         row.changes = changes;
@@ -99,13 +112,22 @@ export function planImport(input) {
 }
 // ─── Cell parsers ────────────────────────────────────────────────────────────
 /**
- * A phone a spreadsheet turned into a formula: typing "+7 999…" into Google Sheets makes it "=7 999…", and that is
- * what its CSV holds. Returns the phone with its "+" back, or null when the cell is not such a case.
+ * A phone whose "+" a spreadsheet took away. Google Sheets makes a typed "+79991234567" the formula "=79991234567"
+ * and saves its result, 79991234567, into the CSV; Excel and Sheets also turn "+7999…" into a number on opening.
+ * Returns the phone with a "+" for a cell of 7–15 digits (or "=" and a number), null for anything else. Show the
+ * repair to people: a number written in a local format ("8999…") gets a wrong "+" this way.
  */
 export function repairSpreadsheetPhone(cell) {
-    const match = /^=\+?(\d[\d\s()-]*)$/.exec(cell.trim());
-    return match ? `+${match[1].trim()}` : null;
+    const text = cell.trim();
+    if (/^\d{7,15}$/.test(text))
+        return `+${text}`;
+    const formula = /^=\+?(\d[\d\s()-]*)$/.exec(text);
+    return formula ? `+${formula[1].trim()}` : null;
 }
+// Error values Google Sheets and Excel write into a CSV in place of a formula's result.
+const SPREADSHEET_ERROR = /^#(ERROR!|NAME\?|VALUE!|REF!|DIV\/0!|N\/A|NUM!|NULL!|SPILL!|CALC!)$/i;
+/** Whether a cell holds a spreadsheet's error value (e.g. "#ERROR!") instead of data. */
+export const isSpreadsheetError = (cell) => SPREADSHEET_ERROR.test(cell.trim());
 /**
  * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
  * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this

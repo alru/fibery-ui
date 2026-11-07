@@ -23,7 +23,7 @@ export { AccessGate, useAccess, type AccessGateProps, type AccessRequirement, ty
 export { notifyChange, useLiveUpdates, type ChangeDetector, type LiveChange, type LiveUpdatesOptions, type NotifyChangeOptions, } from "./components/LiveUpdates";
 export { ImportDialog, downloadCsv, type ImportDialogProps, type ImportKey, type ImportOutcome, type ImportSpec, type FailedRow, type WrittenRow, } from "./components/Csv";
 export { decodeCsvBytes, detectDelimiter, escapeFormula, parseCsv, stringifyCsv, unescapeFormula, type CsvDelimiter } from "./csv";
-export { looksLikeSpreadsheetNumber, matchHeaders, matchOptionCell, parseDateCell, planImport, repairSpreadsheetPhone, type CellResult, type FieldChange, type HeaderMatch, type ImportColumn, type IssueLevel, type PlannedRow, type PlanSummary, type Prepared, type RowIssue, type SourceRow, } from "./importPlan";
+export { isSpreadsheetError, looksLikeSpreadsheetNumber, matchHeaders, matchOptionCell, parseDateCell, planImport, repairSpreadsheetPhone, type CellResult, type FieldChange, type HeaderMatch, type ImportColumn, type IssueLevel, type PlannedRow, type PlanSummary, type Prepared, type RowIssue, type SourceRow, } from "./importPlan";
 export { runCommands, type CommandResult, type FiberyCommand, type RunCommandsOptions } from "./fiberyBatch";
 export { friendlyErrorMessage, httpStatusOf, isPermissionError, isTransientError, retryDelay, transientRetry } from "./errors";
 export { cx } from "./cx";

@@ -75,22 +75,28 @@ export type PlanInput<E, P> = {
         missingKey?: string;
         repeatedKey?: (rows: number[]) => string;
         ambiguousKey?: string;
+        spreadsheetError?: (value: string) => string;
     };
 };
 /**
  * Plans an import: for each row, create, update (with the app's patch), unchanged, or error. A row with an empty key,
- * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
- * whose cells are all empty are left out.
+ * a key repeated in the file, or a key matching several existing records is an error without asking the app. A cell
+ * with a spreadsheet error value ("#ERROR!") is an error too, and the app gets it as empty. Rows whose cells are all
+ * empty are left out.
  */
 export declare function planImport<E, P>(input: PlanInput<E, P>): {
     rows: PlannedRow<P>[];
     summary: PlanSummary;
 };
 /**
- * A phone a spreadsheet turned into a formula: typing "+7 999…" into Google Sheets makes it "=7 999…", and that is
- * what its CSV holds. Returns the phone with its "+" back, or null when the cell is not such a case.
+ * A phone whose "+" a spreadsheet took away. Google Sheets makes a typed "+79991234567" the formula "=79991234567"
+ * and saves its result, 79991234567, into the CSV; Excel and Sheets also turn "+7999…" into a number on opening.
+ * Returns the phone with a "+" for a cell of 7–15 digits (or "=" and a number), null for anything else. Show the
+ * repair to people: a number written in a local format ("8999…") gets a wrong "+" this way.
  */
 export declare function repairSpreadsheetPhone(cell: string): string | null;
+/** Whether a cell holds a spreadsheet's error value (e.g. "#ERROR!") instead of data. */
+export declare const isSpreadsheetError: (cell: string) => boolean;
 /**
  * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
  * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this

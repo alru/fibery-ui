@@ -24,7 +24,7 @@ export { AccessGate, useAccess } from "./components/Access";
 export { notifyChange, useLiveUpdates, } from "./components/LiveUpdates";
 export { ImportDialog, downloadCsv, } from "./components/Csv";
 export { decodeCsvBytes, detectDelimiter, escapeFormula, parseCsv, stringifyCsv, unescapeFormula } from "./csv";
-export { looksLikeSpreadsheetNumber, matchHeaders, matchOptionCell, parseDateCell, planImport, repairSpreadsheetPhone, } from "./importPlan";
+export { isSpreadsheetError, looksLikeSpreadsheetNumber, matchHeaders, matchOptionCell, parseDateCell, planImport, repairSpreadsheetPhone, } from "./importPlan";
 export { runCommands } from "./fiberyBatch";
 export { friendlyErrorMessage, httpStatusOf, isPermissionError, isTransientError, retryDelay, transientRetry } from "./errors";
 export { cx } from "./cx";
