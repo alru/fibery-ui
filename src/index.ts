@@ -162,11 +162,13 @@ export {
 } from "./components/Csv";
 export {decodeCsvBytes, detectDelimiter, escapeFormula, parseCsv, stringifyCsv, unescapeFormula, type CsvDelimiter} from "./csv";
 export {
+  looksLikeSpreadsheetNumber,
   matchHeaders,
   matchOptionCell,
   parseDateCell,
   planImport,
   type CellResult,
+  type FieldChange,
   type HeaderMatch,
   type ImportColumn,
   type IssueLevel,

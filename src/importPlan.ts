@@ -49,8 +49,11 @@ export type RowIssue = {level: IssueLevel; message: string; /** Column id, if th
 /** A data row of the file: `row` is its row number in a spreadsheet (the header is row 1). */
 export type SourceRow = {row: number; cells: Record<string, string>};
 
+/** One field an update changes, as shown to people before writing ("" = empty). */
+export type FieldChange = {column: string; from: string; to: string};
+
 /** What the app decided for one row; `patch: null` means nothing to write. */
-export type Prepared<P> = {patch: P | null; issues: RowIssue[]};
+export type Prepared<P> = {patch: P | null; issues: RowIssue[]; /** Shown in the preview of an update. */ changes?: FieldChange[]};
 
 export type PlannedRow<P> = SourceRow & {
   key: string;
@@ -58,6 +61,7 @@ export type PlannedRow<P> = SourceRow & {
   action: "create" | "update" | "unchanged" | "error";
   patch: P | null;
   issues: RowIssue[];
+  changes: FieldChange[];
 };
 
 export type PlanSummary = {create: number; update: number; unchanged: number; error: number; warning: number};
@@ -109,7 +113,7 @@ export function planImport<E, P>(input: PlanInput<E, P>): {rows: PlannedRow<P>[]
   const toPrepare: {index: number; source: SourceRow; existing: E | null}[] = [];
   for (const source of rows) {
     const key = normalize(source.cells[input.key] ?? "");
-    const base = {...source, key, existingId: null, patch: null};
+    const base = {...source, key, existingId: null, patch: null, changes: []};
     const same = rowsByKey.get(key) ?? [];
     const matches = existingByKey.get(key) ?? [];
     let issue: string | null = null;
@@ -127,9 +131,10 @@ export function planImport<E, P>(input: PlanInput<E, P>): {rows: PlannedRow<P>[]
 
   const prepared = input.prepare(toPrepare.map(({source, existing}) => ({source, existing})));
   toPrepare.forEach(({index}, i) => {
-    const {patch, issues} = prepared[i];
+    const {patch, issues, changes = []} = prepared[i];
     const row = planned[index];
     row.issues = issues;
+    row.changes = changes;
     if (issues.some((x) => x.level === "error")) row.action = "error";
     else if (patch == null) row.action = "unchanged";
     else {
@@ -147,6 +152,18 @@ export function planImport<E, P>(input: PlanInput<E, P>): {rows: PlannedRow<P>[]
 }
 
 // ─── Cell parsers ────────────────────────────────────────────────────────────
+
+/**
+ * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
+ * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
+ * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
+ */
+export function looksLikeSpreadsheetNumber(stored: string, cell: string): boolean {
+  const s = stored.trim();
+  const c = cell.trim();
+  if (!/^\d+$/.test(c) || s === c) return false;
+  return (/^0+\d/.test(s) && s.replace(/^0+/, "") === c) || (s.startsWith("+") && s.slice(1) === c);
+}
 
 export type CellResult<T> = {value: T} | {error: string};
 

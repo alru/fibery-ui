@@ -297,11 +297,22 @@ export function ImportDialog<E, C, P>({
           <>
             <div className="fui-import__intro">
               {description ?? (
-                <p>
-                  Файл CSV, первая строка — заголовки колонок, как в экспорте. Существующие записи ищутся по колонке «
-                  {headerOf(key.column)}», остальные строки создают новые записи. Пустая ячейка не меняет поле.
-                </p>
+                <>
+                  <p>
+                    Проще всего так: сделайте экспорт, поправьте файл в таблице и загрузите его сюда. Колонки должны
+                    называться так же, как в экспорте; лишние колонки пропускаются.
+                  </p>
+                  <ul className="fui-import__rules">
+                    <li>Если такой {key.label} уже есть — запись обновится, если нет — появится новая.</li>
+                    <li>Пустая ячейка ничего не стирает: поле останется как было.</li>
+                    <li>До записи вы увидите, что именно изменится, и сможете отказаться.</li>
+                  </ul>
+                </>
               )}
+              <Callout tone="plain">
+                Google Sheets при обычном открытии превращает номера в числа и теряет ведущие нули и «+». Открывайте файл
+                через «Файл → Импорт» и снимите галочку «Преобразовывать текст в числа, даты и формулы».
+              </Callout>
               {spec.keys.length > 1 && (
                 <label className="fui-import__key">
                   <span>Искать существующие записи по</span>
@@ -350,6 +361,7 @@ export function ImportDialog<E, C, P>({
               ]}
             />
             <ColumnNotes headers={stage.plan.headers} />
+            <ChangeList rows={stage.plan.rows.filter((r) => r.action === "update")} headerOf={headerOf} />
             <IssueList
               items={stage.plan.rows.flatMap((r) =>
                 r.issues.map((i) => ({row: r.row, column: headerOf(i.column), level: i.level, message: i.message})),
@@ -459,6 +471,34 @@ function ColumnNotes({headers}: {headers: HeaderMatch}) {
       {headers.unknown.length > 0 && <div>Колонки не распознаны и пропущены: {headers.unknown.join(", ")}</div>}
       {headers.repeated.length > 0 && <div>Колонки повторяются, прочитана первая: {headers.repeated.join(", ")}</div>}
     </Callout>
+  );
+}
+
+// Every field each update changes, old → new, so a change nobody meant (e.g. a number a spreadsheet broke) is seen
+// before it is written. Collapsed: the counts above are usually enough.
+function ChangeList<P>({rows, headerOf}: {rows: PlannedRow<P>[]; headerOf: (column?: string) => string}) {
+  const listed = rows.filter((r) => r.changes.length > 0);
+  if (!listed.length) return null;
+  const shown = listed.slice(0, MAX_LISTED);
+  return (
+    <details className="fui-import__changes">
+      <summary>Что изменится в обновляемых записях</summary>
+      <div className="fui-import__changes-list">
+        {shown.map((r) => (
+          <div key={r.row} className="fui-import__change">
+            <div className="fui-import__change-head">
+              Строка {r.row} · {r.key}
+            </div>
+            {r.changes.map((c) => (
+              <div key={c.column} className="fui-import__change-field">
+                <span className="fui-import__change-label">{headerOf(c.column)}:</span> {c.from || "—"} → {c.to || "—"}
+              </div>
+            ))}
+          </div>
+        ))}
+        {listed.length > shown.length && <p className="fui-import__hint">…и ещё {listed.length - shown.length}</p>}
+      </div>
+    </details>
   );
 }
 
