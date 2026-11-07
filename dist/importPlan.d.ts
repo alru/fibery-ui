@@ -87,6 +87,11 @@ export declare function planImport<E, P>(input: PlanInput<E, P>): {
     summary: PlanSummary;
 };
 /**
+ * A phone a spreadsheet turned into a formula: typing "+7 999…" into Google Sheets makes it "=7 999…", and that is
+ * what its CSV holds. Returns the phone with its "+" back, or null when the cell is not such a case.
+ */
+export declare function repairSpreadsheetPhone(cell: string): string | null;
+/**
  * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
  * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
  * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
