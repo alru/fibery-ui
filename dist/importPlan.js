@@ -56,7 +56,7 @@ export function planImport(input) {
     const toPrepare = [];
     for (const source of rows) {
         const key = normalize(source.cells[input.key] ?? "");
-        const base = { ...source, key, existingId: null, patch: null };
+        const base = { ...source, key, existingId: null, patch: null, changes: [] };
         const same = rowsByKey.get(key) ?? [];
         const matches = existingByKey.get(key) ?? [];
         let issue = null;
@@ -76,9 +76,10 @@ export function planImport(input) {
     }
     const prepared = input.prepare(toPrepare.map(({ source, existing }) => ({ source, existing })));
     toPrepare.forEach(({ index }, i) => {
-        const { patch, issues } = prepared[i];
+        const { patch, issues, changes = [] } = prepared[i];
         const row = planned[index];
         row.issues = issues;
+        row.changes = changes;
         if (issues.some((x) => x.level === "error"))
             row.action = "error";
         else if (patch == null)
@@ -95,6 +96,19 @@ export function planImport(input) {
             summary.warning += 1;
     }
     return { rows: planned, summary };
+}
+// ─── Cell parsers ────────────────────────────────────────────────────────────
+/**
+ * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
+ * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
+ * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
+ */
+export function looksLikeSpreadsheetNumber(stored, cell) {
+    const s = stored.trim();
+    const c = cell.trim();
+    if (!/^\d+$/.test(c) || s === c)
+        return false;
+    return (/^0+\d/.test(s) && s.replace(/^0+/, "") === c) || (s.startsWith("+") && s.slice(1) === c);
 }
 const isValidDate = (y, m, d) => {
     const date = new Date(Date.UTC(y, m - 1, d));

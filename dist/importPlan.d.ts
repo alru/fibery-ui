@@ -29,10 +29,17 @@ export type SourceRow = {
     row: number;
     cells: Record<string, string>;
 };
+/** One field an update changes, as shown to people before writing ("" = empty). */
+export type FieldChange = {
+    column: string;
+    from: string;
+    to: string;
+};
 /** What the app decided for one row; `patch: null` means nothing to write. */
 export type Prepared<P> = {
     patch: P | null;
-    issues: RowIssue[];
+    issues: RowIssue[]; /** Shown in the preview of an update. */
+    changes?: FieldChange[];
 };
 export type PlannedRow<P> = SourceRow & {
     key: string;
@@ -40,6 +47,7 @@ export type PlannedRow<P> = SourceRow & {
     action: "create" | "update" | "unchanged" | "error";
     patch: P | null;
     issues: RowIssue[];
+    changes: FieldChange[];
 };
 export type PlanSummary = {
     create: number;
@@ -78,6 +86,12 @@ export declare function planImport<E, P>(input: PlanInput<E, P>): {
     rows: PlannedRow<P>[];
     summary: PlanSummary;
 };
+/**
+ * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
+ * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
+ * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
+ */
+export declare function looksLikeSpreadsheetNumber(stored: string, cell: string): boolean;
 export type CellResult<T> = {
     value: T;
 } | {
