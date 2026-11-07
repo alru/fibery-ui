@@ -100,13 +100,13 @@ export const emailType = (): FieldType =>
   );
 
 /**
- * A phone in international form: "+" and 7–15 digits; spaces, dashes, dots and brackets between them are allowed and
- * kept as typed. A number without "+" is an error: whether it lost its "+" or is in a local format can't be told.
+ * A phone as one run of 7–15 digits with the country code, e.g. 79991234567: no "+", spaces or dashes. Spreadsheets
+ * keep such text as is, while a leading "+" makes Google Sheets read the cell as a formula.
  */
 export const phoneType = (): FieldType =>
   typed(
     (value) => value,
-    (text) => (/^\+\d{7,15}$/.test(text.replace(/[\s\-().]/g, "")) ? {value: text} : {error: "Формат: «+» и 7–15 цифр"}),
+    (text) => (/^\d{7,15}$/.test(text) ? {value: text} : {error: "Только цифры с кодом страны, 7–15 цифр: 79991234567"}),
   );
 
 const isValidDate = (y: number, m: number, d: number) => {
