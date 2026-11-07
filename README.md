@@ -467,47 +467,58 @@ const rename = useMutation({
 
 `ids` is optional (default `[]`, meaning "refetch the whole database").
 
-**CSV import and export**
+**Field types, XLSX import and export**
+
+Each field an app imports, exports or checks in a form gets a type: what its values look like, how a value goes into
+a spreadsheet cell and back, and which rule a wrong value breaks. Nothing is guessed: a cell that doesn't fit is an
+error.
+
+```ts
+const building = textType({pattern: /^[\p{L}\d/-]+$/u, rule: "Только буквы, цифры, / и -"});
+building.check("12 корп. 3");                        // "Только буквы, цифры, / и -" — the form's format check
+parseCell(building, {kind: "text", value: "12/3"});  // {value: "12/3"}
+parseCell(building, {kind: "number", value: 12});    // {error: "В ячейке число, а нужен текст: …"}
+// Also: emailType(), phoneType() ("+" and 7–15 digits), dateType() ("YYYY-MM-DD" / "DD.MM.YYYY" / a date cell),
+// optionType(options) (stored as id, written and read by name, never created).
+```
+
+- A number, boolean or date cell in a text field is an error (a number may have lost leading zeros or a "+"), so are
+  formulas and spreadsheet error values in any field.
+- Files are XLSX only. `downloadXlsx` / `writeXlsx` write one sheet with every cell and column text-formatted, so
+  Google Sheets and Excel keep `050000`, `+7999…`, `12/3` as typed, also in rows people add; the header row is bold
+  and frozen. `readXlsx` returns the first sheet's cells with their kind. No dependencies: zip via the platform's
+  CompressionStream / DecompressionStream, XML parsed in the kit.
 
 ```tsx
 // Export: the header row alone is a valid file, so an empty database still gives an import template.
-downloadCsv("tasks-2026-11-07.csv", [columns.map((c) => c.header), ...rows.map(toCells)]);   // delimiter "," by default
+await downloadXlsx("tasks-2026-11-07.xlsx", "Tasks", [columns.map((c) => c.header), ...rows.map(toCells)]);
 
 // Import: the app describes its columns, the key and the row → patch → command steps.
 const spec: ImportSpec<Task, Context, Patch> = {
   columns: [{id: "Space/Email", header: "Email", aliases: ["Space/Email"]}, …],
-  keys: [{column: "Space/Email", label: "Email", of: (t) => t.email}],   // several → the user picks one
+  keys: [{column: "Space/Email", label: "Email", of: (t) => t.email}],   // at least one; several → the user picks one
   load: async () => ({existing: await fetchTasks(), context: {options: await fetchOptions()}}),   // fresh, not cached
   idOf: (t) => t.id,
-  prepare: (rows, ctx) => rows.map(({source, existing}) => ({patch: …, issues: […]})),   // patch null = nothing to write
+  prepare: (rows, ctx) => rows.map(({source, existing}) => ({patch: …, issues: […], changes: […]})),   // parseCell(type, source.cells[id])
   toCommand: ({action, id, patch}) => action === "create"
     ? {command: "fibery.entity/create", args: {type: "Space/Task", entity: patch}}
     : {command: "fibery.entity/update", args: {type: "Space/Task", entity: {"fibery/id": id, ...patch}}},
-  afterWrite: async (outcome) => [],   // optional: linked records; returns notes for the report
+  afterWrite: async (outcome) => [],   // optional: linked records; outcome rows carry their source cells
 };
 <ImportDialog open={open} onOpenChange={setOpen} spec={spec} onBusyChange={setBusy} onFinished={refetch} />
 ```
 
-- Files: comma, semicolon or tab (detected); UTF-8 with or without BOM, or windows-1251 (Excel's plain "CSV" on a
-  Russian Windows). Up to 5 MB / 5000 rows. Export writes UTF-8 with a BOM and CRLF.
-- Cells a spreadsheet would run as a formula (`=…`, `@…`, `+`/`-` followed by more than digits) get a leading `'` on
-  export; import removes it exactly. Phones like `+7 999 …` and negative numbers are left as is.
-- The dialog shows what will happen (create / update / unchanged / errors, every problem by row and column) before
-  writing. A row with an error is not written; warnings don't stop it. Empty, repeated or ambiguous keys are errors.
-- Writes: `runCommands` sends 25 commands per request, one request at a time, at most 2 per second; 429 waits and
-  repeats, a 400 for a whole chunk is split to find the bad command. A create chunk without an answer is not repeated
-  blindly: after the run the dialog reloads the data, counts the records that are there and sends only the missing
-  ones again. The report's "Создано" is therefore what Fibery holds.
-- Cell helpers: `parseDateCell` (`YYYY-MM-DD` or `DD.MM.YYYY` → `YYYY-MM-DD`), `matchOptionCell` (option by name,
-  never created; the error lists the allowed names), `looksLikeSpreadsheetNumber(stored, cell)` — true when the cell
-  is the stored value after Sheets / Excel made it a number (`050000` → `50000`, `+7999…` → `7999…`); keep the stored
-  value and warn instead of writing it. `repairSpreadsheetPhone(cell)` — a phone whose `+` a spreadsheet
-  took: `79991234567` (Sheets saves a typed `+7999…` as a formula's numeric result) or `=7999…` → `+7999…`; null for
-  any other cell. Show the repair as a warning: a local-format `8999…` gets a wrong `+` too.
-- Cells with a spreadsheet error value (`#ERROR!`, `#NAME?`, … — `isSpreadsheetError`) are row errors in
-  `planImport`, and `prepare` receives them as empty cells.
-- `prepare` may return `changes: [{column, from, to}]` per update; the preview lists them (collapsed) so an edit
-  nobody meant is seen before writing.
+- Up to 5 MB / 5000 rows. The dialog shows what will happen (create / update / unchanged / errors, the changed
+  fields of each update, every problem by row and column) before writing. A row with an error is not written;
+  warnings don't stop it. Empty, repeated or ambiguous keys are errors.
+- If loading the existing records fails, the dialog says it is Fibery, not the file, and offers «Повторить».
+- Writes: `runCommands` sends 25 commands per request, one request at a time, at most 2 per second; 429 waits (at
+  most 10 s) and repeats, a 400 for a whole chunk is split to find the bad command. Unanswered updates are repeated,
+  unanswered creates never; what stays unanswered is reported as unknown. After the writes the dialog reloads the
+  data (`settleImport`): «Создано» counts only records that are there. Importing the same file again settles the
+  unknown rows by key without duplicates.
+- `fetchAllPages((offset, limit) => query…)` reads a query page by page (Fibery returns at most 3001 rows per
+  request); order the query by `fibery/id`.
 
 ## Theme rules (from Fibery's Custom Apps guide)
 
@@ -522,8 +533,12 @@ const spec: ImportSpec<Task, Context, Patch> = {
 ```sh
 npm install
 npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
-npm test         # node --test on test/*.test.ts (pure modules: CSV, import planning); no extra dependencies
+npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands); no extra dependencies
 ```
+
+Pure modules import each other as `./x.ts` (`rewriteRelativeImportExtensions` turns that into `.js` on build), so Node
+runs them in tests without a build. `test/fixtures/sheets-sample.xlsx`, a file saved from Google Sheets with made-up
+data, checks reading real Sheets output; the test is skipped while the file is missing.
 
 Styles live in `src/styles/`, one file per component group; `scripts/build-css.mjs` lists the concatenation
 order (`base.css` first: it declares the layer order and helper tokens).
