@@ -99,13 +99,36 @@ test("recognizes numbers a spreadsheet broke, not real edits", () => {
   assert.equal(looksLikeSpreadsheetNumber("AB012", "12"), false);
 });
 
-test("gives back the plus of a phone a spreadsheet made a formula, and nothing else", () => {
+test("gives back the plus a spreadsheet took from a phone, and touches nothing else", () => {
+  assert.equal(repairSpreadsheetPhone("79991234567"), "+79991234567");
   assert.equal(repairSpreadsheetPhone("=79991234567"), "+79991234567");
   assert.equal(repairSpreadsheetPhone(" =+7 (999) 123-45-67 "), "+7 (999) 123-45-67");
   assert.equal(repairSpreadsheetPhone("+79991234567"), null);
+  assert.equal(repairSpreadsheetPhone("123456"), null);
+  assert.equal(repairSpreadsheetPhone("1234567890123456"), null);
+  assert.equal(repairSpreadsheetPhone("7.9991E+10"), null);
   assert.equal(repairSpreadsheetPhone("=SUM(A1)"), null);
   assert.equal(repairSpreadsheetPhone("=7+1"), null);
-  assert.equal(repairSpreadsheetPhone("79991234567"), null);
+});
+
+test("a spreadsheet error value is a row error and reaches the app as an empty cell", () => {
+  let seen = "";
+  const {rows} = planImport<Existing, {name: string}>({
+    rows: [row(2, "jane@example.com", "#ERROR!")],
+    key: "email",
+    existing,
+    keyOf: (e) => e.email,
+    idOf: (e) => e.id,
+    prepare: (items) =>
+      items.map(({source}) => {
+        seen = source.cells.name;
+        return {patch: null, issues: []};
+      }),
+  });
+  assert.equal(seen, "");
+  assert.equal(rows[0].action, "error");
+  assert.equal(rows[0].issues[0].column, "name");
+  assert.match(rows[0].issues[0].message, /#ERROR!/);
 });
 
 test("parses ISO and dotted dates, rejects impossible ones", () => {
