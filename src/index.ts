@@ -162,6 +162,7 @@ export {
 } from "./components/Csv";
 export {decodeCsvBytes, detectDelimiter, escapeFormula, parseCsv, stringifyCsv, unescapeFormula, type CsvDelimiter} from "./csv";
 export {
+  isSpreadsheetError,
   looksLikeSpreadsheetNumber,
   matchHeaders,
   matchOptionCell,
