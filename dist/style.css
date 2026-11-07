@@ -1339,7 +1339,7 @@
 }
 
 @layer components {
-  /* ─── CSV import dialog ─── */
+  /* ─── Import dialog ─── */
   .fui-import__intro { display: flex; flex-direction: column; gap: 12px; }
   .fui-import__intro p { margin: 0; }
   .fui-import__rules { margin: 0; padding-left: 20px; }

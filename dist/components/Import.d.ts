@@ -1,16 +1,15 @@
 import { type ReactNode } from "react";
-import { type CsvDelimiter } from "../csv";
 import { type FiberyCommand } from "../fiberyBatch";
-import { type ImportColumn, type Prepared, type SourceRow } from "../importPlan";
+import { type ImportColumn, type ImportOutcome, type Prepared, type SourceRow } from "../importPlan";
 /**
- * Saves records as a CSV file: UTF-8 with a BOM (so Excel shows Cyrillic), CRLF line ends, and cells that a
- * spreadsheet would run as formulas prefixed with an apostrophe (read back exactly by ImportDialog).
+ * Saves rows as an .xlsx file with one sheet. Every cell is text-formatted, so Google Sheets and Excel keep values like
+ * "050000", "+7999…" or "12/3" as typed; the header row is bold and frozen.
  *
- * @param records The header row first; a header alone is a valid file (an import template).
+ * @param rows The header row first; a header alone is a valid file (an import template).
  * @example
- * downloadCsv("contractors-2026-11-07.csv", [columns.map((c) => c.header), ...rows.map(toCells)]);
+ * await downloadXlsx("tasks-2026-11-07.xlsx", "Tasks", [columns.map((c) => c.header), ...rows.map(toCells)]);
  */
-export declare function downloadCsv(fileName: string, records: string[][], delimiter?: CsvDelimiter): void;
+export declare function downloadXlsx(fileName: string, sheetName: string, rows: string[][]): Promise<void>;
 /** A field that identifies a record, e.g. Email; with several, the user picks one in the dialog. */
 export type ImportKey<E> = {
     /** Column id of the key. */
@@ -20,32 +19,10 @@ export type ImportKey<E> = {
     /** Key as compared; trims and ignores case by default. */
     normalize?: (value: string) => string;
 };
-export type WrittenRow = {
-    row: number;
-    key: string;
-    id: string;
-};
-export type FailedRow = {
-    row: number;
-    key: string;
-    message: string;
-};
-/** What an import did. */
-export type ImportOutcome = {
-    created: WrittenRow[];
-    updated: WrittenRow[];
-    /** Rows Fibery refused, or whose creation could not be confirmed. */
-    failed: FailedRow[];
-    /** Rows not sent because the import was stopped. */
-    skipped: number;
-    unchanged: number;
-    /** Rows with errors in the file, never sent. */
-    invalid: number;
-};
-/** How an app imports: columns, the key, loading, the row → patch step and the patch → command step. */
+/** How an app imports: columns, the key(s), loading, the row → patch step and the patch → command step. */
 export type ImportSpec<E, C, P> = {
     columns: ImportColumn[];
-    keys: ImportKey<E>[];
+    keys: [ImportKey<E>, ...ImportKey<E>[]];
     /** Fresh records from Fibery (not a cache) and whatever else `prepare` needs, e.g. option lists. */
     load: () => Promise<{
         existing: E[];
@@ -70,7 +47,7 @@ export type ImportDialogProps<E, C, P> = {
     onOpenChange: (open: boolean) => void;
     spec: ImportSpec<E, C, P>;
     title?: ReactNode;
-    /** Shown before a file is picked; by default explains the key and that empty cells change nothing. */
+    /** Shown before a file is picked; by default explains the key, empty cells and text cells. */
     description?: ReactNode;
     /** True while records are being written; the dialog can't be closed then. */
     onBusyChange?: (busy: boolean) => void;
@@ -78,8 +55,8 @@ export type ImportDialogProps<E, C, P> = {
     onFinished?: (outcome: ImportOutcome) => void;
 };
 /**
- * Import of a CSV file into an app's database. Errors keep only their own row from being written; warnings are shown
- * and written anyway. Writes go in batches (see runCommands); created records are checked against a fresh load, so
- * the counts are what Fibery holds, also after a lost connection.
+ * Import of an .xlsx file into an app's database. Errors keep only their own row from being written; warnings are shown
+ * and written anyway. Writes go in batches (see runCommands); created records are checked against a fresh load, and
+ * rows Fibery didn't answer for are reported as unknown — importing the same file again settles them by key.
  */
 export declare function ImportDialog<E, C, P>({ open, onOpenChange, spec, title, description, onBusyChange, onFinished, }: ImportDialogProps<E, C, P>): import("react").JSX.Element;

@@ -1,3 +1,5 @@
+import { type Cell } from "./fieldTypes.ts";
+import type { CommandResult } from "./fiberyBatch.ts";
 /** A column an app imports and exports. */
 export type ImportColumn = {
     /** Stable id, e.g. the Fibery field name. */
@@ -8,14 +10,14 @@ export type ImportColumn = {
     aliases?: string[];
 };
 export type HeaderMatch = {
-    /** Column id → cell index in a record. */
+    /** Column id → cell index in a row. */
     index: Map<string, number>;
     /** Headers of the file that match no column; their cells are not read. */
     unknown: string[];
     /** Headers that occur more than once; only the first of them is read. */
     repeated: string[];
 };
-/** Matches a header record to the columns by header or alias, ignoring case, extra spaces and "ё". */
+/** Matches a header row to the columns by header or alias, ignoring case, extra spaces and "ё". */
 export declare function matchHeaders(headers: string[], columns: ImportColumn[]): HeaderMatch;
 export type IssueLevel = "error" | "warning";
 /** A problem of one row: an error keeps the row from being written, a warning does not. */
@@ -24,10 +26,10 @@ export type RowIssue = {
     message: string; /** Column id, if the problem is in one cell. */
     column?: string;
 };
-/** A data row of the file: `row` is its row number in a spreadsheet (the header is row 1). */
+/** A data row of the file: `row` is its row number in the spreadsheet (the header is row 1). */
 export type SourceRow = {
     row: number;
-    cells: Record<string, string>;
+    cells: Record<string, Cell>;
 };
 /** One field an update changes, as shown to people before writing ("" = empty). */
 export type FieldChange = {
@@ -75,49 +77,51 @@ export type PlanInput<E, P> = {
         missingKey?: string;
         repeatedKey?: (rows: number[]) => string;
         ambiguousKey?: string;
-        spreadsheetError?: (value: string) => string;
     };
 };
+export declare const defaultNormalizeKey: (value: string) => string;
 /**
  * Plans an import: for each row, create, update (with the app's patch), unchanged, or error. A row with an empty key,
- * a key repeated in the file, or a key matching several existing records is an error without asking the app. A cell
- * with a spreadsheet error value ("#ERROR!") is an error too, and the app gets it as empty. Rows whose cells are all
- * empty are left out.
+ * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
+ * whose cells are all empty are left out.
  */
 export declare function planImport<E, P>(input: PlanInput<E, P>): {
     rows: PlannedRow<P>[];
     summary: PlanSummary;
 };
-/**
- * A phone whose "+" a spreadsheet took away. Google Sheets makes a typed "+79991234567" the formula "=79991234567"
- * and saves its result, 79991234567, into the CSV; Excel and Sheets also turn "+7999…" into a number on opening.
- * Returns the phone with a "+" for a cell of 7–15 digits (or "=" and a number), null for anything else. Show the
- * repair to people: a number written in a local format ("8999…") gets a wrong "+" this way.
- */
-export declare function repairSpreadsheetPhone(cell: string): string | null;
-/** Whether a cell holds a spreadsheet's error value (e.g. "#ERROR!") instead of data. */
-export declare const isSpreadsheetError: (cell: string) => boolean;
-/**
- * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
- * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
- * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
- */
-export declare function looksLikeSpreadsheetNumber(stored: string, cell: string): boolean;
-export type CellResult<T> = {
-    value: T;
-} | {
-    error: string;
+export type WrittenRow = {
+    row: number;
+    key: string;
+    id: string; /** The row as read from the file. */
+    source: SourceRow;
 };
+export type FailedRow = {
+    row: number;
+    key: string;
+    message: string;
+};
+/** What an import did. */
+export type ImportOutcome = {
+    created: WrittenRow[];
+    updated: WrittenRow[];
+    /** Rows Fibery refused. */
+    failed: FailedRow[];
+    /** Rows Fibery didn't answer for: they may or may not be written; importing the same file again settles them. */
+    uncertain: FailedRow[];
+    unchanged: number;
+    /** Rows with errors in the file, never sent. */
+    invalid: number;
+};
+/** Whether the writes need a fresh load to settle: Fibery's "created" is checked, unanswered creates looked up. */
+export declare const needsReload: <P>(rows: PlannedRow<P>[], results: CommandResult[]) => boolean;
 /**
- * A date cell as "YYYY-MM-DD". Accepts "YYYY-MM-DD" and "DD.MM.YYYY" (spreadsheets re-save dates in the local format);
- * an empty cell gives "".
+ * Turns command results into the outcome. `found` maps keys to ids from a load after the writes (null when that load
+ * failed, undefined when none was needed): a create is counted only when its record is there, and an unanswered
+ * create that is there counts as created. Nothing is sent again here.
+ *
+ * @param rows The rows that were sent, in the order of `results`.
  */
-export declare function parseDateCell(cell: string): CellResult<string>;
-/**
- * The id of the option whose name matches the cell, ignoring case and "ё"; an empty cell gives "". Options are
- * never created: an unknown name is an error that lists the allowed ones.
- */
-export declare function matchOptionCell(cell: string, options: {
-    id: string;
-    name: string;
-}[]): CellResult<string>;
+export declare function settleImport<P>(rows: PlannedRow<P>[], results: CommandResult[], found: Map<string, string> | null | undefined, counts: {
+    unchanged: number;
+    invalid: number;
+}): ImportOutcome;

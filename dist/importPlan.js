@@ -1,9 +1,10 @@
-// The "what will an import do" step, apart from any UI or Fibery call: match the file's headers to the app's columns,
-// find each row's existing record by its key, catch repeated keys, let the app turn cells into a patch with its own
-// checks, and count the outcome. Also the cell parsers most imports need (dates, options by name).
-// Pure functions without runtime imports, so tests run them directly.
+// The "what will an import do" and "what did it do" steps, apart from any UI or Fibery call: match the file's headers
+// to the app's columns, find each row's existing record by its key, catch repeated keys, let the app turn cells into
+// a patch with its own checks, count the outcome, and afterwards settle Fibery's answers against a fresh load.
+// Pure functions (only relative .ts imports), so tests run them directly.
+import { cellText } from "./fieldTypes.js";
 const normalizeHeader = (text) => text.trim().replace(/\s+/g, " ").toLowerCase().replace(/ё/g, "е");
-/** Matches a header record to the columns by header or alias, ignoring case, extra spaces and "ё". */
+/** Matches a header row to the columns by header or alias, ignoring case, extra spaces and "ё". */
 export function matchHeaders(headers, columns) {
     const byName = new Map();
     for (const c of columns)
@@ -25,12 +26,12 @@ export function matchHeaders(headers, columns) {
     });
     return { index, unknown, repeated };
 }
-const defaultNormalizeKey = (value) => value.trim().toLowerCase();
+export const defaultNormalizeKey = (value) => value.trim().toLowerCase();
+const isBlank = (cell) => !cell || cell.kind === "empty" || (cell.kind === "text" && !cell.value.trim());
 /**
  * Plans an import: for each row, create, update (with the app's patch), unchanged, or error. A row with an empty key,
- * a key repeated in the file, or a key matching several existing records is an error without asking the app. A cell
- * with a spreadsheet error value ("#ERROR!") is an error too, and the app gets it as empty. Rows whose cells are all
- * empty are left out.
+ * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
+ * whose cells are all empty are left out.
  */
 export function planImport(input) {
     const normalize = input.normalizeKey ?? defaultNormalizeKey;
@@ -38,36 +39,26 @@ export function planImport(input) {
         missingKey: "Не заполнен ключ",
         repeatedKey: (rows) => `Ключ повторяется в строках ${rows.join(", ")}`,
         ambiguousKey: "Ключ совпадает с несколькими записями",
-        spreadsheetError: (value) => `Вместо значения ошибка таблицы «${value}». Исправьте ячейку; чтобы таблица не считала текст формулой, начните его с апострофа: '+7 999 123-45-67`,
         ...input.messages,
     };
+    const keyOfRow = (r) => normalize(cellText(r.cells[input.key]));
     const existingByKey = new Map();
     for (const record of input.existing) {
         const key = normalize(input.keyOf(record));
         if (key)
             existingByKey.set(key, [...(existingByKey.get(key) ?? []), record]);
     }
-    const rows = input.rows.filter((r) => Object.values(r.cells).some((v) => v.trim() !== ""));
+    const rows = input.rows.filter((r) => !Object.values(r.cells).every(isBlank));
     const rowsByKey = new Map();
     for (const r of rows) {
-        const key = normalize(r.cells[input.key] ?? "");
+        const key = keyOfRow(r);
         if (key)
             rowsByKey.set(key, [...(rowsByKey.get(key) ?? []), r.row]);
     }
     const planned = [];
     const toPrepare = [];
-    for (const original of rows) {
-        // Error values are reported here and reach the app as empty cells, so it doesn't report them a second time.
-        const broken = [];
-        const cells = { ...original.cells };
-        for (const [column, value] of Object.entries(cells)) {
-            if (!isSpreadsheetError(value))
-                continue;
-            broken.push({ level: "error", column, message: messages.spreadsheetError(value.trim()) });
-            cells[column] = "";
-        }
-        const source = { ...original, cells };
-        const key = normalize(source.cells[input.key] ?? "");
+    for (const source of rows) {
+        const key = keyOfRow(source);
         const base = { ...source, key, existingId: null, patch: null, changes: [] };
         const same = rowsByKey.get(key) ?? [];
         const matches = existingByKey.get(key) ?? [];
@@ -83,13 +74,12 @@ export function planImport(input) {
             continue;
         }
         const existing = matches[0] ?? null;
-        toPrepare.push({ index: planned.length, source, existing, broken });
+        toPrepare.push({ index: planned.length, source, existing });
         planned.push({ ...base, existingId: existing ? input.idOf(existing) : null, action: "unchanged", issues: [] });
     }
     const prepared = input.prepare(toPrepare.map(({ source, existing }) => ({ source, existing })));
-    toPrepare.forEach(({ index, broken }, i) => {
-        const { patch, changes = [] } = prepared[i];
-        const issues = [...broken, ...prepared[i].issues];
+    toPrepare.forEach(({ index }, i) => {
+        const { patch, issues, changes = [] } = prepared[i];
         const row = planned[index];
         row.issues = issues;
         row.changes = changes;
@@ -110,69 +100,43 @@ export function planImport(input) {
     }
     return { rows: planned, summary };
 }
-// ─── Cell parsers ────────────────────────────────────────────────────────────
+const idOfResult = (result) => result?.["fibery/id"] ?? "";
+/** Whether the writes need a fresh load to settle: Fibery's "created" is checked, unanswered creates looked up. */
+export const needsReload = (rows, results) => rows.some((r, i) => r.action === "create" && (results[i].ok || results[i].uncertain));
 /**
- * A phone whose "+" a spreadsheet took away. Google Sheets makes a typed "+79991234567" the formula "=79991234567"
- * and saves its result, 79991234567, into the CSV; Excel and Sheets also turn "+7999…" into a number on opening.
- * Returns the phone with a "+" for a cell of 7–15 digits (or "=" and a number), null for anything else. Show the
- * repair to people: a number written in a local format ("8999…") gets a wrong "+" this way.
+ * Turns command results into the outcome. `found` maps keys to ids from a load after the writes (null when that load
+ * failed, undefined when none was needed): a create is counted only when its record is there, and an unanswered
+ * create that is there counts as created. Nothing is sent again here.
+ *
+ * @param rows The rows that were sent, in the order of `results`.
  */
-export function repairSpreadsheetPhone(cell) {
-    const text = cell.trim();
-    if (/^\d{7,15}$/.test(text))
-        return `+${text}`;
-    const formula = /^=\+?(\d[\d\s()-]*)$/.exec(text);
-    return formula ? `+${formula[1].trim()}` : null;
-}
-// Error values Google Sheets and Excel write into a CSV in place of a formula's result.
-const SPREADSHEET_ERROR = /^#(ERROR!|NAME\?|VALUE!|REF!|DIV\/0!|N\/A|NUM!|NULL!|SPILL!|CALC!)$/i;
-/** Whether a cell holds a spreadsheet's error value (e.g. "#ERROR!") instead of data. */
-export const isSpreadsheetError = (cell) => SPREADSHEET_ERROR.test(cell.trim());
-/**
- * Whether a cell looks like a stored value after a spreadsheet turned it into a number: leading zeros dropped
- * ("050000" → "50000") or the leading plus dropped ("+79991234567" → "79991234567"). Google Sheets and Excel do this
- * when they open a CSV, and the import would then overwrite a right value with a broken one. Keep the stored value.
- */
-export function looksLikeSpreadsheetNumber(stored, cell) {
-    const s = stored.trim();
-    const c = cell.trim();
-    if (!/^\d+$/.test(c) || s === c)
-        return false;
-    return (/^0+\d/.test(s) && s.replace(/^0+/, "") === c) || (s.startsWith("+") && s.slice(1) === c);
-}
-const isValidDate = (y, m, d) => {
-    const date = new Date(Date.UTC(y, m - 1, d));
-    return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
-};
-/**
- * A date cell as "YYYY-MM-DD". Accepts "YYYY-MM-DD" and "DD.MM.YYYY" (spreadsheets re-save dates in the local format);
- * an empty cell gives "".
- */
-export function parseDateCell(cell) {
-    const text = cell.trim();
-    if (!text)
-        return { value: "" };
-    const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(text);
-    const dotted = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(text);
-    const [y, m, d] = iso ? [iso[1], iso[2], iso[3]] : dotted ? [dotted[3], dotted[2], dotted[1]] : ["", "", ""];
-    if (!y || !isValidDate(Number(y), Number(m), Number(d)))
-        return { error: "Дата в формате ГГГГ-ММ-ДД или ДД.ММ.ГГГГ" };
-    return { value: `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}` };
-}
-/**
- * The id of the option whose name matches the cell, ignoring case and "ё"; an empty cell gives "". Options are
- * never created: an unknown name is an error that lists the allowed ones.
- */
-export function matchOptionCell(cell, options) {
-    const text = normalizeHeader(cell);
-    if (!text)
-        return { value: "" };
-    const found = options.filter((o) => normalizeHeader(o.name) === text);
-    if (found.length === 1)
-        return { value: found[0].id };
-    if (found.length > 1)
-        return { error: `Несколько вариантов называются «${cell.trim()}»` };
-    const names = options.map((o) => o.name);
-    const list = names.length > 12 ? `${names.slice(0, 12).join(", ")}…` : names.join(", ");
-    return { error: `Нет варианта «${cell.trim()}»${list ? `. Есть: ${list}` : ""}` };
+export function settleImport(rows, results, found, counts) {
+    const outcome = { created: [], updated: [], failed: [], uncertain: [], ...counts };
+    rows.forEach((row, i) => {
+        const res = results[i];
+        const base = { row: row.row, key: row.key };
+        if (row.action === "update") {
+            if (res.ok)
+                outcome.updated.push({ ...base, id: row.existingId ?? "", source: row });
+            else if (res.uncertain)
+                outcome.uncertain.push({ ...base, message: "Нет ответа от Fibery — неизвестно, обновлена ли запись" });
+            else
+                outcome.failed.push({ ...base, message: res.error.message });
+            return;
+        }
+        if (!res.ok && !res.uncertain) {
+            outcome.failed.push({ ...base, message: res.error.message });
+            return;
+        }
+        const there = found?.get(row.key);
+        if (there)
+            outcome.created.push({ ...base, id: there, source: row });
+        else if (res.ok && found === null)
+            outcome.created.push({ ...base, id: idOfResult(res.result), source: row });
+        else if (res.ok)
+            outcome.uncertain.push({ ...base, message: "Fibery ответил, что запись создана, но её не видно — проверьте" });
+        else
+            outcome.uncertain.push({ ...base, message: "Нет ответа от Fibery — неизвестно, создана ли запись" });
+    });
+    return outcome;
 }

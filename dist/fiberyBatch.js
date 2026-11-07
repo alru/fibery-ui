@@ -1,18 +1,16 @@
 // Many Fibery commands with few requests: /api/commands takes an array of commands and answers with one result per
 // command, so a chunk of creates or updates is one request. Requests go one at a time with a pause between them
 // (Fibery allows 3 requests/s per user and 7/s per workspace, shared by every open app); a rate limit (429) waits and
-// repeats the chunk. A chunk whose fate is unknown (gateway error, lost connection) is repeated only when all its
-// commands are safe to repeat; otherwise its commands are reported as `uncertain` for the caller to check.
+// repeats the chunk. When the fate of a chunk is unknown (gateway error, lost connection), updates are repeated a few
+// times and creates never: their commands come back `uncertain` for the caller to settle against Fibery's data.
 class HttpError extends Error {
-    constructor(status, message, 
-    /** Seconds from a 429's Retry-After header. */
-    retryAfter) {
+    constructor(status, message, retryAfter) {
         super(message);
         this.status = status;
         this.retryAfter = retryAfter;
     }
 }
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms) => (ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve());
 const envelopeError = (result) => {
     const r = (result ?? {});
     return new Error(r.message ? `${r.name ? `${r.name} — ` : ""}${r.message}` : JSON.stringify(result));
@@ -38,36 +36,34 @@ const post = async (commands) => {
     return envelopes;
 };
 const MAX_ATTEMPTS = 5;
-const backoff = (attempt) => Math.min(1000 * 2 ** attempt, 8000);
+const MAX_WAIT_MS = 10000;
+const defaultBackoff = (attempt) => Math.min(1000 * 2 ** attempt, 8000);
 /**
  * Runs commands in the viewer's Fibery session, in order, a chunk per request, and returns one result per command
  * (same order). Never throws for Fibery or network errors: every failure lands in its command's result.
  *
- * - 429: waits (`Retry-After`, else 1–8 s) and repeats the chunk, up to 5 times.
+ * - 429: waits (`Retry-After`, else 1–8 s; at most 10 s) and repeats the chunk, up to 5 attempts.
  * - 400 / 422 for the whole request: splits the chunk in halves to find the command Fibery rejects.
- * - Other 5xx or no answer: repeats a chunk of repeatable commands (updates) with backoff; a chunk with creates is
- *   not repeated, its commands come back `uncertain` (check by key before creating again).
+ * - Other 5xx or no answer: a chunk of repeatable commands (updates) is repeated with backoff, then `uncertain`; a
+ *   chunk with creates is not repeated, its commands are `uncertain` at once.
  * - 401 / 403: all commands of the chunk fail.
  *
  * @example
  * const results = await runCommands(rows.map((r) => ({command: "fibery.entity/update", args: {type, entity: r}})));
  */
 export async function runCommands(commands, options = {}) {
-    const { chunkSize = 25, minIntervalMs = 500, signal, onProgress } = options;
+    const { chunkSize = 25, minIntervalMs = 500, backoffMs = defaultBackoff, onProgress } = options;
     const isRepeatable = options.isRepeatable ?? ((c) => c.command !== "fibery.entity/create");
     const results = new Array(commands.length);
-    let done = 0;
-    let lastStart = 0;
+    let lastStart = -Infinity;
     const send = async (chunk) => {
-        const wait = lastStart + minIntervalMs - Date.now();
-        if (wait > 0)
-            await sleep(wait);
+        await sleep(lastStart + minIntervalMs - Date.now());
         lastStart = Date.now();
         return post(chunk);
     };
     // Fills results[from .. from + chunk.length).
     const runChunk = async (from, chunk) => {
-        const fail = (error, extra = {}) => chunk.forEach((_, i) => (results[from + i] = { ok: false, error, ...extra }));
+        const fail = (error, uncertain = false) => chunk.forEach((_, i) => (results[from + i] = { ok: false, error, uncertain }));
         for (let attempt = 0;; attempt++) {
             try {
                 const envelopes = await send(chunk);
@@ -80,38 +76,33 @@ export async function runCommands(commands, options = {}) {
                 const error = caught instanceof Error ? caught : new Error(String(caught));
                 const status = caught instanceof HttpError ? caught.status : undefined;
                 const last = attempt + 1 >= MAX_ATTEMPTS;
-                if (status === 429 && !last) {
+                if (status === 429) {
+                    if (last)
+                        return fail(error);
                     const retryAfter = caught instanceof HttpError ? caught.retryAfter : undefined;
-                    await sleep(retryAfter ? Math.min(retryAfter * 1000, 30000) : backoff(attempt));
+                    await sleep(Math.min(retryAfter ? retryAfter * 1000 : backoffMs(attempt), MAX_WAIT_MS));
                     continue;
                 }
-                if ((status === 400 || status === 422) && chunk.length > 1) {
+                if (status === 400 || status === 422) {
+                    if (chunk.length === 1)
+                        return fail(error);
                     const half = Math.ceil(chunk.length / 2);
                     await runChunk(from, chunk.slice(0, half));
                     await runChunk(from + half, chunk.slice(half));
                     return;
                 }
-                if (status === 401 || status === 403 || status === 400 || status === 422 || status === 429)
+                if (status === 401 || status === 403)
                     return fail(error);
                 // 5xx or no answer at all: Fibery may have carried the request out.
-                if (chunk.every(isRepeatable) && !last && !signal?.aborted) {
-                    await sleep(backoff(attempt));
-                    continue;
-                }
-                return fail(error, { uncertain: !chunk.every(isRepeatable) });
+                if (!chunk.every(isRepeatable) || last)
+                    return fail(error, true);
+                await sleep(Math.min(backoffMs(attempt), MAX_WAIT_MS));
             }
         }
     };
     for (let from = 0; from < commands.length; from += chunkSize) {
-        const chunk = commands.slice(from, from + chunkSize);
-        if (signal?.aborted) {
-            const error = new Error("Остановлено");
-            chunk.forEach((_, i) => (results[from + i] = { ok: false, error, skipped: true }));
-        }
-        else
-            await runChunk(from, chunk);
-        done += chunk.length;
-        onProgress?.(done, commands.length);
+        await runChunk(from, commands.slice(from, from + chunkSize));
+        onProgress?.(Math.min(from + chunkSize, commands.length), commands.length);
     }
     return results;
 }
