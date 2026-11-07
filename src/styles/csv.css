@@ -1,0 +1,51 @@
+@layer components {
+  /* ─── CSV import dialog ─── */
+  .fui-import__intro { display: flex; flex-direction: column; gap: 12px; }
+  .fui-import__intro p { margin: 0; }
+  .fui-import__key { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+  .fui-import__key-select { width: 200px; }
+  .fui-import__hint { margin: 0; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+
+  .fui-import__stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .fui-import__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .fui-import__stat-value { font-size: 20px; font-weight: 600; line-height: 26px; font-variant-numeric: tabular-nums; }
+  .fui-import__stat-label { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+
+  .fui-import__issues {
+    max-height: 280px;
+    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .fui-import__issues table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 18px; }
+  .fui-import__issues th {
+    position: sticky;
+    top: 0;
+    padding: 6px 10px;
+    background: var(--background);
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+    box-shadow: inset 0 -1px 0 var(--border);
+  }
+  .fui-import__issues td { padding: 6px 10px; vertical-align: top; box-shadow: inset 0 -1px 0 var(--border); }
+  .fui-import__issues tr:last-child td { box-shadow: none; }
+  .fui-import__issue-row { width: 84px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .fui-import__level { display: inline-flex; margin-right: 6px; vertical-align: -3px; }
+  .fui-import__level > svg { width: 14px; height: 14px; }
+  .fui-import__issues tr[data-level="error"] .fui-import__level { color: var(--highlight-red-fg); }
+  .fui-import__issues tr[data-level="warning"] .fui-import__level { color: var(--highlight-yellow-fg); }
+  .fui-import__issues + .fui-import__hint { margin-top: -8px; }
+
+  .fui-import__progress-label { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .fui-progress { height: 6px; overflow: hidden; border-radius: 3px; background: var(--muted); }
+  .fui-progress__bar { height: 100%; background: var(--primary); transition: width 0.2s ease-out; }
+}

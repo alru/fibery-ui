@@ -467,6 +467,40 @@ const rename = useMutation({
 
 `ids` is optional (default `[]`, meaning "refetch the whole database").
 
+**CSV import and export**
+
+```tsx
+// Export: the header row alone is a valid file, so an empty database still gives an import template.
+downloadCsv("tasks-2026-11-07.csv", [columns.map((c) => c.header), ...rows.map(toCells)]);   // delimiter "," by default
+
+// Import: the app describes its columns, the key and the row → patch → command steps.
+const spec: ImportSpec<Task, Context, Patch> = {
+  columns: [{id: "Space/Email", header: "Email", aliases: ["Space/Email"]}, …],
+  keys: [{column: "Space/Email", label: "Email", of: (t) => t.email}],   // several → the user picks one
+  load: async () => ({existing: await fetchTasks(), context: {options: await fetchOptions()}}),   // fresh, not cached
+  idOf: (t) => t.id,
+  prepare: (rows, ctx) => rows.map(({source, existing}) => ({patch: …, issues: […]})),   // patch null = nothing to write
+  toCommand: ({action, id, patch}) => action === "create"
+    ? {command: "fibery.entity/create", args: {type: "Space/Task", entity: patch}}
+    : {command: "fibery.entity/update", args: {type: "Space/Task", entity: {"fibery/id": id, ...patch}}},
+  afterWrite: async (outcome) => [],   // optional: linked records; returns notes for the report
+};
+<ImportDialog open={open} onOpenChange={setOpen} spec={spec} onBusyChange={setBusy} onFinished={refetch} />
+```
+
+- Files: comma, semicolon or tab (detected); UTF-8 with or without BOM, or windows-1251 (Excel's plain "CSV" on a
+  Russian Windows). Up to 5 MB / 5000 rows. Export writes UTF-8 with a BOM and CRLF.
+- Cells a spreadsheet would run as a formula (`=…`, `@…`, `+`/`-` followed by more than digits) get a leading `'` on
+  export; import removes it exactly. Phones like `+7 999 …` and negative numbers are left as is.
+- The dialog shows what will happen (create / update / unchanged / errors, every problem by row and column) before
+  writing. A row with an error is not written; warnings don't stop it. Empty, repeated or ambiguous keys are errors.
+- Writes: `runCommands` sends 25 commands per request, one request at a time, at most 2 per second; 429 waits and
+  repeats, a 400 for a whole chunk is split to find the bad command. A create chunk without an answer is not repeated
+  blindly: after the run the dialog reloads the data, counts the records that are there and sends only the missing
+  ones again. The report's "Создано" is therefore what Fibery holds.
+- Cell helpers: `parseDateCell` (`YYYY-MM-DD` or `DD.MM.YYYY` → `YYYY-MM-DD`), `matchOptionCell` (option by name,
+  never created; the error lists the allowed names).
+
 ## Theme rules (from Fibery's Custom Apps guide)
 
 - Color only through theme variables or Tailwind tokens; no hard-coded hex in components.
@@ -480,6 +514,7 @@ const rename = useMutation({
 ```sh
 npm install
 npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
+npm test         # node --test on test/*.test.ts (pure modules: CSV, import planning); no extra dependencies
 ```
 
 Styles live in `src/styles/`, one file per component group; `scripts/build-css.mjs` lists the concatenation
