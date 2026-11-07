@@ -501,7 +501,8 @@ const spec: ImportSpec<Task, Context, Patch> = {
 - Cell helpers: `parseDateCell` (`YYYY-MM-DD` or `DD.MM.YYYY` → `YYYY-MM-DD`), `matchOptionCell` (option by name,
   never created; the error lists the allowed names), `looksLikeSpreadsheetNumber(stored, cell)` — true when the cell
   is the stored value after Sheets / Excel made it a number (`050000` → `50000`, `+7999…` → `7999…`); keep the stored
-  value and warn instead of writing it.
+  value and warn instead of writing it. `repairSpreadsheetPhone(cell)` — `"=7 999…"` (Sheets makes a typed
+  `+7 999…` a formula) → `"+7 999…"`, null for any other cell.
 - `prepare` may return `changes: [{column, from, to}]` per update; the preview lists them (collapsed) so an edit
   nobody meant is seen before writing.
 

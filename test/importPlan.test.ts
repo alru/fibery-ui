@@ -7,6 +7,7 @@ import {
   matchOptionCell,
   parseDateCell,
   planImport,
+  repairSpreadsheetPhone,
   type SourceRow,
 } from "../src/importPlan.ts";
 
@@ -96,6 +97,15 @@ test("recognizes numbers a spreadsheet broke, not real edits", () => {
   assert.equal(looksLikeSpreadsheetNumber("50000", "50000"), false);
   assert.equal(looksLikeSpreadsheetNumber("", "123"), false);
   assert.equal(looksLikeSpreadsheetNumber("AB012", "12"), false);
+});
+
+test("gives back the plus of a phone a spreadsheet made a formula, and nothing else", () => {
+  assert.equal(repairSpreadsheetPhone("=79991234567"), "+79991234567");
+  assert.equal(repairSpreadsheetPhone(" =+7 (999) 123-45-67 "), "+7 (999) 123-45-67");
+  assert.equal(repairSpreadsheetPhone("+79991234567"), null);
+  assert.equal(repairSpreadsheetPhone("=SUM(A1)"), null);
+  assert.equal(repairSpreadsheetPhone("=7+1"), null);
+  assert.equal(repairSpreadsheetPhone("79991234567"), null);
 });
 
 test("parses ISO and dotted dates, rejects impossible ones", () => {

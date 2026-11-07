@@ -167,6 +167,7 @@ export {
   matchOptionCell,
   parseDateCell,
   planImport,
+  repairSpreadsheetPhone,
   type CellResult,
   type FieldChange,
   type HeaderMatch,
