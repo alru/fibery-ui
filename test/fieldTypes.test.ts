@@ -14,7 +14,7 @@ test("every type reads back what it writes", () => {
     [building, "12/3"],
     [building, "5-1"],
     [emailType(), "Jane.Doe@example.com"],
-    [phoneType(), "+7 (999) 123-45-67"],
+    [phoneType(), "79991234567"],
     [dateType(), "2026-01-05"],
     [optionType([{id: "a", name: "Active"}]), "a"],
   ];
@@ -35,10 +35,11 @@ test("text that breaks the type's rule is an error with the rule", () => {
   assert.ok("error" in parseCell(emailType(), text("no-at-sign")));
 });
 
-test("a phone needs a plus: a bare number is an error, not repaired", () => {
-  assert.ok("error" in parseCell(phoneType(), text("79991234567")));
-  assert.ok("error" in parseCell(phoneType(), text("=79991234567")));
-  assert.deepEqual(parseCell(phoneType(), text("+79991234567")), {value: "+79991234567"});
+test("a phone is digits only: a plus, spaces or dashes are errors", () => {
+  assert.deepEqual(parseCell(phoneType(), text("79991234567")), {value: "79991234567"});
+  for (const wrong of ["+79991234567", "7 999 123-45-67", "123456", "1234567890123456"]) {
+    assert.ok("error" in parseCell(phoneType(), text(wrong)), wrong);
+  }
 });
 
 test("dates are read from ISO, dotted text and date cells only", () => {
@@ -78,6 +79,6 @@ test("check() gives the form the same rule as import", () => {
   const latin = textType({pattern: /^[A-Za-z]+$/, rule: "Только латиница"});
   assert.equal(latin.check("Иван"), "Только латиница");
   assert.equal(latin.check(""), null);
-  assert.equal(phoneType().check("+7 999 123-45-67"), null);
+  assert.equal(phoneType().check("79991234567"), null);
   assert.equal(optionType([]).check("any-id"), null);
 });

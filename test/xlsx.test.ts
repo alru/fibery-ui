@@ -7,7 +7,7 @@ import {readXlsx, writeXlsx} from "../src/xlsx.ts";
 test("written text reads back exactly, as text cells", async () => {
   const rows = [
     ["Email (ID)", "Индекс", "Телефон", "Дом", "Заметка"],
-    ["jane@example.com", "050000", "+79991234567", "12/3", "строка 1\nстрока 2 & <теги> \"кавычки\""],
+    ["jane@example.com", "050000", "79991234567", "12/3", "строка 1\nстрока 2 & <теги> \"кавычки\""],
     ["john@example.com", "", "=SUM(A1)", "5-1", "  пробелы  "],
   ];
   const cells = await readXlsx(await writeXlsx("Contractors", rows));

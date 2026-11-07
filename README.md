@@ -478,7 +478,8 @@ const building = textType({pattern: /^[\p{L}\d/-]+$/u, rule: "Только бу�
 building.check("12 корп. 3");                        // "Только буквы, цифры, / и -" — the form's format check
 parseCell(building, {kind: "text", value: "12/3"});  // {value: "12/3"}
 parseCell(building, {kind: "number", value: 12});    // {error: "В ячейке число, а нужен текст: …"}
-// Also: emailType(), phoneType() ("+" and 7–15 digits), dateType() ("YYYY-MM-DD" / "DD.MM.YYYY" / a date cell),
+// Also: emailType(), phoneType() (7–15 digits with the country code, nothing else: a leading "+" turns into a
+// formula in Google Sheets), dateType() ("YYYY-MM-DD" / "DD.MM.YYYY" / a date cell),
 // optionType(options) (stored as id, written and read by name, never created).
 ```
 
