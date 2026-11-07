@@ -150,36 +150,39 @@ export {
   type LiveUpdatesOptions,
   type NotifyChangeOptions,
 } from "./components/LiveUpdates";
+export {ImportDialog, downloadXlsx, type ImportDialogProps, type ImportKey, type ImportSpec} from "./components/Import";
 export {
-  ImportDialog,
-  downloadCsv,
-  type ImportDialogProps,
-  type ImportKey,
-  type ImportOutcome,
-  type ImportSpec,
-  type FailedRow,
-  type WrittenRow,
-} from "./components/Csv";
-export {decodeCsvBytes, detectDelimiter, escapeFormula, parseCsv, stringifyCsv, unescapeFormula, type CsvDelimiter} from "./csv";
+  cellText,
+  dateType,
+  emailType,
+  optionType,
+  parseCell,
+  phoneType,
+  textType,
+  type Cell,
+  type FieldType,
+  type Parsed,
+  type TextTypeOptions,
+} from "./fieldTypes";
+export {readXlsx, writeXlsx} from "./xlsx";
 export {
-  isSpreadsheetError,
-  looksLikeSpreadsheetNumber,
   matchHeaders,
-  matchOptionCell,
-  parseDateCell,
   planImport,
-  repairSpreadsheetPhone,
-  type CellResult,
+  settleImport,
+  type FailedRow,
   type FieldChange,
   type HeaderMatch,
   type ImportColumn,
+  type ImportOutcome,
   type IssueLevel,
   type PlannedRow,
   type PlanSummary,
   type Prepared,
   type RowIssue,
   type SourceRow,
+  type WrittenRow,
 } from "./importPlan";
 export {runCommands, type CommandResult, type FiberyCommand, type RunCommandsOptions} from "./fiberyBatch";
+export {fetchAllPages} from "./paging";
 export {friendlyErrorMessage, httpStatusOf, isPermissionError, isTransientError, retryDelay, transientRetry} from "./errors";
 export {cx} from "./cx";

@@ -8,7 +8,9 @@
     "declaration": true,
     "rootDir": "src",
     "outDir": "dist",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    // Pure modules import each other as "./x.ts", so Node runs them in tests as they are; emitted code gets ".js".
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src"]
 }

@@ -1,15 +1,9 @@
-// Import planning: header matching, key matching and the outcome counts, plus the date and option cell parsers.
+// Import planning and settling: header matching, key matching, the outcome counts, and how Fibery's answers are
+// settled against a fresh load.
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {
-  looksLikeSpreadsheetNumber,
-  matchHeaders,
-  matchOptionCell,
-  parseDateCell,
-  planImport,
-  repairSpreadsheetPhone,
-  type SourceRow,
-} from "../src/importPlan.ts";
+import {matchHeaders, planImport, settleImport, type PlannedRow, type SourceRow} from "../src/importPlan.ts";
+import type {CommandResult} from "../src/fiberyBatch.ts";
 
 const columns = [
   {id: "email", header: "Email (ID)", aliases: ["Workforce/Email (ID)"]},
@@ -29,7 +23,10 @@ const existing: Existing[] = [
   {id: "2", email: "twin@example.com", name: "A"},
   {id: "3", email: "TWIN@example.com", name: "B"},
 ];
-const row = (n: number, email: string, name = ""): SourceRow => ({row: n, cells: {email, name}});
+const row = (n: number, email: string, name = ""): SourceRow => ({
+  row: n,
+  cells: {email: {kind: "text", value: email}, name: name ? {kind: "text", value: name} : {kind: "empty"}},
+});
 
 const plan = (rows: SourceRow[]) =>
   planImport<Existing, {name: string}>({
@@ -41,14 +38,15 @@ const plan = (rows: SourceRow[]) =>
     // Writes the name when it is filled and differs; "bad" is an error, "warn" a warning.
     prepare: (items) =>
       items.map(({source, existing: e}) => {
-        const name = source.cells.name.trim();
+        const cell = source.cells.name;
+        const name = cell.kind === "text" ? cell.value.trim() : "";
         if (name === "bad") return {patch: null, issues: [{level: "error", column: "name", message: "bad"}]};
         const issues = name === "warn" ? [{level: "warning" as const, message: "warn"}] : [];
         return {patch: name && name !== e?.name ? {name} : null, issues};
       }),
   });
 
-test("classifies rows: update, unchanged, create, errors by key and by the app", () => {
+test("classifies rows: create, errors by key and by the app; empty rows are left out", () => {
   const {rows, summary} = plan([
     row(2, " jane@example.com ", "Janet"),
     row(3, "jane2@example.com", "New"),
@@ -59,7 +57,7 @@ test("classifies rows: update, unchanged, create, errors by key and by the app",
     row(8, "twin@example.com", "Z"),
     row(9, "new@example.com", "bad"),
     row(10, "warn@example.com", "warn"),
-    row(11, "", ""),
+    {row: 11, cells: {email: {kind: "empty"}, name: {kind: "text", value: "  "}}},
   ]);
   assert.deepEqual(
     rows.map((r) => [r.row, r.action]),
@@ -80,7 +78,7 @@ test("classifies rows: update, unchanged, create, errors by key and by the app",
 });
 
 test("an existing record is updated with the app's patch, or left unchanged", () => {
-  const {rows, summary} = plan([row(2, "jane@example.com", "Janet"), row(3, "twin2@example.com", "")]);
+  const {rows, summary} = plan([row(2, "jane@example.com", "Janet"), row(3, "other@example.com", "")]);
   assert.equal(rows[0].action, "update");
   assert.equal(rows[0].existingId, "1");
   assert.deepEqual(rows[0].patch, {name: "Janet"});
@@ -88,65 +86,48 @@ test("an existing record is updated with the app's patch, or left unchanged", ()
   assert.deepEqual(summary, {create: 0, update: 1, unchanged: 1, error: 0, warning: 0});
 });
 
-test("recognizes numbers a spreadsheet broke, not real edits", () => {
-  assert.equal(looksLikeSpreadsheetNumber("050000", "50000"), true);
-  assert.equal(looksLikeSpreadsheetNumber("0012", "12"), true);
-  assert.equal(looksLikeSpreadsheetNumber("+79991234567", "79991234567"), true);
-  assert.equal(looksLikeSpreadsheetNumber("050000", "050000"), false);
-  assert.equal(looksLikeSpreadsheetNumber("050000", "60000"), false);
-  assert.equal(looksLikeSpreadsheetNumber("50000", "50000"), false);
-  assert.equal(looksLikeSpreadsheetNumber("", "123"), false);
-  assert.equal(looksLikeSpreadsheetNumber("AB012", "12"), false);
+const planned = (n: number, action: "create" | "update", key: string): PlannedRow<object> => ({
+  row: n,
+  cells: {},
+  key,
+  existingId: action === "update" ? `id-${key}` : null,
+  action,
+  patch: {},
+  issues: [],
+  changes: [],
+});
+const ok = (id = ""): CommandResult => ({ok: true, result: {"fibery/id": id}});
+const failed: CommandResult = {ok: false, error: new Error("refused")};
+const unknown: CommandResult = {ok: false, error: new Error("504"), uncertain: true};
+
+test("settles creates against the fresh load and never counts a missing one as created", () => {
+  const rows = [planned(2, "create", "a"), planned(3, "create", "b"), planned(4, "create", "c"), planned(5, "create", "d")];
+  const found = new Map([
+    ["a", "A"],
+    ["c", "C"],
+  ]);
+  const outcome = settleImport(rows, [ok("a1"), ok("b1"), unknown, unknown], found, {unchanged: 1, invalid: 2});
+  assert.deepEqual(outcome.created.map((c) => [c.row, c.id]), [[2, "A"], [4, "C"]]);
+  assert.deepEqual(outcome.uncertain.map((u) => u.row), [3, 5]);
+  assert.match(outcome.uncertain[0].message, /не видно/);
+  assert.match(outcome.uncertain[1].message, /неизвестно, создана/);
+  assert.equal(outcome.unchanged, 1);
+  assert.equal(outcome.invalid, 2);
 });
 
-test("gives back the plus a spreadsheet took from a phone, and touches nothing else", () => {
-  assert.equal(repairSpreadsheetPhone("79991234567"), "+79991234567");
-  assert.equal(repairSpreadsheetPhone("=79991234567"), "+79991234567");
-  assert.equal(repairSpreadsheetPhone(" =+7 (999) 123-45-67 "), "+7 (999) 123-45-67");
-  assert.equal(repairSpreadsheetPhone("+79991234567"), null);
-  assert.equal(repairSpreadsheetPhone("123456"), null);
-  assert.equal(repairSpreadsheetPhone("1234567890123456"), null);
-  assert.equal(repairSpreadsheetPhone("7.9991E+10"), null);
-  assert.equal(repairSpreadsheetPhone("=SUM(A1)"), null);
-  assert.equal(repairSpreadsheetPhone("=7+1"), null);
+test("without a fresh load, Fibery's answers stand and unanswered rows stay unknown", () => {
+  const rows = [planned(2, "create", "a"), planned(3, "create", "b"), planned(4, "update", "c"), planned(5, "update", "d")];
+  const outcome = settleImport(rows, [ok("a1"), unknown, unknown, failed], null, {unchanged: 0, invalid: 0});
+  assert.deepEqual(outcome.created.map((c) => [c.row, c.id]), [[2, "a1"]]);
+  assert.deepEqual(outcome.uncertain.map((u) => u.row), [3, 4]);
+  assert.match(outcome.uncertain[1].message, /обновлена/);
+  assert.deepEqual(outcome.failed, [{row: 5, key: "d", message: "refused"}]);
+  assert.deepEqual(outcome.updated, []);
 });
 
-test("a spreadsheet error value is a row error and reaches the app as an empty cell", () => {
-  let seen = "";
-  const {rows} = planImport<Existing, {name: string}>({
-    rows: [row(2, "jane@example.com", "#ERROR!")],
-    key: "email",
-    existing,
-    keyOf: (e) => e.email,
-    idOf: (e) => e.id,
-    prepare: (items) =>
-      items.map(({source}) => {
-        seen = source.cells.name;
-        return {patch: null, issues: []};
-      }),
-  });
-  assert.equal(seen, "");
-  assert.equal(rows[0].action, "error");
-  assert.equal(rows[0].issues[0].column, "name");
-  assert.match(rows[0].issues[0].message, /#ERROR!/);
-});
-
-test("parses ISO and dotted dates, rejects impossible ones", () => {
-  assert.deepEqual(parseDateCell("2026-1-5"), {value: "2026-01-05"});
-  assert.deepEqual(parseDateCell(" 07.11.2026 "), {value: "2026-11-07"});
-  assert.deepEqual(parseDateCell(""), {value: ""});
-  assert.ok("error" in parseDateCell("31.02.2026"));
-  assert.ok("error" in parseDateCell("11/07/2026"));
-});
-
-test("matches options by name ignoring case and ё, never inventing one", () => {
-  const options = [
-    {id: "a", name: "Active"},
-    {id: "b", name: "Ёлка"},
-  ];
-  assert.deepEqual(matchOptionCell("active", options), {value: "a"});
-  assert.deepEqual(matchOptionCell("елка", options), {value: "b"});
-  assert.deepEqual(matchOptionCell("", options), {value: ""});
-  const unknown = matchOptionCell("Gone", options);
-  assert.ok("error" in unknown && unknown.error.includes("Active, Ёлка"));
+test("updates that succeeded are counted with their record id and source row", () => {
+  const rows = [planned(2, "update", "a")];
+  const outcome = settleImport(rows, [ok()], undefined, {unchanged: 0, invalid: 0});
+  assert.equal(outcome.updated[0].id, "id-a");
+  assert.equal(outcome.updated[0].source.row, 2);
 });
