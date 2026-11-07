@@ -499,7 +499,11 @@ const spec: ImportSpec<Task, Context, Patch> = {
   blindly: after the run the dialog reloads the data, counts the records that are there and sends only the missing
   ones again. The report's "Создано" is therefore what Fibery holds.
 - Cell helpers: `parseDateCell` (`YYYY-MM-DD` or `DD.MM.YYYY` → `YYYY-MM-DD`), `matchOptionCell` (option by name,
-  never created; the error lists the allowed names).
+  never created; the error lists the allowed names), `looksLikeSpreadsheetNumber(stored, cell)` — true when the cell
+  is the stored value after Sheets / Excel made it a number (`050000` → `50000`, `+7999…` → `7999…`); keep the stored
+  value and warn instead of writing it.
+- `prepare` may return `changes: [{column, from, to}]` per update; the preview lists them (collapsed) so an edit
+  nobody meant is seen before writing.
 
 ## Theme rules (from Fibery's Custom Apps guide)
 

@@ -1,7 +1,14 @@
 // Import planning: header matching, key matching and the outcome counts, plus the date and option cell parsers.
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {matchHeaders, matchOptionCell, parseDateCell, planImport, type SourceRow} from "../src/importPlan.ts";
+import {
+  looksLikeSpreadsheetNumber,
+  matchHeaders,
+  matchOptionCell,
+  parseDateCell,
+  planImport,
+  type SourceRow,
+} from "../src/importPlan.ts";
 
 const columns = [
   {id: "email", header: "Email (ID)", aliases: ["Workforce/Email (ID)"]},
@@ -78,6 +85,17 @@ test("an existing record is updated with the app's patch, or left unchanged", ()
   assert.deepEqual(rows[0].patch, {name: "Janet"});
   assert.equal(rows[1].action, "unchanged");
   assert.deepEqual(summary, {create: 0, update: 1, unchanged: 1, error: 0, warning: 0});
+});
+
+test("recognizes numbers a spreadsheet broke, not real edits", () => {
+  assert.equal(looksLikeSpreadsheetNumber("050000", "50000"), true);
+  assert.equal(looksLikeSpreadsheetNumber("0012", "12"), true);
+  assert.equal(looksLikeSpreadsheetNumber("+79991234567", "79991234567"), true);
+  assert.equal(looksLikeSpreadsheetNumber("050000", "050000"), false);
+  assert.equal(looksLikeSpreadsheetNumber("050000", "60000"), false);
+  assert.equal(looksLikeSpreadsheetNumber("50000", "50000"), false);
+  assert.equal(looksLikeSpreadsheetNumber("", "123"), false);
+  assert.equal(looksLikeSpreadsheetNumber("AB012", "12"), false);
 });
 
 test("parses ISO and dotted dates, rejects impossible ones", () => {
