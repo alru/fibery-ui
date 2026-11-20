@@ -9,6 +9,7 @@ import { ChevronDown } from "lucide-react";
 import { cx } from "../cx";
 import { Input, SearchInput } from "./Form";
 import { Highlight, normalizeSearchText, searchTokens } from "./Highlight";
+import { useKitTexts } from "./KitLang";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "./Overlay";
 const filterOptions = (options, tokens) => options.filter((o) => {
     const haystack = normalizeSearchText(`${o.text} ${o.keywords ?? ""}`);
@@ -58,7 +59,8 @@ function OptionList({ options, tokens, emptyText, separator, nav, onPick }) {
 // Value of the synthetic "create" row; cannot clash with real option values, which are ids.
 const CREATE_VALUE = "\u0000create";
 /** Picker with search, groups and ↑ ↓ Enter navigation; optionally creates a new value. Closes after a pick. */
-export function Combobox({ options, onSelect, onCreate, createText = (text) => `Создать «${text}»`, children, placeholder = "Поиск…", emptyText = "Ничего не найдено", align = "start", separator, className, }) {
+export function Combobox({ options, onSelect, onCreate, createText, children, placeholder, emptyText, align = "start", separator, className, }) {
+    const t = useKitTexts();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const tokens = searchTokens(query);
@@ -66,7 +68,7 @@ export function Combobox({ options, onSelect, onCreate, createText = (text) => `
     const exists = options.some((o) => normalizeSearchText(o.text) === normalizeSearchText(typed));
     const filtered = [
         ...filterOptions(options, tokens),
-        ...(onCreate && typed && !exists ? [{ value: CREATE_VALUE, text: createText(typed) }] : []),
+        ...(onCreate && typed && !exists ? [{ value: CREATE_VALUE, text: (createText ?? t.create)(typed) }] : []),
     ];
     const close = () => {
         setOpen(false);
@@ -83,10 +85,10 @@ export function Combobox({ options, onSelect, onCreate, createText = (text) => `
         close();
     };
     const nav = useOptionNavigation(filtered, pick);
-    return (_jsxs(Popover, { open: open, onOpenChange: (next) => (next ? setOpen(true) : close()), children: [_jsx(PopoverTrigger, { asChild: true, children: children }), _jsxs(PopoverContent, { align: align, className: cx("fui-combobox", className), children: [_jsx(SearchInput, { size: "sm", ...nav.inputProps, "aria-expanded": true, placeholder: placeholder, value: query, onChange: (e) => {
+    return (_jsxs(Popover, { open: open, onOpenChange: (next) => (next ? setOpen(true) : close()), children: [_jsx(PopoverTrigger, { asChild: true, children: children }), _jsxs(PopoverContent, { align: align, className: cx("fui-combobox", className), children: [_jsx(SearchInput, { size: "sm", ...nav.inputProps, "aria-expanded": true, placeholder: placeholder ?? t.search, value: query, onChange: (e) => {
                             setQuery(e.target.value);
                             nav.setActive(0);
-                        }, onKeyDown: nav.handleKey }), _jsx("div", { className: "fui-combobox__list-wrap", children: _jsx(OptionList, { options: filtered, tokens: tokens, emptyText: emptyText, separator: separator, nav: nav, onPick: pick }) })] })] }));
+                        }, onKeyDown: nav.handleKey }), _jsx("div", { className: "fui-combobox__list-wrap", children: _jsx(OptionList, { options: filtered, tokens: tokens, emptyText: emptyText ?? t.nothingFound, separator: separator, nav: nav, onPick: pick }) })] })] }));
 }
 /** Input-styled button that shows a picked value, e.g. a Combobox trigger inside a form Field. */
 export const PickerButton = forwardRef(({ children, placeholder, size = "md", invalid, className, ...props }, ref) => {

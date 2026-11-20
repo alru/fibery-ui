@@ -1,3 +1,4 @@
+import { type KitLang } from "./i18n.ts";
 /** A cell as read from a spreadsheet file: its value and what kind of value the file says it is. */
 export type Cell = {
     kind: "empty";
@@ -48,28 +49,28 @@ export type FieldType = {
  * Reads a cell as a value of the type. Empty → "". A formula or a spreadsheet error is always an error; a number or
  * boolean cell too (a number may have lost leading zeros or a "+"); a date cell only for types that take dates.
  */
-export declare function parseCell(type: FieldType, cell: Cell): Parsed;
+export declare function parseCell(type: FieldType, cell: Cell, lang?: KitLang): Parsed;
 export type TextTypeOptions = {
     /** Allowed values, tested on the trimmed text. */
     pattern?: RegExp;
-    /** The rule shown when the pattern doesn't match, e.g. "Только латиница". */
+    /** The rule shown when the pattern doesn't match, e.g. "Latin letters only"; a generic text by default. */
     rule?: string;
     maxLength?: number;
 };
 /** Free or restricted text; stored as typed (trimmed). */
-export declare const textType: ({ pattern, rule, maxLength }?: TextTypeOptions) => FieldType;
+export declare const textType: ({ pattern, rule, maxLength }?: TextTypeOptions, lang?: KitLang) => FieldType;
 /** An email address; stored as typed, checked case-insensitively. */
-export declare const emailType: () => FieldType;
+export declare const emailType: (lang?: KitLang) => FieldType;
 /**
  * A phone as one run of 7–15 digits with the country code, e.g. 79991234567: no "+", spaces or dashes. Spreadsheets
  * keep such text as is, while a leading "+" makes Google Sheets read the cell as a formula.
  */
-export declare const phoneType: () => FieldType;
+export declare const phoneType: (lang?: KitLang) => FieldType;
 /**
  * A date stored as "YYYY-MM-DD". Text is read in "YYYY-MM-DD" or "DD.MM.YYYY" (both unambiguous); a cell the file
  * keeps as a date is taken as is. Anything else, e.g. "11/07/2026", is an error.
  */
-export declare const dateType: () => FieldType;
+export declare const dateType: (lang?: KitLang) => FieldType;
 /**
  * A value from a list (a select's options, countries): stored as the option id, written as its name, read by name
  * ignoring case and "ё". Options are never created: an unknown name is an error that lists the allowed ones.
@@ -77,4 +78,4 @@ export declare const dateType: () => FieldType;
 export declare const optionType: (options: {
     id: string;
     name: string;
-}[]) => FieldType;
+}[], lang?: KitLang) => FieldType;

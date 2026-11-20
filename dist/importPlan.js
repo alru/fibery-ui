@@ -3,6 +3,7 @@
 // a patch with its own checks, count the outcome, and afterwards settle Fibery's answers against a fresh load.
 // Pure functions (only relative .ts imports), so tests run them directly.
 import { cellText } from "./fieldTypes.js";
+import { KIT_TEXTS } from "./i18n.js";
 const normalizeHeader = (text) => text.trim().replace(/\s+/g, " ").toLowerCase().replace(/ё/g, "е");
 /** Matches a header row to the columns by header or alias, ignoring case, extra spaces and "ё". */
 export function matchHeaders(headers, columns) {
@@ -33,14 +34,10 @@ const isBlank = (cell) => !cell || cell.kind === "empty" || (cell.kind === "text
  * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
  * whose cells are all empty are left out.
  */
-export function planImport(input) {
+export function planImport(input, lang = "ru") {
     const normalize = input.normalizeKey ?? defaultNormalizeKey;
-    const messages = {
-        missingKey: "Не заполнен ключ",
-        repeatedKey: (rows) => `Ключ повторяется в строках ${rows.join(", ")}`,
-        ambiguousKey: "Ключ совпадает с несколькими записями",
-        ...input.messages,
-    };
+    const t = KIT_TEXTS[lang];
+    const messages = { missingKey: t.missingKey, repeatedKey: t.repeatedKey, ambiguousKey: t.ambiguousKey, ...input.messages };
     const keyOfRow = (r) => normalize(cellText(r.cells[input.key]));
     const existingByKey = new Map();
     for (const record of input.existing) {
@@ -109,8 +106,10 @@ export const needsReload = (rows, results) => rows.some((r, i) => r.action === "
  * create that is there counts as created. Nothing is sent again here.
  *
  * @param rows The rows that were sent, in the order of `results`.
+ * @param lang Language of the messages of unanswered rows; Russian by default.
  */
-export function settleImport(rows, results, found, counts) {
+export function settleImport(rows, results, found, counts, lang = "ru") {
+    const t = KIT_TEXTS[lang];
     const outcome = { created: [], updated: [], failed: [], uncertain: [], ...counts };
     rows.forEach((row, i) => {
         const res = results[i];
@@ -119,7 +118,7 @@ export function settleImport(rows, results, found, counts) {
             if (res.ok)
                 outcome.updated.push({ ...base, id: row.existingId ?? "", source: row });
             else if (res.uncertain)
-                outcome.uncertain.push({ ...base, message: "Нет ответа от Fibery — неизвестно, обновлена ли запись" });
+                outcome.uncertain.push({ ...base, message: t.updateUnanswered });
             else
                 outcome.failed.push({ ...base, message: res.error.message });
             return;
@@ -134,9 +133,9 @@ export function settleImport(rows, results, found, counts) {
         else if (res.ok && found === null)
             outcome.created.push({ ...base, id: idOfResult(res.result), source: row });
         else if (res.ok)
-            outcome.uncertain.push({ ...base, message: "Fibery ответил, что запись создана, но её не видно — проверьте" });
+            outcome.uncertain.push({ ...base, message: t.createdNotFound });
         else
-            outcome.uncertain.push({ ...base, message: "Нет ответа от Fibery — неизвестно, создана ли запись" });
+            outcome.uncertain.push({ ...base, message: t.createUnanswered });
     });
     return outcome;
 }

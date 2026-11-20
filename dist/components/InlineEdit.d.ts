@@ -5,7 +5,7 @@ export type InlineEditProps = {
     children?: ReactNode;
     /** Called with the trimmed new value when it changed; a rejected promise keeps the field open with the error. */
     onSave: (value: string) => unknown;
-    /** Accessible name of the pencil button and the field, e.g. "Переименовать направление". */
+    /** Accessible name of the pencil button and the field, e.g. "Rename group". */
     label: string;
     /** Muted note under the field while editing, e.g. what else the change affects. */
     hint?: ReactNode;

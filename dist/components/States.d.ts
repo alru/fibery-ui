@@ -11,14 +11,14 @@ export type LoadingStateProps = {
     children?: ReactNode;
     className?: string;
 };
-/** Spinner with a caption, `"Загрузка…"` by default. */
+/** Spinner with a caption, «Загрузка…» / "Loading…" by default. */
 export declare function LoadingState({ children, className }: LoadingStateProps): import("react").JSX.Element;
 export type ErrorStateProps = {
     error: unknown;
     title?: ReactNode;
-    /** Shows a «Повторить» button that calls it, before `action`. */
+    /** Shows a «Повторить» / "Retry" button that calls it, before `action`. */
     onRetry?: () => void;
-    /** Spinner on the «Повторить» button while the retry runs. */
+    /** Spinner on the retry button while the retry runs. */
     retrying?: boolean;
     /** Any extra controls under the message. */
     action?: ReactNode;
@@ -29,7 +29,7 @@ export type ErrorStateProps = {
  * words; the underlying message is always shown too, small and muted under that text: Fibery API errors carry
  * the exact diagnostic needed to report the problem.
  */
-export declare function ErrorState({ error, title, onRetry, retrying, action, className, }: ErrorStateProps): import("react").JSX.Element;
+export declare function ErrorState({ error, title, onRetry, retrying, action, className }: ErrorStateProps): import("react").JSX.Element;
 export type EmptyStateProps = {
     title: ReactNode;
     description?: ReactNode;
@@ -41,9 +41,10 @@ export type EmptyStateProps = {
 /** Centered placeholder for an empty list or view. */
 export declare function EmptyState({ title, description, icon, action, className }: EmptyStateProps): import("react").JSX.Element;
 export type CalloutProps = {
-    /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted
-     *  text: the quietest note, for a rule that applies to several fields at once. */
-    tone?: "info" | "warning" | "neutral" | "plain";
+    /** `"info"` — blue (default); `"warning"` — yellow; `"error"` — red, a problem that blocks the action (e.g. a form
+     *  error not tied to one field); `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted text: the quietest
+     *  note, for a rule that applies to several fields at once. */
+    tone?: "info" | "warning" | "error" | "neutral" | "plain";
     /** Replaces the tone's default icon; `null` hides it. */
     icon?: ReactNode;
     children: ReactNode;
@@ -54,15 +55,15 @@ export declare function Callout({ tone, icon, children, className }: CalloutProp
 export type RefreshWarningProps = {
     error: unknown;
     onRetry: () => void;
-    /** Spinner on «Повторить» while the refetch runs. */
+    /** Spinner on the retry button while the refetch runs. */
     retrying?: boolean;
-    /** Lead text; default «Не удалось обновить данные.» */
+    /** Lead text; default «Не удалось обновить данные.» / "Couldn't refresh data." */
     title?: ReactNode;
     className?: string;
 };
 /**
  * Compact warning above a screen whose background refetch failed. The data already on screen stays usable (it may
  * only be stale), so a full-screen ErrorState would hide it for nothing; ErrorState is for screens with no data yet.
- * Shows the plain-words reason, «Повторить», and the raw message (clamped: a gateway error may carry a whole page).
+ * Shows the plain-words reason, a retry button, and the raw message (clamped: a gateway error may carry a whole page).
  */
-export declare function RefreshWarning({ error, onRetry, retrying, title, className, }: RefreshWarningProps): import("react").JSX.Element;
+export declare function RefreshWarning({ error, onRetry, retrying, title, className }: RefreshWarningProps): import("react").JSX.Element;

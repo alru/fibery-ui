@@ -46,6 +46,7 @@ export type ImportDialogProps<E, C, P> = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     spec: ImportSpec<E, C, P>;
+    /** «Импорт из XLSX» / "Import from XLSX" by default. */
     title?: ReactNode;
     /** Shown before a file is picked; by default explains the key, empty cells and text cells. */
     description?: ReactNode;

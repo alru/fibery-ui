@@ -1,5 +1,6 @@
 import { type Cell } from "./fieldTypes.ts";
 import type { CommandResult } from "./fiberyBatch.ts";
+import { type KitLang } from "./i18n.ts";
 /** A column an app imports and exports. */
 export type ImportColumn = {
     /** Stable id, e.g. the Fibery field name. */
@@ -72,7 +73,7 @@ export type PlanInput<E, P> = {
         source: SourceRow;
         existing: E | null;
     }[]) => Prepared<P>[];
-    /** Messages in the UI's language. */
+    /** Messages of the app's own, e.g. naming the key field; the kit's texts in `lang` by default. */
     messages?: {
         missingKey?: string;
         repeatedKey?: (rows: number[]) => string;
@@ -85,7 +86,7 @@ export declare const defaultNormalizeKey: (value: string) => string;
  * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
  * whose cells are all empty are left out.
  */
-export declare function planImport<E, P>(input: PlanInput<E, P>): {
+export declare function planImport<E, P>(input: PlanInput<E, P>, lang?: KitLang): {
     rows: PlannedRow<P>[];
     summary: PlanSummary;
 };
@@ -120,8 +121,9 @@ export declare const needsReload: <P>(rows: PlannedRow<P>[], results: CommandRes
  * create that is there counts as created. Nothing is sent again here.
  *
  * @param rows The rows that were sent, in the order of `results`.
+ * @param lang Language of the messages of unanswered rows; Russian by default.
  */
 export declare function settleImport<P>(rows: PlannedRow<P>[], results: CommandResult[], found: Map<string, string> | null | undefined, counts: {
     unchanged: number;
     invalid: number;
-}): ImportOutcome;
+}, lang?: KitLang): ImportOutcome;

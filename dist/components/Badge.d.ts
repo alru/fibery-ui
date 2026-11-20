@@ -9,7 +9,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
     caps?: boolean;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
-    /** Accessible label of the × button. */
+    /** Accessible label of the × button; «Убрать» / "Remove" by default. */
     removeLabel?: string;
 };
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
@@ -22,7 +22,7 @@ export declare const Badge: import("react").ForwardRefExoticComponent<HTMLAttrib
     caps?: boolean;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
-    /** Accessible label of the × button. */
+    /** Accessible label of the × button; «Убрать» / "Remove" by default. */
     removeLabel?: string;
 } & import("react").RefAttributes<HTMLSpanElement>>;
 export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "children"> & {

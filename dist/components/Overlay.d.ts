@@ -61,3 +61,28 @@ export declare const DialogContent: import("react").ForwardRefExoticComponent<Om
 } & import("react").RefAttributes<HTMLDivElement>>;
 /** Right-aligned action row at the bottom of a dialog. */
 export declare function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>): import("react").JSX.Element;
+export type ConfirmDialogProps = {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    /** The question, naming the action: "Delete Jane Doe?". */
+    title: ReactNode;
+    /** What happens, e.g. what else goes with it. */
+    description?: ReactNode;
+    /** Anything more between the description and the buttons, e.g. a list of affected records. */
+    children?: ReactNode;
+    /** The action's verb, e.g. "Delete"; never "OK". */
+    confirmLabel: ReactNode;
+    /** «Отмена» / "Cancel" by default. */
+    cancelLabel?: ReactNode;
+    /** Red confirm button for actions that destroy data. */
+    destructive?: boolean;
+    /** The action is running: spinner on the confirm button, and the dialog can't be closed. */
+    busy?: boolean;
+    /** Called on confirm; the dialog stays open, so the caller closes it (at once, or after `busy`). */
+    onConfirm: () => void;
+};
+/**
+ * Small dialog that asks before an action: title, optional description, Cancel and the confirm button. Cancel comes
+ * first, so focus starts on it (unless `children` has a control) and Enter right after opening doesn't confirm.
+ */
+export declare function ConfirmDialog({ open, onOpenChange, title, description, children, confirmLabel, cancelLabel, destructive, busy, onConfirm, }: ConfirmDialogProps): import("react").JSX.Element;

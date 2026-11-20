@@ -2,10 +2,13 @@ import { jsx as _jsx } from "react/jsx-runtime";
 // Access check: whether the viewer may use the app at all, and whether to offer editing. Fibery returns the records of
 // a database the viewer has no access to, with only the secured fields emptied (relations, selects and lookups are
 // never secured), so neither a successful query nor a row count proves access; a filled secured field does.
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+// Editing can be switched off for the whole app (roles, or a refused save where rights are per app) or for single
+// records (a refused save where rights are per record).
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Lock } from "lucide-react";
 import { isPermissionError } from "../errors";
 import { Button } from "./Button";
+import { useKitTexts } from "./KitLang";
 import { EmptyState, ErrorState, LoadingState } from "./States";
 /** One /api/commands call in the viewer's session; failures carry "failed: <status>" for isPermissionError. */
 const command = async (name, args) => {
@@ -95,17 +98,25 @@ const runCheck = async (requirements) => {
     }
     return { status: "granted", editableByRole: role !== "role/observer" && role !== "role/guest" };
 };
-const AccessContext = createContext({ canEdit: true, markReadOnly: () => { } });
+const AccessContext = createContext({
+    canEdit: true,
+    markReadOnly: () => { },
+    isRecordReadOnly: () => false,
+    markRecordReadOnly: () => { },
+});
 /** Access of the viewer inside `AccessGate`; outside one, everything is allowed. */
 export const useAccess = () => useContext(AccessContext);
 /**
- * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
- * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
- * Checks once on mount: the schema, one or two small queries per database and one for the role.
+ * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» /
+ * "Not enough access" screen with the number of missing databases, not their names (the names say nothing to a user
+ * and outline the schema). Checks once on mount: the schema, one or two small queries per database and one for the
+ * role. Keeps the read-only state for `useAccess`.
  */
 export function AccessGate({ databases, children }) {
+    const t = useKitTexts();
     const [check, setCheck] = useState({ status: "checking" });
     const [readOnly, setReadOnly] = useState(false);
+    const [readOnlyRecords, setReadOnlyRecords] = useState(() => new Set());
     const key = JSON.stringify(databases);
     const run = useCallback(() => {
         setCheck({ status: "checking" });
@@ -113,12 +124,21 @@ export function AccessGate({ databases, children }) {
     }, [key]);
     useEffect(run, [run]);
     const markReadOnly = useCallback(() => setReadOnly(true), []);
+    const markRecordReadOnly = useCallback((id) => setReadOnlyRecords((ids) => (ids.has(id) ? ids : new Set(ids).add(id))), []);
+    const editableByRole = check.status === "granted" && check.editableByRole;
+    // Memoized: every consumer re-renders when the value changes identity.
+    const access = useMemo(() => ({
+        canEdit: editableByRole && !readOnly,
+        markReadOnly,
+        isRecordReadOnly: (id) => readOnlyRecords.has(id),
+        markRecordReadOnly,
+    }), [editableByRole, readOnly, readOnlyRecords, markReadOnly, markRecordReadOnly]);
     if (check.status === "checking")
-        return _jsx(LoadingState, { className: "fui-access-gate", children: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430\u2026" });
+        return _jsx(LoadingState, { className: "fui-access-gate", children: t.accessChecking });
     if (check.status === "error")
         return _jsx(ErrorState, { className: "fui-access-gate", error: check.error, onRetry: run });
     if (check.status === "denied") {
-        return (_jsx("div", { className: "fui-access-gate", children: _jsx(EmptyState, { icon: _jsx(Lock, {}), title: "\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E \u0434\u043E\u0441\u0442\u0443\u043F\u0430", description: `Нет прав на чтение части данных приложения (баз без доступа: ${check.databases.length}). Обратитесь к администратору Fibery.`, action: _jsx(Button, { variant: "outline", size: "sm", onClick: run, children: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u0441\u043D\u043E\u0432\u0430" }) }) }));
+        return (_jsx("div", { className: "fui-access-gate", children: _jsx(EmptyState, { icon: _jsx(Lock, {}), title: t.accessDenied, description: t.accessDeniedText(check.databases.length), action: _jsx(Button, { variant: "outline", size: "sm", onClick: run, children: t.checkAgain }) }) }));
     }
-    return (_jsx(AccessContext.Provider, { value: { canEdit: check.editableByRole && !readOnly, markReadOnly }, children: children }));
+    return _jsx(AccessContext.Provider, { value: access, children: children });
 }

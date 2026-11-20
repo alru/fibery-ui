@@ -13,15 +13,18 @@ export type ComboboxProps = {
     options: ComboboxOption[];
     onSelect: (value: string) => void;
     /**
-     * Adds a last row "Создать «…»" while the search text matches no option exactly; called with the trimmed text.
+     * Adds a last row «Создать «…»» / "Create “…”" while the search text matches no option exactly; called with the
+     * trimmed text.
      * The caller creates the value and selects it.
      */
     onCreate?: (text: string) => void;
-    /** Text of the create row; defaults to `Создать «text»`. */
+    /** Text of the create row; «Создать «text»» / "Create “text”" by default. */
     createText?: (text: string) => string;
     /** Trigger element (e.g. a Button); must accept a ref. */
     children: ReactElement;
+    /** Search field placeholder; «Поиск…» / "Search…" by default. */
     placeholder?: string;
+    /** Text of an empty result; «Ничего не найдено» / "Nothing found" by default. */
     emptyText?: string;
     align?: "start" | "center" | "end";
     /** Path separator in option texts, drawn small and muted (see Highlight). */

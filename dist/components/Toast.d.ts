@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 export type ToastOptions = {
     message: ReactNode;
-    /** Text of the action button, e.g. "Отменить"; the toast closes when it is clicked. */
+    /** Text of the action button, e.g. "Undo"; the toast closes when it is clicked. */
     actionLabel?: string;
     onAction?: () => void;
     /** Milliseconds until the toast closes by itself. Default 6000. */

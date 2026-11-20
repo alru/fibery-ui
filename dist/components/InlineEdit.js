@@ -7,8 +7,11 @@ import { cx } from "../cx";
 import { IconButton } from "./Button";
 import { Input } from "./Form";
 import { friendlyErrorMessage } from "../errors";
+import { useKitLang, useKitTexts } from "./KitLang";
 /** Click and Enter inside never reach the parent, so it works inside clickable rows. */
 export function InlineEdit({ value, children, onSave, label, hint, className }) {
+    const lang = useKitLang();
+    const t = useKitTexts();
     const [draft, setDraft] = useState(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
@@ -32,7 +35,7 @@ export function InlineEdit({ value, children, onSave, label, hint, className }) 
         }
         catch (e) {
             const raw = e instanceof Error ? e.message : String(e);
-            const friendly = friendlyErrorMessage(e);
+            const friendly = friendlyErrorMessage(e, lang);
             // Raw text stays as the diagnostic, cut short: a gateway error may carry a whole HTML page.
             setError(friendly ? `${friendly} (${raw.slice(0, 200)})` : raw.slice(0, 300));
         }
@@ -52,7 +55,7 @@ export function InlineEdit({ value, children, onSave, label, hint, className }) 
                                     e.preventDefault();
                                     close();
                                 }
-                            } }), _jsx(IconButton, { icon: _jsx(X, {}), size: "sm", "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C (Esc)", title: "\u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C (Esc)", className: "fui-inline-edit__button", disabled: saving, 
+                            } }), _jsx(IconButton, { icon: _jsx(X, {}), size: "sm", "aria-label": t.cancelEdit, title: t.cancelEdit, className: "fui-inline-edit__button", disabled: saving, 
                             // Keeps focus in the field: its blur would save before the click could cancel.
                             onMouseDown: (e) => e.preventDefault(), onClick: close })] }), (error ?? hint) && _jsx("span", { className: error ? "fui-field__error" : "fui-field__hint", children: error ?? hint })] }));
     }

@@ -1,3 +1,4 @@
+import { type KitLang } from "./i18n.ts";
 /**
  * HTTP status of a failed Fibery request, if the error carries one.
  *
@@ -15,10 +16,12 @@ export declare function isTransientError(error: unknown): boolean;
 /** Whether Fibery refused the call for lack of rights (403, or a "no access" / "permission" message in the result). */
 export declare function isPermissionError(error: unknown): boolean;
 /**
- * Human text for a transient failure, in Russian; `undefined` for other errors, whose raw message is the only
- * useful description. Show the raw message too: it carries the diagnostic needed to report the problem.
+ * Human text for a transient failure; `undefined` for other errors, whose raw message is the only useful
+ * description. Show the raw message too: it carries the diagnostic needed to report the problem.
+ *
+ * @param lang Language of the text; Russian by default.
  */
-export declare function friendlyErrorMessage(error: unknown): string | undefined;
+export declare function friendlyErrorMessage(error: unknown, lang?: KitLang): string | undefined;
 /**
  * Retry policy for React Query that retries only transient errors (see `isTransientError`), up to `maxRetries`
  * times. Use it only for idempotent requests: a create that failed with 503 may have succeeded on the server,

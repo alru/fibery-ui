@@ -6,7 +6,7 @@ export { Avatar, Card, CardHeader, CardContent, List, ListItem, PropertyList, Pr
 export { PageHeader, SectionHeader, SidePanel, PanelLayout, Separator, Inset, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, } from "./components/Select";
-export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, } from "./components/Overlay";
+export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, ConfirmDialog, } from "./components/Overlay";
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedToggles, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
 export { Table, TableGroupRow } from "./components/Table";
@@ -15,6 +15,8 @@ export { BarList, StackedBar, FlowChart, } from "./components/Chart";
 export { Combobox, Autocomplete, PickerButton, } from "./components/Combobox";
 export { Spinner, Skeleton, LoadingState, ErrorState, EmptyState, Callout, RefreshWarning, } from "./components/States";
 export { FiberyUIProvider } from "./components/Provider";
+export { useKitLang } from "./components/KitLang";
+export { SelectionBar } from "./components/SelectionBar";
 export { ToastProvider, useToast } from "./components/Toast";
 export { InlineEdit } from "./components/InlineEdit";
 export { usePersistentState } from "./components/PersistentState";

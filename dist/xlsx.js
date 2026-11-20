@@ -1,3 +1,4 @@
+import { KIT_TEXTS } from "./i18n.js";
 // ─── Zip ─────────────────────────────────────────────────────────────────────
 const CRC_TABLE = (() => {
     const table = new Uint32Array(256);
@@ -64,8 +65,8 @@ const zip = async (files) => {
     }
     return out;
 };
-const NOT_XLSX = "Это не файл XLSX";
-const unzip = async (bytes) => {
+const unzip = async (bytes, lang) => {
+    const NOT_XLSX = KIT_TEXTS[lang].notXlsx;
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     let end = -1;
     for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 22 - 65535); i--) {
@@ -90,7 +91,7 @@ const unzip = async (bytes) => {
         const localOffset = view.getUint32(at + 42, true);
         const name = new TextDecoder().decode(bytes.subarray(at + 46, at + 46 + nameLength));
         if (size === 0xffffffff || localOffset === 0xffffffff)
-            throw new Error("Файл слишком большой");
+            throw new Error(KIT_TEXTS[lang].fileTooLarge);
         const dataStart = localOffset + 30 + view.getUint16(localOffset + 26, true) + view.getUint16(localOffset + 28, true);
         const data = bytes.subarray(dataStart, dataStart + size);
         if (method === 0)
@@ -248,10 +249,12 @@ const resolve = (base, target) => (target.startsWith("/") ? target.slice(1) : `$
  * The cells of the first sheet of an .xlsx file, row by row (gaps filled with empty cells). Numbers in a date format
  * come back as dates ("YYYY-MM-DD"); a cell with a formula comes back as a formula, whatever its result.
  *
+ * @param lang Language of the error messages; Russian by default.
  * @throws Error with a message for people when the file is not an XLSX workbook.
  */
-export async function readXlsx(bytes) {
-    const files = await unzip(bytes);
+export async function readXlsx(bytes, lang = "ru") {
+    const NOT_XLSX = KIT_TEXTS[lang].notXlsx;
+    const files = await unzip(bytes, lang);
     const xml = (path) => {
         const data = files.get(path);
         return data ? parseXml(new TextDecoder().decode(data)) : undefined;

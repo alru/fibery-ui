@@ -3,8 +3,12 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { forwardRef } from "react";
 import { X } from "lucide-react";
 import { cx } from "../cx";
+import { useKitTexts } from "./KitLang";
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
-export const Badge = forwardRef(({ hue, variant = "soft", caps, onRemove, removeLabel = "Убрать", className, children, ...props }, ref) => (_jsxs("span", { ref: ref, "data-hue": hue, "data-variant": variant, "data-caps": caps ? "" : undefined, className: cx("fui-badge", className), ...props, children: [children, onRemove && (_jsx("button", { type: "button", className: "fui-badge__remove", "aria-label": removeLabel, onClick: onRemove, children: _jsx(X, {}) }))] })));
+export const Badge = forwardRef(({ hue, variant = "soft", caps, onRemove, removeLabel, className, children, ...props }, ref) => {
+    const t = useKitTexts();
+    return (_jsxs("span", { ref: ref, "data-hue": hue, "data-variant": variant, "data-caps": caps ? "" : undefined, className: cx("fui-badge", className), ...props, children: [children, onRemove && (_jsx("button", { type: "button", className: "fui-badge__remove", "aria-label": removeLabel ?? t.remove, onClick: onRemove, children: _jsx(X, {}) }))] }));
+});
 Badge.displayName = "Badge";
 /**
  * Renders a Fibery select/workflow option in its own color. The color is data, not theme,

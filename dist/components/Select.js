@@ -6,6 +6,7 @@ import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 import { cx } from "../cx";
+import { useKitTexts } from "./KitLang";
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;
@@ -16,7 +17,7 @@ SelectTrigger.displayName = "SelectTrigger";
 export const SelectContent = forwardRef(({ className, children, position = "popper", sideOffset = 4, ...props }, ref) => (_jsx(SelectPrimitive.Portal, { children: _jsx(SelectPrimitive.Content, { ref: ref, position: position, sideOffset: sideOffset, className: cx("fui-popup fui-select-content", className), ...props, children: _jsx(SelectPrimitive.Viewport, { className: "fui-select-viewport", children: children }) }) })));
 SelectContent.displayName = "SelectContent";
 /** Option row with a check mark when selected. Children may start with an icon or EnumBadge. */
-export const SelectItem = forwardRef(({ className, children, ...props }, ref) => (_jsxs(SelectPrimitive.Item, { ref: ref, className: cx("fui-menu-item", className), ...props, children: [_jsx(SelectPrimitive.ItemText, { children: children }), _jsx(SelectPrimitive.ItemIndicator, { className: "fui-menu-item__check", children: _jsx(Check, {}) })] })));
+export const SelectItem = forwardRef(({ description, className, children, ...props }, ref) => (_jsxs(SelectPrimitive.Item, { ref: ref, "data-description": description ? "" : undefined, className: cx("fui-menu-item", className), ...props, children: [description ? (_jsxs("span", { className: "fui-menu-item__body", children: [_jsx(SelectPrimitive.ItemText, { children: children }), _jsx("span", { className: "fui-menu-item__description", children: description })] })) : (_jsx(SelectPrimitive.ItemText, { children: children })), _jsx(SelectPrimitive.ItemIndicator, { className: "fui-menu-item__check", children: _jsx(Check, {}) })] })));
 SelectItem.displayName = "SelectItem";
 /** Muted group caption inside SelectContent. */
 export const SelectLabel = forwardRef(({ className, ...props }, ref) => _jsx(SelectPrimitive.Label, { ref: ref, className: cx("fui-menu-label", className), ...props }));
@@ -27,10 +28,11 @@ SelectSeparator.displayName = "SelectSeparator";
  * Filter picker for several values: an input-styled trigger "Label: first value +N" and a menu of checkable rows
  * that stays open while toggling. An empty selection means "no filter".
  */
-export function MultiSelect({ label, options, value, onValueChange, placeholder = "Все", clearLabel = "Сбросить", size = "md", className, "aria-label": ariaLabel, }) {
+export function MultiSelect({ label, options, value, onValueChange, placeholder, clearLabel, size = "md", className, "aria-label": ariaLabel, }) {
+    const t = useKitTexts();
     const selected = options.filter((o) => value.includes(o.value));
     const toggle = (option, checked) => onValueChange(checked ? [...value, option] : value.filter((v) => v !== option));
-    return (_jsxs(DropdownPrimitive.Root, { children: [_jsxs(DropdownPrimitive.Trigger, { "data-size": size, "data-placeholder": selected.length === 0 ? "" : undefined, "aria-label": ariaLabel, className: cx("fui-input fui-select-trigger fui-multiselect", className), children: [_jsxs("span", { className: "fui-select-trigger__value", children: [_jsx("span", { className: "fui-multiselect__label", children: label }), selected.length === 0 ? (placeholder) : (_jsxs(_Fragment, { children: [selected[0].label, selected.length > 1 && _jsxs("span", { className: "fui-multiselect__more", children: ["+", selected.length - 1] })] }))] }), _jsx(ChevronDown, {})] }), _jsx(DropdownPrimitive.Portal, { children: _jsxs(DropdownPrimitive.Content, { sideOffset: 4, align: "start", className: "fui-popup fui-menu", children: [options.map((o) => (_jsxs(DropdownPrimitive.CheckboxItem, { className: "fui-menu-item", checked: value.includes(o.value), onCheckedChange: (checked) => toggle(o.value, checked === true), 
+    return (_jsxs(DropdownPrimitive.Root, { children: [_jsxs(DropdownPrimitive.Trigger, { "data-size": size, "data-placeholder": selected.length === 0 ? "" : undefined, "aria-label": ariaLabel, className: cx("fui-input fui-select-trigger fui-multiselect", className), children: [_jsxs("span", { className: "fui-select-trigger__value", children: [_jsx("span", { className: "fui-multiselect__label", children: label }), selected.length === 0 ? ((placeholder ?? t.all)) : (_jsxs(_Fragment, { children: [selected[0].label, selected.length > 1 && _jsxs("span", { className: "fui-multiselect__more", children: ["+", selected.length - 1] })] }))] }), _jsx(ChevronDown, {})] }), _jsx(DropdownPrimitive.Portal, { children: _jsxs(DropdownPrimitive.Content, { sideOffset: 4, align: "start", className: "fui-popup fui-menu", children: [options.map((o) => (_jsxs(DropdownPrimitive.CheckboxItem, { className: "fui-menu-item", checked: value.includes(o.value), onCheckedChange: (checked) => toggle(o.value, checked === true), 
                             // Keep the menu open: a filter is usually several clicks.
-                            onSelect: (e) => e.preventDefault(), children: [_jsx("span", { className: "fui-menu-item__text", children: o.label }), _jsx(DropdownPrimitive.ItemIndicator, { className: "fui-menu-item__check", children: _jsx(Check, {}) })] }, o.value))), selected.length > 0 && (_jsxs(_Fragment, { children: [_jsx(DropdownPrimitive.Separator, { className: "fui-menu-separator" }), _jsx(DropdownPrimitive.Item, { className: "fui-menu-item", onSelect: () => onValueChange([]), children: _jsx("span", { className: "fui-menu-item__text", children: clearLabel }) })] }))] }) })] }));
+                            onSelect: (e) => e.preventDefault(), children: [_jsx("span", { className: "fui-menu-item__text", children: o.label }), _jsx(DropdownPrimitive.ItemIndicator, { className: "fui-menu-item__check", children: _jsx(Check, {}) })] }, o.value))), selected.length > 0 && (_jsxs(_Fragment, { children: [_jsx(DropdownPrimitive.Separator, { className: "fui-menu-separator" }), _jsx(DropdownPrimitive.Item, { className: "fui-menu-item", onSelect: () => onValueChange([]), children: _jsx("span", { className: "fui-menu-item__text", children: clearLabel ?? t.reset }) })] }))] }) })] }));
 }

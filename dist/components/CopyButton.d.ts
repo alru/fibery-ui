@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 export type CopyButtonProps = {
     /** Text put on the clipboard. */
     value: string;
-    /** Toast after copying, e.g. "Номер скопирован". */
+    /** Toast after copying, e.g. "Phone copied"; «Скопировано» / "Copied" by default. */
     message?: ReactNode;
     "aria-label"?: string;
     className?: string;

@@ -5,6 +5,7 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { Check, Minus, Search } from "lucide-react";
 import { cx } from "../cx";
+import { useKitTexts } from "./KitLang";
 /** Text input, 28 / 32px. */
 export const Input = forwardRef(({ size = "md", icon, invalid, className, ...props }, ref) => {
     const input = (_jsx("input", { ref: ref, "data-size": size, "aria-invalid": invalid || undefined, className: cx("fui-input", !icon && className), ...props }));
@@ -22,8 +23,9 @@ export const Label = forwardRef(({ className, ...props }, ref) => (_jsx("label",
 Label.displayName = "Label";
 /** Label + control + hint/warning/error stacked vertically. */
 export function Field({ label, htmlFor, hint, error, warning, changed, required, children, className }) {
+    const t = useKitTexts();
     const note = error ? (_jsx("p", { className: "fui-field__error", children: error })) : warning ? (_jsx("p", { className: "fui-field__warning", children: warning })) : (hint && _jsx("p", { className: "fui-field__hint", children: hint }));
-    return (_jsxs("div", { className: cx("fui-field", className), "data-changed": changed ? "" : undefined, children: [label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, required && (_jsx("span", { className: "fui-label__required", "aria-label": "\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043F\u043E\u043B\u0435", children: "*" })), changed && _jsx("span", { className: "fui-visually-hidden", children: " (\u0438\u0437\u043C\u0435\u043D\u0435\u043D\u043E)" })] })), children, note] }));
+    return (_jsxs("div", { className: cx("fui-field", className), "data-changed": changed ? "" : undefined, children: [label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, required && (_jsx("span", { className: "fui-label__required", "aria-label": t.requiredField, children: "*" })), changed && _jsx("span", { className: "fui-visually-hidden", children: t.changedField })] })), children, note] }));
 }
 const withLabel = (control, label, className) => label ? (_jsxs("label", { className: cx("fui-choice", className), children: [control, _jsx("span", { children: label })] })) : (control);
 /** 16px checkbox; supports `checked="indeterminate"`. */
