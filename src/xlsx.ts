@@ -4,6 +4,7 @@
 // Zip (de)compression uses the platform's CompressionStream / DecompressionStream; XML is parsed here, so the module
 // runs the same in the browser and in Node tests.
 import type {Cell} from "./fieldTypes.ts";
+import {KIT_TEXTS, type KitLang} from "./i18n.ts";
 
 // ─── Zip ─────────────────────────────────────────────────────────────────────
 
@@ -76,9 +77,8 @@ const zip = async (files: {name: string; data: Uint8Array}[]): Promise<Uint8Arra
   return out;
 };
 
-const NOT_XLSX = "Это не файл XLSX";
-
-const unzip = async (bytes: Uint8Array): Promise<Map<string, Uint8Array>> => {
+const unzip = async (bytes: Uint8Array, lang: KitLang): Promise<Map<string, Uint8Array>> => {
+  const NOT_XLSX = KIT_TEXTS[lang].notXlsx;
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let end = -1;
   for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 22 - 65535); i--) {
@@ -100,7 +100,7 @@ const unzip = async (bytes: Uint8Array): Promise<Map<string, Uint8Array>> => {
     const commentLength = view.getUint16(at + 32, true);
     const localOffset = view.getUint32(at + 42, true);
     const name = new TextDecoder().decode(bytes.subarray(at + 46, at + 46 + nameLength));
-    if (size === 0xffffffff || localOffset === 0xffffffff) throw new Error("Файл слишком большой");
+    if (size === 0xffffffff || localOffset === 0xffffffff) throw new Error(KIT_TEXTS[lang].fileTooLarge);
     const dataStart = localOffset + 30 + view.getUint16(localOffset + 26, true) + view.getUint16(localOffset + 28, true);
     const data = bytes.subarray(dataStart, dataStart + size);
     if (method === 0) files.set(name, data);
@@ -284,10 +284,12 @@ const resolve = (base: string, target: string) => (target.startsWith("/") ? targ
  * The cells of the first sheet of an .xlsx file, row by row (gaps filled with empty cells). Numbers in a date format
  * come back as dates ("YYYY-MM-DD"); a cell with a formula comes back as a formula, whatever its result.
  *
+ * @param lang Language of the error messages; Russian by default.
  * @throws Error with a message for people when the file is not an XLSX workbook.
  */
-export async function readXlsx(bytes: Uint8Array): Promise<Cell[][]> {
-  const files = await unzip(bytes);
+export async function readXlsx(bytes: Uint8Array, lang: KitLang = "ru"): Promise<Cell[][]> {
+  const NOT_XLSX = KIT_TEXTS[lang].notXlsx;
+  const files = await unzip(bytes, lang);
   const xml = (path: string) => {
     const data = files.get(path);
     return data ? parseXml(new TextDecoder().decode(data)) : undefined;

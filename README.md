@@ -60,6 +60,27 @@ import {FiberyUIProvider} from "@alru/fibery-ui";
 <FiberyUIProvider><Outlet /></FiberyUIProvider>
 ```
 
+## Language
+
+The kit's own texts (loading and error states, «Повторить», close buttons, search and empty texts of pickers, the
+access screen, the import dialog, error messages of field types, screen-reader labels…) exist in Russian and English.
+**Russian is the default**, so apps that never set a language look exactly as before. An app picks the language on
+the provider; every kit component under it follows:
+
+```tsx
+const [lang, setLang] = usePersistentState<KitLang>("lang", "en", (v): v is KitLang => v === "en" || v === "ru");
+<FiberyUIProvider lang={lang}>…</FiberyUIProvider>     // "ru" (default) | "en"
+
+const lang = useKitLang();                             // inside the provider, e.g. for the pure functions below
+```
+
+- An explicit text prop still wins: `<LoadingState>Loading people…</LoadingState>`, `<Combobox placeholder="Find…">`.
+- Pure functions take the language as their last argument, Russian by default: `friendlyErrorMessage(error, lang)`,
+  `parseCell(type, cell, lang)`, the field type factories (`textType(options, lang)`, `emailType(lang)`,
+  `phoneType(lang)`, `dateType(lang)`, `optionType(options, lang)`), `planImport(input, lang)`,
+  `settleImport(…, lang)`, `readXlsx(bytes, lang)`. `ImportDialog` passes the provider's language itself.
+- Data (option names, field names) and the app's own texts are the app's business; the kit translates only itself.
+
 ## Components
 
 **Actions**
@@ -188,6 +209,15 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 <Field label="Name" htmlFor="name" hint="As in the contract" error={err}>
   <Input id="name" invalid={!!err} />
 </Field>
+<Field label="Stage" hint={hintOf(stage)}>   // what the picked option means, under the field
+  <Select value={stage} onValueChange={setStage}>
+    <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
+    <SelectContent>
+      // `description`: a muted second line in the list only; the trigger shows the option alone.
+      <SelectItem value="draft" description="Not sent to the client yet">Draft</SelectItem>
+    </SelectContent>
+  </Select>
+</Field>
 // Edit form with an explicit Save: `changed` draws an accent bar in the left gutter (leave >= 8px there), `warning` is a non-blocking
 // note in the warning color (error > warning > hint, one line shows).
 <Field label="Phone" htmlFor="phone" changed={phone !== saved.phone} warning="Same number as Jane Doe">
@@ -266,6 +296,20 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
     <DialogFooter><DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose><Button>Create</Button></DialogFooter>
   </DialogContent>
 </Dialog>
+
+// Ask before an action: Cancel (focused first; «Отмена» / "Cancel" by default) and a button named by the action.
+// It never closes itself on confirm: close it in onConfirm, or after the action while `busy` shows a spinner and
+// keeps it open.
+<ConfirmDialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Delete Jane Doe?"
+  description="Her 3 activities are deleted too."
+  confirmLabel="Delete"
+  destructive
+  busy={deleting}
+  onConfirm={() => remove().then(() => setOpen(false))}
+/>
 ```
 
 **Tabs**
@@ -319,7 +363,8 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 {error && <ErrorState error={error} onRetry={refetch} retrying={isFetching} />}   // «Повторить» button; `action` adds more
 <RefreshWarning error={error} onRetry={refetch} retrying={isFetching} />   // data on screen, refetch failed
 <EmptyState title="No contractors" description="…" action={…} />
-<Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | neutral | plain (no fill)
+<Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | error | neutral | plain (no fill)
+<Callout tone="error">Move the opportunities first or delete them together.</Callout>   // blocks the action, no field to point at
 <Skeleton style={{height: 20, width: 160}} />
 <Spinner size="sm" />
 
@@ -340,6 +385,7 @@ The platform client has no retries of its own.
 httpStatusOf(error);          // 503 — from a numeric `status` property or "failed: <3 digits>" in the message
 isTransientError(error);      // true for 429, 502, 503, 504 and network failures ("Failed to fetch")
 friendlyErrorMessage(error);  // "Fibery временно недоступен. Попробуйте ещё раз через минуту." | undefined
+friendlyErrorMessage(error, "en");  // "Fibery is temporarily unavailable. Try again in a minute."
 
 // React Query retry policy without the kit depending on React Query: retry only transient errors,
 // with 1 s, 2 s, 4 s … (max 8 s) between attempts.
@@ -349,6 +395,22 @@ queryClient.setDefaultOptions({queries: {retry: transientRetry(3), retryDelay}})
 
 Retry only idempotent mutations (updates, deletes). A create that failed with 503 may still have been done by the
 server, and repeating it makes a duplicate.
+
+**Selection bar**
+
+```tsx
+// Bulk actions on selected rows: sticks to the bottom of the scrolling list. «Выбрано: 3» / "3 selected", the
+// actions, «Снять выбор» / "Clear". Fixed-width count and progress with tabular digits, so nothing shifts.
+{selected.size > 0 && (
+  <SelectionBar
+    count={selected.size}
+    onClear={() => setSelected(new Set())}
+    actions={<Button variant="outline" size="sm" onClick={openOwnerDialog}>Change owner</Button>}
+    progress={running ? {done, total} : undefined}   // «Записано 40 из 131» / "Saving 40 of 131" + a bar instead of the actions
+    busy={dialogOpen}                                // disables the actions and Clear
+  />
+)}
+```
 
 **Remembered state**
 
@@ -446,7 +508,17 @@ When the app is stuck and a refetch won't help, `ReloadAppButton` reloads the wh
 
 const {canEdit, markReadOnly} = useAccess();   // hide editing tools when !canEdit
 onError: (e) => isPermissionError(e) && markReadOnly(),   // a refused save switches editing off until reload
+
+// Rights per record (e.g. "edit own records"): a refusal on one record must not lock the rest of the app.
+const {canEdit, isRecordReadOnly, markRecordReadOnly} = useAccess();
+const editable = (record) => canEdit && record.ownerId === me.id && !isRecordReadOnly(record.id);
+onError: (e) => isPermissionError(e) && markRecordReadOnly(record.id),   // only this record turns read-only until reload
 ```
+
+Which one to call on a refused write: `markReadOnly` when rights are the same for every record of the app's data
+(a refusal means the viewer can't edit here at all); `markRecordReadOnly` when rights differ
+per record (owners, "edit own"), so one refusal says nothing about the others. Both last until the app reloads, and
+`canEdit` stays false for observers and guests either way.
 
 Fibery returns the records of a database the viewer can't access, with only the secured fields emptied (relations,
 selects and lookups are never secured). So the gate reads a secured field (a required own one, else the title) and
@@ -534,7 +606,7 @@ const spec: ImportSpec<Task, Context, Patch> = {
 ```sh
 npm install
 npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
-npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands); no extra dependencies
+npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands, languages); no extra dependencies
 ```
 
 Pure modules import each other as `./x.ts` (`rewriteRelativeImportExtensions` turns that into `.js` on build), so Node

@@ -1,6 +1,8 @@
 // Field types: for each field an app declares what its values look like, how a value is written into a spreadsheet
 // cell and read back, and which rule a wrong value breaks. One description serves the form's format checks, export
-// and import, so nothing is guessed: a cell that doesn't fit its type is an error. Pure, without imports.
+// and import, so nothing is guessed: a cell that doesn't fit its type is an error. Pure; texts come from i18n.ts
+// (each factory and parseCell take the language last, Russian by default).
+import {KIT_TEXTS, type KitLang} from "./i18n.ts";
 
 /** A cell as read from a spreadsheet file: its value and what kind of value the file says it is. */
 export type Cell =
@@ -42,17 +44,12 @@ const typed = (format: FieldType["format"], fromText: FieldType["fromText"], fro
   check: (value) => (value.trim() ? errorOf(fromText(value.trim())) : null),
 });
 
-const CELL_KIND_ERRORS: Record<"number" | "boolean" | "date", string> = {
-  number: "В ячейке число, а нужен текст: задайте колонке формат «Обычный текст» и введите значение заново",
-  boolean: "В ячейке логическое значение, а нужен текст",
-  date: "В ячейке дата, а нужен текст: задайте колонке формат «Обычный текст» и введите значение заново",
-};
-
 /**
  * Reads a cell as a value of the type. Empty → "". A formula or a spreadsheet error is always an error; a number or
  * boolean cell too (a number may have lost leading zeros or a "+"); a date cell only for types that take dates.
  */
-export function parseCell(type: FieldType, cell: Cell): Parsed {
+export function parseCell(type: FieldType, cell: Cell, lang: KitLang = "ru"): Parsed {
+  const t = KIT_TEXTS[lang];
   switch (cell.kind) {
     case "empty":
       return {value: ""};
@@ -61,31 +58,33 @@ export function parseCell(type: FieldType, cell: Cell): Parsed {
       return text ? type.fromText(text) : {value: ""};
     }
     case "date":
-      return type.fromDate ? type.fromDate(cell.value) : {error: CELL_KIND_ERRORS.date};
+      return type.fromDate ? type.fromDate(cell.value) : {error: t.cellDate};
     case "error":
-      return {error: `Вместо значения ошибка таблицы «${cell.value}»`};
+      return {error: t.cellError(cell.value)};
     case "formula":
-      return {error: "В ячейке формула, а нужно значение"};
-    default:
-      return {error: CELL_KIND_ERRORS[cell.kind]};
+      return {error: t.cellFormula};
+    case "number":
+      return {error: t.cellNumber};
+    case "boolean":
+      return {error: t.cellBoolean};
   }
 }
 
 export type TextTypeOptions = {
   /** Allowed values, tested on the trimmed text. */
   pattern?: RegExp;
-  /** The rule shown when the pattern doesn't match, e.g. "Только латиница". */
+  /** The rule shown when the pattern doesn't match, e.g. "Latin letters only"; a generic text by default. */
   rule?: string;
   maxLength?: number;
 };
 
 /** Free or restricted text; stored as typed (trimmed). */
-export const textType = ({pattern, rule = "Недопустимое значение", maxLength}: TextTypeOptions = {}): FieldType =>
+export const textType = ({pattern, rule, maxLength}: TextTypeOptions = {}, lang: KitLang = "ru"): FieldType =>
   typed(
     (value) => value,
     (text) => {
-      if (maxLength !== undefined && text.length > maxLength) return {error: `Не длиннее ${maxLength} символов`};
-      if (pattern && !pattern.test(text)) return {error: rule};
+      if (maxLength !== undefined && text.length > maxLength) return {error: KIT_TEXTS[lang].tooLong(maxLength)};
+      if (pattern && !pattern.test(text)) return {error: rule ?? KIT_TEXTS[lang].invalidValue};
       return {value: text};
     },
   );
@@ -93,20 +92,20 @@ export const textType = ({pattern, rule = "Недопустимое значен
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** An email address; stored as typed, checked case-insensitively. */
-export const emailType = (): FieldType =>
+export const emailType = (lang: KitLang = "ru"): FieldType =>
   typed(
     (value) => value,
-    (text) => (EMAIL.test(text) ? {value: text} : {error: "Неверный формат email"}),
+    (text) => (EMAIL.test(text) ? {value: text} : {error: KIT_TEXTS[lang].invalidEmail}),
   );
 
 /**
  * A phone as one run of 7–15 digits with the country code, e.g. 79991234567: no "+", spaces or dashes. Spreadsheets
  * keep such text as is, while a leading "+" makes Google Sheets read the cell as a formula.
  */
-export const phoneType = (): FieldType =>
+export const phoneType = (lang: KitLang = "ru"): FieldType =>
   typed(
     (value) => value,
-    (text) => (/^\d{7,15}$/.test(text) ? {value: text} : {error: "Только цифры с кодом страны, 7–15 цифр: 79991234567"}),
+    (text) => (/^\d{7,15}$/.test(text) ? {value: text} : {error: KIT_TEXTS[lang].invalidPhone}),
   );
 
 const isValidDate = (y: number, m: number, d: number) => {
@@ -118,11 +117,12 @@ const isValidDate = (y: number, m: number, d: number) => {
  * A date stored as "YYYY-MM-DD". Text is read in "YYYY-MM-DD" or "DD.MM.YYYY" (both unambiguous); a cell the file
  * keeps as a date is taken as is. Anything else, e.g. "11/07/2026", is an error.
  */
-export const dateType = (): FieldType => {
+export const dateType = (lang: KitLang = "ru"): FieldType => {
+  const t = KIT_TEXTS[lang];
   const fromIso = (y: string, m: string, d: string): Parsed =>
     isValidDate(Number(y), Number(m), Number(d))
       ? {value: `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`}
-      : {error: "Такой даты нет"};
+      : {error: t.noSuchDate};
   return typed(
     (value) => value,
     (text) => {
@@ -130,7 +130,7 @@ export const dateType = (): FieldType => {
       if (iso) return fromIso(iso[1], iso[2], iso[3]);
       const dotted = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(text);
       if (dotted) return fromIso(dotted[3], dotted[2], dotted[1]);
-      return {error: "Дата в формате ГГГГ-ММ-ДД или ДД.ММ.ГГГГ"};
+      return {error: t.invalidDate};
     },
     (iso) => ({value: iso}),
   );
@@ -142,17 +142,18 @@ const normalizeName = (text: string) => text.trim().replace(/\s+/g, " ").toLower
  * A value from a list (a select's options, countries): stored as the option id, written as its name, read by name
  * ignoring case and "ё". Options are never created: an unknown name is an error that lists the allowed ones.
  */
-export const optionType = (options: {id: string; name: string}[]): FieldType => {
+export const optionType = (options: {id: string; name: string}[], lang: KitLang = "ru"): FieldType => {
+  const t = KIT_TEXTS[lang];
   const nameById = new Map(options.map((o) => [o.id, o.name]));
   const type = typed(
     (value) => nameById.get(value) ?? "",
     (text) => {
       const found = options.filter((o) => normalizeName(o.name) === normalizeName(text));
       if (found.length === 1) return {value: found[0].id};
-      if (found.length > 1) return {error: `Несколько вариантов называются «${text}»`};
+      if (found.length > 1) return {error: t.ambiguousOption(text)};
       const names = options.map((o) => o.name);
       const list = names.length > 12 ? `${names.slice(0, 12).join(", ")}…` : names.join(", ");
-      return {error: `Нет варианта «${text}»${list ? `. Есть: ${list}` : ""}`};
+      return {error: t.unknownOption(text, list)};
     },
   );
   // A form stores an id picked from the list, so there is nothing to check.

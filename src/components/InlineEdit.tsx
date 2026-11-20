@@ -6,6 +6,7 @@ import {cx} from "../cx";
 import {IconButton} from "./Button";
 import {Input} from "./Form";
 import {friendlyErrorMessage} from "../errors";
+import {useKitLang, useKitTexts} from "./KitLang";
 
 export type InlineEditProps = {
   value: string;
@@ -13,7 +14,7 @@ export type InlineEditProps = {
   children?: ReactNode;
   /** Called with the trimmed new value when it changed; a rejected promise keeps the field open with the error. */
   onSave: (value: string) => unknown;
-  /** Accessible name of the pencil button and the field, e.g. "Переименовать направление". */
+  /** Accessible name of the pencil button and the field, e.g. "Rename group". */
   label: string;
   /** Muted note under the field while editing, e.g. what else the change affects. */
   hint?: ReactNode;
@@ -22,6 +23,8 @@ export type InlineEditProps = {
 
 /** Click and Enter inside never reach the parent, so it works inside clickable rows. */
 export function InlineEdit({value, children, onSave, label, hint, className}: InlineEditProps) {
+  const lang = useKitLang();
+  const t = useKitTexts();
   const [draft, setDraft] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +46,7 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
       close();
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
-      const friendly = friendlyErrorMessage(e);
+      const friendly = friendlyErrorMessage(e, lang);
       // Raw text stays as the diagnostic, cut short: a gateway error may carry a whole HTML page.
       setError(friendly ? `${friendly} (${raw.slice(0, 200)})` : raw.slice(0, 300));
     } finally {
@@ -80,8 +83,8 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
           <IconButton
             icon={<X />}
             size="sm"
-            aria-label="Отменить (Esc)"
-            title="Отменить (Esc)"
+            aria-label={t.cancelEdit}
+            title={t.cancelEdit}
             className="fui-inline-edit__button"
             disabled={saving}
             // Keeps focus in the field: its blur would save before the click could cancel.

@@ -5,6 +5,7 @@ import {CircleAlert, Inbox, Info, RotateCw, TriangleAlert} from "lucide-react";
 import {cx} from "../cx";
 import {friendlyErrorMessage} from "../errors";
 import {Button} from "./Button";
+import {useKitLang, useKitTexts} from "./KitLang";
 
 export type SpinnerProps = {size?: "sm" | "md" | "lg"; className?: string};
 
@@ -20,12 +21,13 @@ export function Skeleton({className, ...props}: HTMLAttributes<HTMLDivElement>) 
 
 export type LoadingStateProps = {children?: ReactNode; className?: string};
 
-/** Spinner with a caption, `"Загрузка…"` by default. */
-export function LoadingState({children = "Загрузка…", className}: LoadingStateProps) {
+/** Spinner with a caption, «Загрузка…» / "Loading…" by default. */
+export function LoadingState({children, className}: LoadingStateProps) {
+  const t = useKitTexts();
   return (
     <div role="status" className={cx("fui-state", className)}>
       <Spinner />
-      {children}
+      {children ?? t.loading}
     </div>
   );
 }
@@ -33,9 +35,9 @@ export function LoadingState({children = "Загрузка…", className}: Load
 export type ErrorStateProps = {
   error: unknown;
   title?: ReactNode;
-  /** Shows a «Повторить» button that calls it, before `action`. */
+  /** Shows a «Повторить» / "Retry" button that calls it, before `action`. */
   onRetry?: () => void;
-  /** Spinner on the «Повторить» button while the retry runs. */
+  /** Spinner on the retry button while the retry runs. */
   retrying?: boolean;
   /** Any extra controls under the message. */
   action?: ReactNode;
@@ -47,21 +49,16 @@ export type ErrorStateProps = {
  * words; the underlying message is always shown too, small and muted under that text: Fibery API errors carry
  * the exact diagnostic needed to report the problem.
  */
-export function ErrorState({
-  error,
-  title = "Не удалось загрузить данные",
-  onRetry,
-  retrying,
-  action,
-  className,
-}: ErrorStateProps) {
+export function ErrorState({error, title, onRetry, retrying, action, className}: ErrorStateProps) {
+  const lang = useKitLang();
+  const t = useKitTexts();
   const message = error instanceof Error ? error.message : String(error);
-  const friendly = friendlyErrorMessage(error);
+  const friendly = friendlyErrorMessage(error, lang);
   return (
     <div role="alert" className={cx("fui-error", className)}>
       <CircleAlert />
       <div className="fui-error__body">
-        <strong className="fui-error__title">{title}</strong>
+        <strong className="fui-error__title">{title ?? t.loadFailed}</strong>
         {friendly && <span className="fui-error__text">{friendly}</span>}
         <span className="fui-error__message" data-muted={friendly ? "" : undefined}>
           {message}
@@ -70,7 +67,7 @@ export function ErrorState({
           <div className="fui-error__action">
             {onRetry && (
               <Button variant="outline" size="sm" icon={<RotateCw />} loading={retrying} onClick={onRetry}>
-                Повторить
+                {t.retry}
               </Button>
             )}
             {action}
@@ -103,16 +100,17 @@ export function EmptyState({title, description, icon = <Inbox />, action, classN
 }
 
 export type CalloutProps = {
-  /** `"info"` — blue (default); `"warning"` — yellow; `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted
-   *  text: the quietest note, for a rule that applies to several fields at once. */
-  tone?: "info" | "warning" | "neutral" | "plain";
+  /** `"info"` — blue (default); `"warning"` — yellow; `"error"` — red, a problem that blocks the action (e.g. a form
+   *  error not tied to one field); `"neutral"` — grey; `"plain"` — no fill, a thin ring and muted text: the quietest
+   *  note, for a rule that applies to several fields at once. */
+  tone?: "info" | "warning" | "error" | "neutral" | "plain";
   /** Replaces the tone's default icon; `null` hides it. */
   icon?: ReactNode;
   children: ReactNode;
   className?: string;
 };
 
-const CALLOUT_ICONS = {info: <Info />, warning: <TriangleAlert />, neutral: <Info />, plain: <Info />};
+const CALLOUT_ICONS = {info: <Info />, warning: <TriangleAlert />, error: <CircleAlert />, neutral: <Info />, plain: <Info />};
 
 /** Always-visible note in the workspace highlight palette, e.g. how a form behaves. */
 export function Callout({tone = "info", icon, children, className}: CalloutProps) {
@@ -128,9 +126,9 @@ export function Callout({tone = "info", icon, children, className}: CalloutProps
 export type RefreshWarningProps = {
   error: unknown;
   onRetry: () => void;
-  /** Spinner on «Повторить» while the refetch runs. */
+  /** Spinner on the retry button while the refetch runs. */
   retrying?: boolean;
-  /** Lead text; default «Не удалось обновить данные.» */
+  /** Lead text; default «Не удалось обновить данные.» / "Couldn't refresh data." */
   title?: ReactNode;
   className?: string;
 };
@@ -138,26 +136,22 @@ export type RefreshWarningProps = {
 /**
  * Compact warning above a screen whose background refetch failed. The data already on screen stays usable (it may
  * only be stale), so a full-screen ErrorState would hide it for nothing; ErrorState is for screens with no data yet.
- * Shows the plain-words reason, «Повторить», and the raw message (clamped: a gateway error may carry a whole page).
+ * Shows the plain-words reason, a retry button, and the raw message (clamped: a gateway error may carry a whole page).
  */
-export function RefreshWarning({
-  error,
-  onRetry,
-  retrying,
-  title = "Не удалось обновить данные.",
-  className,
-}: RefreshWarningProps) {
+export function RefreshWarning({error, onRetry, retrying, title, className}: RefreshWarningProps) {
+  const lang = useKitLang();
+  const t = useKitTexts();
   const message = error instanceof Error ? error.message : String(error);
-  const friendly = friendlyErrorMessage(error);
+  const friendly = friendlyErrorMessage(error, lang);
   return (
     <Callout tone="warning" className={cx("fui-refresh-warning", className)}>
       <div className="fui-refresh-warning__row">
         <span>
-          {title}
+          {title ?? t.refreshFailed}
           {friendly && ` ${friendly}`}
         </span>
         <Button variant="outline" size="sm" icon={<RotateCw />} loading={retrying} onClick={onRetry}>
-          Повторить
+          {t.retry}
         </Button>
       </div>
       <div className="fui-refresh-warning__message" title={message}>

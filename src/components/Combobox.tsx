@@ -8,6 +8,7 @@ import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 import {Input, SearchInput, type InputProps} from "./Form";
 import {Highlight, normalizeSearchText, searchTokens} from "./Highlight";
+import {useKitTexts} from "./KitLang";
 import {Popover, PopoverAnchor, PopoverContent, PopoverTrigger} from "./Overlay";
 
 export type ComboboxOption = {
@@ -106,15 +107,18 @@ export type ComboboxProps = {
   options: ComboboxOption[];
   onSelect: (value: string) => void;
   /**
-   * Adds a last row "Создать «…»" while the search text matches no option exactly; called with the trimmed text.
+   * Adds a last row «Создать «…»» / "Create “…”" while the search text matches no option exactly; called with the
+   * trimmed text.
    * The caller creates the value and selects it.
    */
   onCreate?: (text: string) => void;
-  /** Text of the create row; defaults to `Создать «text»`. */
+  /** Text of the create row; «Создать «text»» / "Create “text”" by default. */
   createText?: (text: string) => string;
   /** Trigger element (e.g. a Button); must accept a ref. */
   children: ReactElement;
+  /** Search field placeholder; «Поиск…» / "Search…" by default. */
   placeholder?: string;
+  /** Text of an empty result; «Ничего не найдено» / "Nothing found" by default. */
   emptyText?: string;
   align?: "start" | "center" | "end";
   /** Path separator in option texts, drawn small and muted (see Highlight). */
@@ -128,14 +132,15 @@ export function Combobox({
   options,
   onSelect,
   onCreate,
-  createText = (text) => `Создать «${text}»`,
+  createText,
   children,
-  placeholder = "Поиск…",
-  emptyText = "Ничего не найдено",
+  placeholder,
+  emptyText,
   align = "start",
   separator,
   className,
 }: ComboboxProps) {
+  const t = useKitTexts();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const tokens = searchTokens(query);
@@ -143,7 +148,7 @@ export function Combobox({
   const exists = options.some((o) => normalizeSearchText(o.text) === normalizeSearchText(typed));
   const filtered = [
     ...filterOptions(options, tokens),
-    ...(onCreate && typed && !exists ? [{value: CREATE_VALUE, text: createText(typed)}] : []),
+    ...(onCreate && typed && !exists ? [{value: CREATE_VALUE, text: (createText ?? t.create)(typed)}] : []),
   ];
 
   const close = () => {
@@ -167,7 +172,7 @@ export function Combobox({
           size="sm"
           {...nav.inputProps}
           aria-expanded
-          placeholder={placeholder}
+          placeholder={placeholder ?? t.search}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -176,7 +181,7 @@ export function Combobox({
           onKeyDown={nav.handleKey}
         />
         <div className="fui-combobox__list-wrap">
-          <OptionList options={filtered} tokens={tokens} emptyText={emptyText} separator={separator} nav={nav} onPick={pick} />
+          <OptionList options={filtered} tokens={tokens} emptyText={emptyText ?? t.nothingFound} separator={separator} nav={nav} onPick={pick} />
         </div>
       </PopoverContent>
     </Popover>

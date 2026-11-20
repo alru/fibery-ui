@@ -62,6 +62,14 @@
   .fui-menu-item__check > svg { width: 16px; height: 16px; stroke-width: 2; }
   /* ItemText of a select row: keep icons/EnumBadge inline. */
   .fui-select-content .fui-menu-item > span:first-child { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; }
+  /* Option with a description: the row grows to two lines, the check mark stays on the first one. A list with
+     descriptions gets a reading width instead of stretching to the longest line. */
+  .fui-select-content:has(.fui-menu-item__description) { max-width: max(var(--radix-select-trigger-width), 360px); }
+  .fui-menu-item[data-description] { align-items: flex-start; height: auto; min-height: 32px; padding-block: 6px; }
+  .fui-select-content .fui-menu-item > span.fui-menu-item__body { flex-direction: column; align-items: stretch; gap: 2px; }
+  .fui-menu-item__body > span:first-child { display: flex; align-items: center; gap: 8px; min-width: 0; line-height: 20px; }
+  .fui-menu-item__description { color: var(--muted-foreground); font-size: 12px; line-height: 16px; white-space: normal; }
+  .fui-menu-item[data-description] .fui-menu-item__check { padding-top: 2px; }
 
   .fui-menu-label { padding: 6px 8px 2px; color: var(--muted-foreground); font-size: 12px; font-weight: 500; line-height: 16px; }
   .fui-menu-separator { height: 1px; margin: 4px -4px; background: var(--border); }

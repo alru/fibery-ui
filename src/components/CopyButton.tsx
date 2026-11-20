@@ -5,32 +5,34 @@ import type {KeyboardEvent, MouseEvent, ReactNode} from "react";
 import {Copy} from "lucide-react";
 import {cx} from "../cx";
 import {IconButton} from "./Button";
+import {useKitTexts} from "./KitLang";
 import {useToast} from "./Toast";
 
 export type CopyButtonProps = {
   /** Text put on the clipboard. */
   value: string;
-  /** Toast after copying, e.g. "Номер скопирован". */
+  /** Toast after copying, e.g. "Phone copied"; «Скопировано» / "Copied" by default. */
   message?: ReactNode;
   "aria-label"?: string;
   className?: string;
 };
 
 /** Icon button that copies `value` and shows `message` in a toast; clicks don't reach a clickable row around it. */
-export function CopyButton({value, message = "Скопировано", "aria-label": ariaLabel = "Копировать", className}: CopyButtonProps) {
+export function CopyButton({value, message, "aria-label": ariaLabel, className}: CopyButtonProps) {
   const toast = useToast();
+  const t = useKitTexts();
   const copy = (e: MouseEvent) => {
     // Rows around it usually open a panel on click; copying must not.
     e.stopPropagation();
     navigator.clipboard.writeText(value).then(
-      () => toast({message, duration: 2500}),
-      () => toast({message: "Не удалось скопировать"}),
+      () => toast({message: message ?? t.copied, duration: 2500}),
+      () => toast({message: t.copyFailed}),
     );
   };
   return (
     <IconButton
       icon={<Copy />}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? t.copy}
       className={cx("fui-copy-button", className)}
       onClick={copy}
       // A row's Enter / Space handler would otherwise swallow the key and open the row instead.

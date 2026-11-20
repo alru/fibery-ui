@@ -1,4 +1,5 @@
-// Overlays on Radix: dropdown menu, popover, tooltip and dialog, styled like Fibery's popups.
+// Overlays on Radix: dropdown menu, popover, tooltip and dialog, styled like Fibery's popups, plus ConfirmDialog —
+// the ask-before-acting dialog every app needs.
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -12,7 +13,8 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {X} from "lucide-react";
 import {cx} from "../cx";
-import {IconButton} from "./Button";
+import {Button, IconButton} from "./Button";
+import {useKitTexts} from "./KitLang";
 
 // ─── Dropdown menu ───────────────────────────────────────────────────────────
 
@@ -143,34 +145,94 @@ export type DialogContentProps = Omit<ComponentPropsWithoutRef<typeof DialogPrim
 
 /** Modal window with overlay, title and optional description. Put actions in a DialogFooter. */
 export const DialogContent = forwardRef<ElementRef<typeof DialogPrimitive.Content>, DialogContentProps>(
-  ({title, description, size = "md", closeButton = true, className, children, ...props}, ref) => (
-    <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fui-dialog-overlay" />
-      <DialogPrimitive.Content
-        ref={ref}
-        data-size={size}
-        // Radix links the description itself; without one, an explicit undefined silences its a11y warning.
-        {...(!description && {"aria-describedby": undefined})}
-        className={cx("fui-dialog", className)}
-        {...props}
-      >
-        <div className="fui-dialog__header">
-          <DialogPrimitive.Title className="fui-dialog__title">{title}</DialogPrimitive.Title>
-          {description && <DialogPrimitive.Description className="fui-dialog__description">{description}</DialogPrimitive.Description>}
-        </div>
-        {children}
-        {closeButton && (
-          <DialogPrimitive.Close asChild>
-            <IconButton icon={<X />} aria-label="Закрыть" size="sm" className="fui-dialog__close" />
-          </DialogPrimitive.Close>
-        )}
-      </DialogPrimitive.Content>
-    </DialogPrimitive.Portal>
-  ),
+  ({title, description, size = "md", closeButton = true, className, children, ...props}, ref) => {
+    const t = useKitTexts();
+    return (
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fui-dialog-overlay" />
+        <DialogPrimitive.Content
+          ref={ref}
+          data-size={size}
+          // Radix links the description itself; without one, an explicit undefined silences its a11y warning.
+          {...(!description && {"aria-describedby": undefined})}
+          className={cx("fui-dialog", className)}
+          {...props}
+        >
+          <div className="fui-dialog__header">
+            <DialogPrimitive.Title className="fui-dialog__title">{title}</DialogPrimitive.Title>
+            {description && <DialogPrimitive.Description className="fui-dialog__description">{description}</DialogPrimitive.Description>}
+          </div>
+          {children}
+          {closeButton && (
+            <DialogPrimitive.Close asChild>
+              <IconButton icon={<X />} aria-label={t.close} size="sm" className="fui-dialog__close" />
+            </DialogPrimitive.Close>
+          )}
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    );
+  },
 );
 DialogContent.displayName = "DialogContent";
 
 /** Right-aligned action row at the bottom of a dialog. */
 export function DialogFooter({className, ...props}: HTMLAttributes<HTMLDivElement>) {
   return <div className={cx("fui-dialog__footer", className)} {...props} />;
+}
+
+export type ConfirmDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** The question, naming the action: "Delete Jane Doe?". */
+  title: ReactNode;
+  /** What happens, e.g. what else goes with it. */
+  description?: ReactNode;
+  /** Anything more between the description and the buttons, e.g. a list of affected records. */
+  children?: ReactNode;
+  /** The action's verb, e.g. "Delete"; never "OK". */
+  confirmLabel: ReactNode;
+  /** «Отмена» / "Cancel" by default. */
+  cancelLabel?: ReactNode;
+  /** Red confirm button for actions that destroy data. */
+  destructive?: boolean;
+  /** The action is running: spinner on the confirm button, and the dialog can't be closed. */
+  busy?: boolean;
+  /** Called on confirm; the dialog stays open, so the caller closes it (at once, or after `busy`). */
+  onConfirm: () => void;
+};
+
+/**
+ * Small dialog that asks before an action: title, optional description, Cancel and the confirm button. Cancel comes
+ * first, so focus starts on it (unless `children` has a control) and Enter right after opening doesn't confirm.
+ */
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  confirmLabel,
+  cancelLabel,
+  destructive,
+  busy,
+  onConfirm,
+}: ConfirmDialogProps) {
+  const t = useKitTexts();
+  // While the action runs, closing would hide its outcome; Radix asks to close on Escape and outside clicks.
+  const change = (next: boolean) => !busy && onOpenChange(next);
+  return (
+    <Dialog open={open} onOpenChange={change}>
+      <DialogContent title={title} description={description} size="sm" closeButton={!busy}>
+        {children}
+        <DialogFooter>
+          <Button variant="ghost" disabled={busy} onClick={() => change(false)}>
+            {cancelLabel ?? t.cancel}
+          </Button>
+          <Button variant={destructive ? "destructive" : "primary"} loading={busy} onClick={onConfirm}>
+            {confirmLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }

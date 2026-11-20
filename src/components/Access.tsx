@@ -1,10 +1,13 @@
 // Access check: whether the viewer may use the app at all, and whether to offer editing. Fibery returns the records of
 // a database the viewer has no access to, with only the secured fields emptied (relations, selects and lookups are
 // never secured), so neither a successful query nor a row count proves access; a filled secured field does.
-import {createContext, useCallback, useContext, useEffect, useState, type ReactNode} from "react";
+// Editing can be switched off for the whole app (roles, or a refused save where rights are per app) or for single
+// records (a refused save where rights are per record).
+import {createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode} from "react";
 import {Lock} from "lucide-react";
 import {isPermissionError} from "../errors";
 import {Button} from "./Button";
+import {useKitTexts} from "./KitLang";
 import {EmptyState, ErrorState, LoadingState} from "./States";
 
 /** A database the app can't work without, or one with the secured, always-filled field to check it by. */
@@ -109,11 +112,22 @@ const runCheck = async (requirements: AccessRequirement[]): Promise<Check> => {
 export type AccessValue = {
   /** False for observers and guests, and after `markReadOnly`: hide editing tools. */
   canEdit: boolean;
-  /** Call when Fibery refuses a write for lack of rights: editing stays off until the app reloads. */
+  /** Call when Fibery refuses a write for lack of rights to the app's data as a whole: editing stays off everywhere
+   *  until the app reloads. */
   markReadOnly: () => void;
+  /** Whether Fibery refused a write to this record (see `markRecordReadOnly`). */
+  isRecordReadOnly: (id: string) => boolean;
+  /** A refused write on one record, where rights differ per record: only this record stops being editable, until the
+   *  app reloads; the rest of the app stays editable. */
+  markRecordReadOnly: (id: string) => void;
 };
 
-const AccessContext = createContext<AccessValue>({canEdit: true, markReadOnly: () => {}});
+const AccessContext = createContext<AccessValue>({
+  canEdit: true,
+  markReadOnly: () => {},
+  isRecordReadOnly: () => false,
+  markRecordReadOnly: () => {},
+});
 
 /** Access of the viewer inside `AccessGate`; outside one, everything is allowed. */
 export const useAccess = () => useContext(AccessContext);
@@ -125,13 +139,16 @@ export type AccessGateProps = {
 };
 
 /**
- * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» screen
- * with the number of missing databases, not their names (the names say nothing to a user and outline the schema).
- * Checks once on mount: the schema, one or two small queries per database and one for the role.
+ * Renders the app only for viewers who can read every listed database; others get a «Недостаточно доступа» /
+ * "Not enough access" screen with the number of missing databases, not their names (the names say nothing to a user
+ * and outline the schema). Checks once on mount: the schema, one or two small queries per database and one for the
+ * role. Keeps the read-only state for `useAccess`.
  */
 export function AccessGate({databases, children}: AccessGateProps) {
+  const t = useKitTexts();
   const [check, setCheck] = useState<Check>({status: "checking"});
   const [readOnly, setReadOnly] = useState(false);
+  const [readOnlyRecords, setReadOnlyRecords] = useState<ReadonlySet<string>>(() => new Set());
   const key = JSON.stringify(databases);
   const run = useCallback(() => {
     setCheck({status: "checking"});
@@ -139,26 +156,39 @@ export function AccessGate({databases, children}: AccessGateProps) {
   }, [key]);
   useEffect(run, [run]);
   const markReadOnly = useCallback(() => setReadOnly(true), []);
+  const markRecordReadOnly = useCallback(
+    (id: string) => setReadOnlyRecords((ids) => (ids.has(id) ? ids : new Set(ids).add(id))),
+    [],
+  );
+  const editableByRole = check.status === "granted" && check.editableByRole;
+  // Memoized: every consumer re-renders when the value changes identity.
+  const access = useMemo<AccessValue>(
+    () => ({
+      canEdit: editableByRole && !readOnly,
+      markReadOnly,
+      isRecordReadOnly: (id) => readOnlyRecords.has(id),
+      markRecordReadOnly,
+    }),
+    [editableByRole, readOnly, readOnlyRecords, markReadOnly, markRecordReadOnly],
+  );
 
-  if (check.status === "checking") return <LoadingState className="fui-access-gate">Проверка доступа…</LoadingState>;
+  if (check.status === "checking") return <LoadingState className="fui-access-gate">{t.accessChecking}</LoadingState>;
   if (check.status === "error") return <ErrorState className="fui-access-gate" error={check.error} onRetry={run} />;
   if (check.status === "denied") {
     return (
       <div className="fui-access-gate">
         <EmptyState
           icon={<Lock />}
-          title="Недостаточно доступа"
-          description={`Нет прав на чтение части данных приложения (баз без доступа: ${check.databases.length}). Обратитесь к администратору Fibery.`}
+          title={t.accessDenied}
+          description={t.accessDeniedText(check.databases.length)}
           action={
             <Button variant="outline" size="sm" onClick={run}>
-              Проверить снова
+              {t.checkAgain}
             </Button>
           }
         />
       </div>
     );
   }
-  return (
-    <AccessContext.Provider value={{canEdit: check.editableByRole && !readOnly, markReadOnly}}>{children}</AccessContext.Provider>
-  );
+  return <AccessContext.Provider value={access}>{children}</AccessContext.Provider>;
 }
