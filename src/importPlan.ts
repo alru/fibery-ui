@@ -4,6 +4,7 @@
 // Pure functions (only relative .ts imports), so tests run them directly.
 import {cellText, type Cell} from "./fieldTypes.ts";
 import type {CommandResult} from "./fiberyBatch.ts";
+import {KIT_TEXTS, type KitLang} from "./i18n.ts";
 
 /** A column an app imports and exports. */
 export type ImportColumn = {
@@ -79,7 +80,7 @@ export type PlanInput<E, P> = {
   idOf: (record: E) => string;
   /** The app's part: one result per given row, in the same order. Rows with a missing or repeated key are not given. */
   prepare: (rows: {source: SourceRow; existing: E | null}[]) => Prepared<P>[];
-  /** Messages in the UI's language. */
+  /** Messages of the app's own, e.g. naming the key field; the kit's texts in `lang` by default. */
   messages?: {missingKey?: string; repeatedKey?: (rows: number[]) => string; ambiguousKey?: string};
 };
 
@@ -92,14 +93,10 @@ const isBlank = (cell: Cell | undefined) => !cell || cell.kind === "empty" || (c
  * a key repeated in the file, or a key matching several existing records is an error without asking the app. Rows
  * whose cells are all empty are left out.
  */
-export function planImport<E, P>(input: PlanInput<E, P>): {rows: PlannedRow<P>[]; summary: PlanSummary} {
+export function planImport<E, P>(input: PlanInput<E, P>, lang: KitLang = "ru"): {rows: PlannedRow<P>[]; summary: PlanSummary} {
   const normalize = input.normalizeKey ?? defaultNormalizeKey;
-  const messages = {
-    missingKey: "Не заполнен ключ",
-    repeatedKey: (rows: number[]) => `Ключ повторяется в строках ${rows.join(", ")}`,
-    ambiguousKey: "Ключ совпадает с несколькими записями",
-    ...input.messages,
-  };
+  const t = KIT_TEXTS[lang];
+  const messages = {missingKey: t.missingKey, repeatedKey: t.repeatedKey, ambiguousKey: t.ambiguousKey, ...input.messages};
   const keyOfRow = (r: SourceRow) => normalize(cellText(r.cells[input.key]));
   const existingByKey = new Map<string, E[]>();
   for (const record of input.existing) {
@@ -186,20 +183,23 @@ export const needsReload = <P>(rows: PlannedRow<P>[], results: CommandResult[]) 
  * create that is there counts as created. Nothing is sent again here.
  *
  * @param rows The rows that were sent, in the order of `results`.
+ * @param lang Language of the messages of unanswered rows; Russian by default.
  */
 export function settleImport<P>(
   rows: PlannedRow<P>[],
   results: CommandResult[],
   found: Map<string, string> | null | undefined,
   counts: {unchanged: number; invalid: number},
+  lang: KitLang = "ru",
 ): ImportOutcome {
+  const t = KIT_TEXTS[lang];
   const outcome: ImportOutcome = {created: [], updated: [], failed: [], uncertain: [], ...counts};
   rows.forEach((row, i) => {
     const res = results[i];
     const base = {row: row.row, key: row.key};
     if (row.action === "update") {
       if (res.ok) outcome.updated.push({...base, id: row.existingId ?? "", source: row});
-      else if (res.uncertain) outcome.uncertain.push({...base, message: "Нет ответа от Fibery — неизвестно, обновлена ли запись"});
+      else if (res.uncertain) outcome.uncertain.push({...base, message: t.updateUnanswered});
       else outcome.failed.push({...base, message: res.error.message});
       return;
     }
@@ -210,8 +210,8 @@ export function settleImport<P>(
     const there = found?.get(row.key);
     if (there) outcome.created.push({...base, id: there, source: row});
     else if (res.ok && found === null) outcome.created.push({...base, id: idOfResult(res.result), source: row});
-    else if (res.ok) outcome.uncertain.push({...base, message: "Fibery ответил, что запись создана, но её не видно — проверьте"});
-    else outcome.uncertain.push({...base, message: "Нет ответа от Fibery — неизвестно, создана ли запись"});
+    else if (res.ok) outcome.uncertain.push({...base, message: t.createdNotFound});
+    else outcome.uncertain.push({...base, message: t.createUnanswered});
   });
   return outcome;
 }

@@ -4,6 +4,7 @@ import type {HTMLAttributes, KeyboardEvent, ReactNode} from "react";
 import {X} from "lucide-react";
 import {cx} from "../cx";
 import {IconButton} from "./Button";
+import {useKitTexts} from "./KitLang";
 
 export type PageHeaderProps = {
   title: ReactNode;
@@ -67,6 +68,7 @@ export type SidePanelProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
  * Position and width come from the parent layout, e.g. `className="sticky top-6 flex-1"`.
  */
 export function SidePanel({title, description, actions, onClose, editing, className, children, ...props}: SidePanelProps) {
+  const t = useKitTexts();
   const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape" && onClose) {
       e.stopPropagation();
@@ -87,7 +89,7 @@ export function SidePanel({title, description, actions, onClose, editing, classN
         </div>
         <div className="fui-side-panel__actions">
           {actions}
-          {onClose && <IconButton icon={<X />} aria-label="Закрыть" size="sm" onClick={onClose} />}
+          {onClose && <IconButton icon={<X />} aria-label={t.close} size="sm" onClick={onClose} />}
         </div>
       </header>
       <div className="fui-side-panel__body">{children}</div>

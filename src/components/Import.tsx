@@ -20,8 +20,10 @@ import {
   type Prepared,
   type SourceRow,
 } from "../importPlan";
+import type {KitTexts} from "../i18n";
 import {readXlsx, writeXlsx} from "../xlsx";
 import {Button} from "./Button";
+import {useKitLang, useKitTexts} from "./KitLang";
 import {Dialog, DialogContent, DialogFooter} from "./Overlay";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "./Select";
 import {Callout, ErrorState, Spinner} from "./States";
@@ -76,6 +78,7 @@ export type ImportDialogProps<E, C, P> = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   spec: ImportSpec<E, C, P>;
+  /** «Импорт из XLSX» / "Import from XLSX" by default. */
   title?: ReactNode;
   /** Shown before a file is picked; by default explains the key, empty cells and text cells. */
   description?: ReactNode;
@@ -111,11 +114,13 @@ export function ImportDialog<E, C, P>({
   open,
   onOpenChange,
   spec,
-  title = "Импорт из XLSX",
+  title,
   description,
   onBusyChange,
   onFinished,
 }: ImportDialogProps<E, C, P>) {
+  const lang = useKitLang();
+  const t = useKitTexts();
   const [stage, setStage] = useState<Stage<C, P>>({kind: "pick"});
   const [keyColumn, setKeyColumn] = useState(spec.keys[0].column);
   const input = useRef<HTMLInputElement>(null);
@@ -131,15 +136,15 @@ export function ImportDialog<E, C, P>({
   };
 
   const readFile = async (file: File) => {
-    if (file.size > MAX_FILE_BYTES) return setStage({kind: "pick", error: "Файл больше 5 МБ"});
+    if (file.size > MAX_FILE_BYTES) return setStage({kind: "pick", error: t.importFileOver5Mb});
     setStage({kind: "checking"});
     let data: FileData;
     try {
-      const [headerRow = [], ...rest] = await readXlsx(new Uint8Array(await file.arrayBuffer()));
-      if (rest.length > MAX_ROWS) return setStage({kind: "pick", error: `В файле больше ${MAX_ROWS} строк`});
+      const [headerRow = [], ...rest] = await readXlsx(new Uint8Array(await file.arrayBuffer()), lang);
+      if (rest.length > MAX_ROWS) return setStage({kind: "pick", error: t.importTooManyRows(MAX_ROWS)});
       const headers = matchHeaders(headerRow.map(cellText), spec.columns);
       if (!headers.index.has(key.column)) {
-        return setStage({kind: "pick", error: `В файле нет колонки «${headerOf(key.column)}» — первая строка должна содержать заголовки`});
+        return setStage({kind: "pick", error: t.importNoKeyColumn(headerOf(key.column))});
       }
       const rows = rest.map((cells, i) => ({
         row: i + 2,
@@ -147,7 +152,7 @@ export function ImportDialog<E, C, P>({
       }));
       data = {rows, headers};
     } catch (error) {
-      return setStage({kind: "pick", error: `Не удалось прочитать файл: ${messageOf(error)}`});
+      return setStage({kind: "pick", error: t.importReadFailed(messageOf(error))});
     }
     await check(data);
   };
@@ -157,20 +162,23 @@ export function ImportDialog<E, C, P>({
     setStage({kind: "checking"});
     try {
       const {existing, context} = await spec.load();
-      const plan = planImport({
-        rows: file.rows,
-        key: key.column,
-        normalizeKey: normalize,
-        existing,
-        keyOf: key.of,
-        idOf: spec.idOf,
-        prepare: (prepared) => spec.prepare(prepared, context),
-        messages: {
-          missingKey: `Не заполнен ${key.label}`,
-          repeatedKey: (same) => `${key.label} повторяется в строках ${same.join(", ")}`,
-          ambiguousKey: `${key.label} совпадает с несколькими записями`,
+      const plan = planImport(
+        {
+          rows: file.rows,
+          key: key.column,
+          normalizeKey: normalize,
+          existing,
+          keyOf: key.of,
+          idOf: spec.idOf,
+          prepare: (prepared) => spec.prepare(prepared, context),
+          messages: {
+            missingKey: t.missingNamedKey(key.label),
+            repeatedKey: (same) => t.repeatedNamedKey(key.label, same),
+            ambiguousKey: t.ambiguousNamedKey(key.label),
+          },
         },
-      });
+        lang,
+      );
       setStage({kind: "preview", plan: {...plan, headers: file.headers}, context});
     } catch (error) {
       setStage({kind: "loadFailed", error, file});
@@ -198,13 +206,13 @@ export function ImportDialog<E, C, P>({
           found = null;
         }
       }
-      const outcome = settleImport(toWrite, results, found, {unchanged: plan.summary.unchanged, invalid: plan.summary.error});
+      const outcome = settleImport(toWrite, results, found, {unchanged: plan.summary.unchanged, invalid: plan.summary.error}, lang);
       let notes: string[] = [];
       if (spec.afterWrite) {
         try {
           notes = await spec.afterWrite(outcome, latest);
         } catch (error) {
-          notes = [`Завершающий шаг не выполнен: ${messageOf(error)}`];
+          notes = [t.importAfterWriteFailed(messageOf(error))];
         }
       }
       setStage({kind: "done", plan, outcome, notes});
@@ -219,7 +227,7 @@ export function ImportDialog<E, C, P>({
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent
-        title={title}
+        title={title ?? t.importTitle}
         size="lg"
         closeButton={!busy}
         onEscapeKeyDown={(e) => busy && e.preventDefault()}
@@ -244,21 +252,18 @@ export function ImportDialog<E, C, P>({
             <div className="fui-import__intro">
               {description ?? (
                 <>
-                  <p>
-                    Проще всего так: сделайте экспорт, поправьте файл в Google Sheets или Excel и загрузите его сюда.
-                    Колонки должны называться так же, как в экспорте; лишние колонки пропускаются.
-                  </p>
+                  <p>{t.importIntro}</p>
                   <ul className="fui-import__rules">
-                    <li>Если такой {key.label} уже есть — запись обновится, если нет — появится новая.</li>
-                    <li>Пустая ячейка ничего не стирает: поле останется как было.</li>
-                    <li>Ячейки в файле экспорта текстовые — не меняйте их формат, тогда таблица не испортит номера и даты.</li>
-                    <li>До записи вы увидите, что именно изменится, и сможете отказаться.</li>
+                    <li>{t.importRuleKey(key.label)}</li>
+                    <li>{t.importRuleEmpty}</li>
+                    <li>{t.importRuleText}</li>
+                    <li>{t.importRulePreview}</li>
                   </ul>
                 </>
               )}
               {spec.keys.length > 1 && (
                 <label className="fui-import__key">
-                  <span>Искать существующие записи по</span>
+                  <span>{t.importKeyPicker}</span>
                   <Select value={key.column} onValueChange={setKeyColumn}>
                     <SelectTrigger size="sm" className="fui-import__key-select">
                       <SelectValue />
@@ -277,10 +282,10 @@ export function ImportDialog<E, C, P>({
             {stage.error && <Callout tone="warning">{stage.error}</Callout>}
             <DialogFooter>
               <Button variant="ghost" onClick={() => close(false)}>
-                Отмена
+                {t.cancel}
               </Button>
               <Button icon={<FileUp />} onClick={() => input.current?.click()}>
-                Выбрать файл
+                {t.importPickFile}
               </Button>
             </DialogFooter>
           </>
@@ -289,7 +294,7 @@ export function ImportDialog<E, C, P>({
         {stage.kind === "checking" && (
           <div role="status" className="fui-state">
             <Spinner />
-            Проверяем файл…
+            {t.importChecking}
           </div>
         )}
 
@@ -297,12 +302,12 @@ export function ImportDialog<E, C, P>({
           <>
             <ErrorState
               error={stage.error}
-              title="Не удалось загрузить данные из Fibery"
+              title={t.importLoadFailed}
               onRetry={() => void check(stage.file)}
             />
             <DialogFooter>
               <Button variant="ghost" onClick={() => close(false)}>
-                Отмена
+                {t.cancel}
               </Button>
             </DialogFooter>
           </>
@@ -312,32 +317,33 @@ export function ImportDialog<E, C, P>({
           <>
             <Stats
               items={[
-                ["Будет создано", stage.plan.summary.create],
-                ["Будет обновлено", stage.plan.summary.update],
-                ["Без изменений", stage.plan.summary.unchanged],
-                ["С ошибками", stage.plan.summary.error],
+                [t.importWillCreate, stage.plan.summary.create],
+                [t.importWillUpdate, stage.plan.summary.update],
+                [t.importUnchanged, stage.plan.summary.unchanged],
+                [t.importWithErrors, stage.plan.summary.error],
               ]}
             />
-            <ColumnNotes headers={stage.plan.headers} />
-            <ChangeList rows={stage.plan.rows.filter((r) => r.action === "update")} headerOf={headerOf} />
+            <ColumnNotes headers={stage.plan.headers} t={t} />
+            <ChangeList rows={stage.plan.rows.filter((r) => r.action === "update")} headerOf={headerOf} t={t} />
             <IssueList
               items={stage.plan.rows.flatMap((r) =>
                 r.issues.map((i) => ({row: r.row, column: headerOf(i.column), level: i.level, message: i.message})),
               )}
-              empty="Проблем не найдено"
+              empty={t.importNoProblems}
+              t={t}
             />
             {stage.plan.summary.error > 0 && (
-              <p className="fui-import__hint">Строки с ошибками не будут записаны. Исправьте их в файле и загрузите его ещё раз.</p>
+              <p className="fui-import__hint">{t.importErrorRowsSkipped}</p>
             )}
             <DialogFooter>
               <Button variant="ghost" onClick={() => input.current?.click()}>
-                Другой файл
+                {t.importOtherFile}
               </Button>
               <Button
                 disabled={stage.plan.summary.create + stage.plan.summary.update === 0}
                 onClick={() => void write(stage.plan, stage.context)}
               >
-                Импортировать
+                {t.importRun}
               </Button>
             </DialogFooter>
           </>
@@ -345,9 +351,7 @@ export function ImportDialog<E, C, P>({
 
         {stage.kind === "writing" && (
           <>
-            <div className="fui-import__progress-label">
-              Записано {stage.done} из {stage.total}
-            </div>
+            <div className="fui-import__progress-label">{t.progress(stage.done, stage.total)}</div>
             <div className="fui-progress" role="progressbar" aria-valuemin={0} aria-valuemax={stage.total} aria-valuenow={stage.done}>
               <div className="fui-progress__bar" style={{width: `${stage.total ? (stage.done / stage.total) * 100 : 0}%`}} />
             </div>
@@ -358,17 +362,14 @@ export function ImportDialog<E, C, P>({
           <>
             <Stats
               items={[
-                ["Создано", stage.outcome.created.length],
-                ["Обновлено", stage.outcome.updated.length],
-                ["Без изменений", stage.outcome.unchanged],
-                ["Не записано", stage.outcome.invalid + stage.outcome.failed.length],
+                [t.importCreated, stage.outcome.created.length],
+                [t.importUpdated, stage.outcome.updated.length],
+                [t.importUnchanged, stage.outcome.unchanged],
+                [t.importNotWritten, stage.outcome.invalid + stage.outcome.failed.length],
               ]}
             />
             {stage.outcome.uncertain.length > 0 && (
-              <Callout tone="warning">
-                Для {stage.outcome.uncertain.length} строк Fibery не ответил — неизвестно, записаны ли они. Загрузите тот же
-                файл ещё раз: уже записанные найдутся по «{key.label}» и не задвоятся.
-              </Callout>
+              <Callout tone="warning">{t.importUncertain(stage.outcome.uncertain.length, key.label)}</Callout>
             )}
             {stage.notes.map((note) => (
               <Callout key={note} tone="neutral">
@@ -387,23 +388,21 @@ export function ImportDialog<E, C, P>({
                 ...stage.outcome.failed.map((f) => ({row: f.row, column: "", level: "error" as const, message: f.message})),
                 ...stage.outcome.uncertain.map((f) => ({row: f.row, column: "", level: "warning" as const, message: f.message})),
               ]}
-              empty="Все строки записаны"
+              empty={t.importAllWritten}
+              t={t}
             />
             <DialogFooter>
-              <Button onClick={() => close(false)}>Готово</Button>
+              <Button onClick={() => close(false)}>{t.done}</Button>
             </DialogFooter>
           </>
         )}
 
         {stage.kind === "crashed" && (
           <>
-            <ErrorState error={stage.error} title="Импорт прервался из-за ошибки" />
-            <p className="fui-import__hint">
-              Уже записанное осталось в Fibery. Загрузите файл ещё раз: записанные строки найдутся по «{key.label}», а
-              остальные запишутся.
-            </p>
+            <ErrorState error={stage.error} title={t.importCrashed} />
+            <p className="fui-import__hint">{t.importCrashedHint(key.label)}</p>
             <DialogFooter>
-              <Button onClick={() => close(false)}>Закрыть</Button>
+              <Button onClick={() => close(false)}>{t.close}</Button>
             </DialogFooter>
           </>
         )}
@@ -426,30 +425,30 @@ function Stats({items}: {items: [string, number][]}) {
   );
 }
 
-function ColumnNotes({headers}: {headers: HeaderMatch}) {
+function ColumnNotes({headers, t}: {headers: HeaderMatch; t: KitTexts}) {
   if (!headers.unknown.length && !headers.repeated.length) return null;
   return (
     <Callout tone="neutral">
-      {headers.unknown.length > 0 && <div>Колонки не распознаны и пропущены: {headers.unknown.join(", ")}</div>}
-      {headers.repeated.length > 0 && <div>Колонки повторяются, прочитана первая: {headers.repeated.join(", ")}</div>}
+      {headers.unknown.length > 0 && <div>{t.importUnknownColumns(headers.unknown.join(", "))}</div>}
+      {headers.repeated.length > 0 && <div>{t.importRepeatedColumns(headers.repeated.join(", "))}</div>}
     </Callout>
   );
 }
 
 // Every field each update changes, old → new, so a change nobody meant is seen before it is written. Collapsed: the
 // counts above are usually enough.
-function ChangeList<P>({rows, headerOf}: {rows: PlannedRow<P>[]; headerOf: (column?: string) => string}) {
+function ChangeList<P>({rows, headerOf, t}: {rows: PlannedRow<P>[]; headerOf: (column?: string) => string; t: KitTexts}) {
   const listed = rows.filter((r) => r.changes.length > 0);
   if (!listed.length) return null;
   const shown = listed.slice(0, MAX_LISTED);
   return (
     <details className="fui-import__changes">
-      <summary>Что изменится в обновляемых записях</summary>
+      <summary>{t.importChanges}</summary>
       <div className="fui-import__changes-list">
         {shown.map((r) => (
           <div key={r.row} className="fui-import__change">
             <div className="fui-import__change-head">
-              Строка {r.row} · {r.key}
+              {t.importRow(r.row)} · {r.key}
             </div>
             {r.changes.map((c) => (
               <div key={c.column} className="fui-import__change-field">
@@ -458,7 +457,7 @@ function ChangeList<P>({rows, headerOf}: {rows: PlannedRow<P>[]; headerOf: (colu
             ))}
           </div>
         ))}
-        {listed.length > shown.length && <p className="fui-import__hint">…и ещё {listed.length - shown.length}</p>}
+        {listed.length > shown.length && <p className="fui-import__hint">{t.importMore(listed.length - shown.length)}</p>}
       </div>
     </details>
   );
@@ -467,7 +466,7 @@ function ChangeList<P>({rows, headerOf}: {rows: PlannedRow<P>[]; headerOf: (colu
 type ListedIssue = {row: number; column: string; level: "error" | "warning"; message: string};
 
 // Errors first, then warnings, each by row; long lists are cut with a count of the rest.
-function IssueList({items, empty}: {items: ListedIssue[]; empty: string}) {
+function IssueList({items, empty, t}: {items: ListedIssue[]; empty: string; t: KitTexts}) {
   if (!items.length) return <p className="fui-import__hint">{empty}</p>;
   const sorted = [...items].sort((a, b) => (a.level === b.level ? a.row - b.row : a.level === "error" ? -1 : 1));
   const shown = sorted.slice(0, MAX_LISTED);
@@ -476,16 +475,16 @@ function IssueList({items, empty}: {items: ListedIssue[]; empty: string}) {
       <table>
         <thead>
           <tr>
-            <th className="fui-import__issue-row">Строка</th>
-            <th>Колонка</th>
-            <th>Проблема</th>
+            <th className="fui-import__issue-row">{t.importColRow}</th>
+            <th>{t.importColColumn}</th>
+            <th>{t.importColProblem}</th>
           </tr>
         </thead>
         <tbody>
           {shown.map((i, n) => (
             <tr key={n} data-level={i.level}>
               <td className="fui-import__issue-row">
-                <span className="fui-import__level" title={i.level === "error" ? "Ошибка" : "Предупреждение"}>
+                <span className="fui-import__level" title={i.level === "error" ? t.importError : t.importWarning}>
                   {i.level === "error" ? <CircleAlert /> : <TriangleAlert />}
                 </span>
                 {i.row}
@@ -496,7 +495,7 @@ function IssueList({items, empty}: {items: ListedIssue[]; empty: string}) {
           ))}
         </tbody>
       </table>
-      {sorted.length > shown.length && <p className="fui-import__hint">…и ещё {sorted.length - shown.length}</p>}
+      {sorted.length > shown.length && <p className="fui-import__hint">{t.importMore(sorted.length - shown.length)}</p>}
     </div>
   );
 }

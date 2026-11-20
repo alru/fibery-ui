@@ -12,6 +12,7 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import {Check, Minus, Search} from "lucide-react";
 import {cx} from "../cx";
+import {useKitTexts} from "./KitLang";
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   size?: "sm" | "md";
@@ -83,6 +84,7 @@ export type FieldProps = {
 
 /** Label + control + hint/warning/error stacked vertically. */
 export function Field({label, htmlFor, hint, error, warning, changed, required, children, className}: FieldProps) {
+  const t = useKitTexts();
   const note = error ? (
     <p className="fui-field__error">{error}</p>
   ) : warning ? (
@@ -96,11 +98,11 @@ export function Field({label, htmlFor, hint, error, warning, changed, required, 
         <Label htmlFor={htmlFor}>
           {label}
           {required && (
-            <span className="fui-label__required" aria-label="обязательное поле">
+            <span className="fui-label__required" aria-label={t.requiredField}>
               *
             </span>
           )}
-          {changed && <span className="fui-visually-hidden"> (изменено)</span>}
+          {changed && <span className="fui-visually-hidden">{t.changedField}</span>}
         </Label>
       )}
       {children}

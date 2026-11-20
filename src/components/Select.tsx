@@ -5,6 +5,7 @@ import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import {Check, ChevronDown} from "lucide-react";
 import {cx} from "../cx";
+import {useKitTexts} from "./KitLang";
 
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -52,11 +53,29 @@ export const SelectContent = forwardRef<ElementRef<typeof SelectPrimitive.Conten
 );
 SelectContent.displayName = "SelectContent";
 
+export type SelectItemProps = ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
+  /** Muted second line under the option, e.g. what it means. Only in the list: the trigger shows the option alone. */
+  description?: ReactNode;
+};
+
 /** Option row with a check mark when selected. Children may start with an icon or EnumBadge. */
-export const SelectItem = forwardRef<ElementRef<typeof SelectPrimitive.Item>, ComponentPropsWithoutRef<typeof SelectPrimitive.Item>>(
-  ({className, children, ...props}, ref) => (
-    <SelectPrimitive.Item ref={ref} className={cx("fui-menu-item", className)} {...props}>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+export const SelectItem = forwardRef<ElementRef<typeof SelectPrimitive.Item>, SelectItemProps>(
+  ({description, className, children, ...props}, ref) => (
+    <SelectPrimitive.Item
+      ref={ref}
+      data-description={description ? "" : undefined}
+      className={cx("fui-menu-item", className)}
+      {...props}
+    >
+      {description ? (
+        // ItemText is what Radix copies into the trigger's SelectValue, so the description stays outside it.
+        <span className="fui-menu-item__body">
+          <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+          <span className="fui-menu-item__description">{description}</span>
+        </span>
+      ) : (
+        <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      )}
       <SelectPrimitive.ItemIndicator className="fui-menu-item__check">
         <Check />
       </SelectPrimitive.ItemIndicator>
@@ -88,9 +107,10 @@ export type MultiSelectProps = {
   options: MultiSelectOption[];
   value: string[];
   onValueChange: (value: string[]) => void;
-  /** Trigger text while nothing is selected, i.e. the filter is off. */
+  /** Trigger text while nothing is selected, i.e. the filter is off; «Все» / "All" by default. */
   placeholder?: ReactNode;
-  /** Text of the menu row that clears the selection; shown only when something is selected. */
+  /** Text of the menu row that clears the selection, shown only when something is selected; «Сбросить» / "Reset"
+   *  by default. */
   clearLabel?: string;
   size?: "sm" | "md";
   className?: string;
@@ -106,12 +126,13 @@ export function MultiSelect({
   options,
   value,
   onValueChange,
-  placeholder = "Все",
-  clearLabel = "Сбросить",
+  placeholder,
+  clearLabel,
   size = "md",
   className,
   "aria-label": ariaLabel,
 }: MultiSelectProps) {
+  const t = useKitTexts();
   const selected = options.filter((o) => value.includes(o.value));
   const toggle = (option: string, checked: boolean) =>
     onValueChange(checked ? [...value, option] : value.filter((v) => v !== option));
@@ -126,7 +147,7 @@ export function MultiSelect({
         <span className="fui-select-trigger__value">
           <span className="fui-multiselect__label">{label}</span>
           {selected.length === 0 ? (
-            placeholder
+            (placeholder ?? t.all)
           ) : (
             <>
               {selected[0].label}
@@ -157,7 +178,7 @@ export function MultiSelect({
             <>
               <DropdownPrimitive.Separator className="fui-menu-separator" />
               <DropdownPrimitive.Item className="fui-menu-item" onSelect={() => onValueChange([])}>
-                <span className="fui-menu-item__text">{clearLabel}</span>
+                <span className="fui-menu-item__text">{clearLabel ?? t.reset}</span>
               </DropdownPrimitive.Item>
             </>
           )}

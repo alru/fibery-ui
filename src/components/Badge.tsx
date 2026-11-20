@@ -2,6 +2,7 @@
 import {forwardRef, type HTMLAttributes} from "react";
 import {X} from "lucide-react";
 import {cx} from "../cx";
+import {useKitTexts} from "./KitLang";
 
 export type Hue =
   | "grey" | "red" | "pink" | "purple" | "violet" | "blue"
@@ -16,29 +17,32 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   caps?: boolean;
   /** Adds a × button, e.g. for an active filter chip. */
   onRemove?: () => void;
-  /** Accessible label of the × button. */
+  /** Accessible label of the × button; «Убрать» / "Remove" by default. */
   removeLabel?: string;
 };
 
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({hue, variant = "soft", caps, onRemove, removeLabel = "Убрать", className, children, ...props}, ref) => (
-    <span
-      ref={ref}
-      data-hue={hue}
-      data-variant={variant}
-      data-caps={caps ? "" : undefined}
-      className={cx("fui-badge", className)}
-      {...props}
-    >
-      {children}
-      {onRemove && (
-        <button type="button" className="fui-badge__remove" aria-label={removeLabel} onClick={onRemove}>
-          <X />
-        </button>
-      )}
-    </span>
-  ),
+  ({hue, variant = "soft", caps, onRemove, removeLabel, className, children, ...props}, ref) => {
+    const t = useKitTexts();
+    return (
+      <span
+        ref={ref}
+        data-hue={hue}
+        data-variant={variant}
+        data-caps={caps ? "" : undefined}
+        className={cx("fui-badge", className)}
+        {...props}
+      >
+        {children}
+        {onRemove && (
+          <button type="button" className="fui-badge__remove" aria-label={removeLabel ?? t.remove} onClick={onRemove}>
+            <X />
+          </button>
+        )}
+      </span>
+    );
+  },
 );
 Badge.displayName = "Badge";
 

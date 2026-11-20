@@ -57,6 +57,7 @@ export {
   SelectLabel,
   SelectSeparator,
   MultiSelect,
+  type SelectItemProps,
   type SelectTriggerProps,
   type MultiSelectOption,
   type MultiSelectProps,
@@ -80,6 +81,8 @@ export {
   DialogClose,
   DialogContent,
   DialogFooter,
+  ConfirmDialog,
+  type ConfirmDialogProps,
   type DropdownMenuItemProps,
   type TooltipProps,
   type DialogContentProps,
@@ -136,6 +139,9 @@ export {
   type EmptyStateProps,
 } from "./components/States";
 export {FiberyUIProvider} from "./components/Provider";
+export {useKitLang} from "./components/KitLang";
+export type {KitLang} from "./i18n";
+export {SelectionBar, type SelectionBarProps} from "./components/SelectionBar";
 export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
 export {InlineEdit, type InlineEditProps} from "./components/InlineEdit";
 export {usePersistentState} from "./components/PersistentState";

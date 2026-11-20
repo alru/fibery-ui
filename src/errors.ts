@@ -2,6 +2,7 @@
 // throws (plain Errors like `Fibery command "fibery.entity/query" failed: 503 <body>`), tell transient failures
 // (rate limit, gateway, network) from real ones, phrase them for people, and retry them from React Query.
 // Nothing here depends on React Query: the retry policy only matches its `retry` / `retryDelay` signatures.
+import {KIT_TEXTS, type KitLang} from "./i18n.ts";
 
 // "failed: 503 …" in every HTTP error message of the platform's fibery.ts.
 const STATUS_IN_MESSAGE = /failed: (\d{3})\b/;
@@ -48,16 +49,17 @@ export function isPermissionError(error: unknown): boolean {
 }
 
 /**
- * Human text for a transient failure, in Russian; `undefined` for other errors, whose raw message is the only
- * useful description. Show the raw message too: it carries the diagnostic needed to report the problem.
+ * Human text for a transient failure; `undefined` for other errors, whose raw message is the only useful
+ * description. Show the raw message too: it carries the diagnostic needed to report the problem.
+ *
+ * @param lang Language of the text; Russian by default.
  */
-export function friendlyErrorMessage(error: unknown): string | undefined {
+export function friendlyErrorMessage(error: unknown, lang: KitLang = "ru"): string | undefined {
+  const t = KIT_TEXTS[lang];
   const status = httpStatusOf(error);
-  if (status !== undefined && UNAVAILABLE_STATUSES.has(status)) {
-    return "Fibery временно недоступен. Попробуйте ещё раз через минуту.";
-  }
-  if (status === 429) return "Слишком много запросов к Fibery. Попробуйте через минуту.";
-  if (status === undefined && isNetworkError(error)) return "Нет связи с Fibery. Проверьте подключение.";
+  if (status !== undefined && UNAVAILABLE_STATUSES.has(status)) return t.fiberyUnavailable;
+  if (status === 429) return t.rateLimited;
+  if (status === undefined && isNetworkError(error)) return t.offline;
   return undefined;
 }
 
