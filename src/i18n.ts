@@ -42,6 +42,11 @@ const RU = {
   textareaHint: "Ctrl+Enter — сохранить, Esc — отменить",
   addField: "Поле",
   now: "сейчас",
+  // Boards and metrics
+  empty: "Пусто",
+  expandColumn: "Развернуть колонку",
+  collapseColumn: "Свернуть колонку",
+  was: "было",
   // Access
   accessChecking: "Проверка доступа…",
   accessDenied: "Недостаточно доступа",
@@ -167,6 +172,10 @@ const EN: KitTexts = {
   textareaHint: "Ctrl+Enter to save, Esc to cancel",
   addField: "Field",
   now: "now",
+  empty: "Empty",
+  expandColumn: "Expand column",
+  collapseColumn: "Collapse column",
+  was: "was",
   accessChecking: "Checking access…",
   accessDenied: "Not enough access",
   accessDeniedText: (missing) =>

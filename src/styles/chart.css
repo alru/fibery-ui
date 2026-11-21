@@ -167,3 +167,55 @@
 @keyframes fui-grow-y {
   from { transform: scaleY(0); }
 }
+
+@layer components {
+  /* ─── MetricCard: a flat sheet; the comparison line sits at the bottom, so cards in a row line up ─── */
+  .fui-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
+    padding: 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--card-foreground);
+    box-shadow: 0 0 0 1px var(--border);
+    font: inherit;
+    text-align: left;
+  }
+  button.fui-metric { width: 100%; cursor: pointer; transition: background-color 0.12s; }
+  .fui-metric[data-interactive]:hover { background-image: linear-gradient(var(--fui-hover), var(--fui-hover)); }
+  .fui-metric[data-interactive]:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--border), var(--fui-focus-ring); }
+  .fui-metric__value {
+    display: flex;
+    align-items: center;
+    min-width: 4ch;
+    min-height: 32px;
+    color: var(--foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fui-metric__skeleton { width: 56px; height: 24px; }
+  .fui-metric__label { margin-top: 4px; color: var(--foreground); font-size: 14px; font-weight: var(--fui-regular); line-height: 20px; }
+  .fui-metric__definition,
+  .fui-metric__note { margin-top: 2px; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
+  .fui-metric__compare {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 16px;
+    margin-top: auto;
+    padding-top: 8px;
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .fui-metric__compare > svg { width: 12px; height: 12px; }
+}

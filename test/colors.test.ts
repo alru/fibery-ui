@@ -1,8 +1,9 @@
 // Fibery option colors and emoji on theme hues: the fixed table for Fibery's palette, nearest hue for other colors,
-// neutral for none; shortcodes to emoji; stable avatar hues that never take a state code or the accent.
+// neutral for none; shortcodes to emoji; whether an emoji really renders; stable avatar hues that never take a state
+// code or the accent.
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {fiberyEmoji, fiberyHue, hueFor} from "../src/colors.ts";
+import {emojiRenders, fiberyEmoji, fiberyHue, hueFor, type GlyphProbe} from "../src/colors.ts";
 import {sectorPath} from "../src/glyphs.ts";
 
 test("Fibery's standard palette maps by the fixed table, in any letter case", () => {
@@ -77,4 +78,30 @@ test("the stage ring fills step of steps clockwise from the top", () => {
   assert.match(sectorPath(6, 6), /^M6 3\.25A.*Z$/, "a full step is a whole circle");
   assert.equal(sectorPath(9, 6), sectorPath(6, 6));
   assert.equal(sectorPath(1, 0), "");
+});
+
+// Fake canvas: each character draws a fixed row of pixels; a "missing" one draws the same box as the tofu probe.
+const BOX = [0, 0, 0, 255, 0, 0, 0, 255];
+const fakeProbe = (glyphs: Record<string, number[]>, calls: string[] = []): GlyphProbe => (char) => {
+  calls.push(char);
+  return glyphs[char] ?? BOX;
+};
+
+test("an emoji drawn differently from the missing-glyph box renders", () => {
+  assert.equal(emojiRenders("🚀", fakeProbe({"🚀": [9, 9, 9, 255, 0, 0, 0, 0]})), true);
+});
+
+test("an emoji drawn as the missing-glyph box, or as nothing, does not render", () => {
+  assert.equal(emojiRenders("📧", fakeProbe({})), false);
+  assert.equal(emojiRenders("📮", fakeProbe({"📮": [0, 0, 0, 0, 0, 0, 0, 0]})), false);
+});
+
+test("the answer is cached per character; without a canvas it is yes and not cached", () => {
+  const calls: string[] = [];
+  const probe = fakeProbe({"💬": [1, 2, 3, 255, 0, 0, 0, 0]}, calls);
+  assert.equal(emojiRenders("💬", probe), true);
+  assert.equal(emojiRenders("💬", probe), true);
+  assert.equal(calls.filter((c) => c === "💬").length, 1);
+  assert.equal(emojiRenders("📞", () => null), true);
+  assert.equal(emojiRenders("📞", fakeProbe({})), false, "a later real answer is not hidden by the first");
 });
