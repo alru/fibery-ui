@@ -1,9 +1,12 @@
 // usePersistentState: useState that survives page reloads, so an app can remember the user's tab and filters
 // between visits. Values live in localStorage (per user, per browser) as JSON.
 import { useEffect, useRef, useState } from "react";
-// Every Fibery app runs on the workspace origin, so localStorage is shared between apps; the app's own path
-// (/apps/<slug>/) keeps one app's "tab" from clobbering another's.
-const storageKey = (key) => `fui:${window.location.pathname}:${key}`;
+// Every Fibery app runs on the workspace origin, so localStorage is shared between apps; the app's own root path
+// (/apps/<slug>/) keeps one app's "tab" from clobbering another's. Only the root counts: a deep link or a reload on
+// another screen loads the frame at /apps/<slug>/<route>, and keying by the full path lost every saved choice there.
+/** Storage key for `key` in the app at `pathname`: namespaced by the app root `/apps/<slug>/`, else the whole path. */
+export const persistentStorageKey = (pathname, key) => `fui:${/^\/apps\/[^/]+\//.exec(pathname)?.[0] ?? pathname}:${key}`;
+const storageKey = (key) => persistentStorageKey(window.location.pathname, key);
 /**
  * Drop-in for `useState` whose value is saved to localStorage and restored on the next visit.
  *

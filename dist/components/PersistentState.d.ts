@@ -1,4 +1,6 @@
 import { type Dispatch, type SetStateAction } from "react";
+/** Storage key for `key` in the app at `pathname`: namespaced by the app root `/apps/<slug>/`, else the whole path. */
+export declare const persistentStorageKey: (pathname: string, key: string) => string;
 /**
  * Drop-in for `useState` whose value is saved to localStorage and restored on the next visit.
  *
