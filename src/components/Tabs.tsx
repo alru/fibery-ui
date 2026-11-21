@@ -30,14 +30,31 @@ export const TabsList = forwardRef<ElementRef<typeof TabsPrimitive.List>, TabsLi
 );
 TabsList.displayName = "TabsList";
 
-export const TabsTrigger = forwardRef<ElementRef<typeof TabsPrimitive.Trigger>, ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>>(
-  ({className, ...props}, ref) => (
+export type TabsTriggerProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & {
+  /**
+   * Round counter after the label (fixed width for "999", tabular digits). 0 hides it but keeps its place, so the
+   * tabs never shift; leave it undefined for a tab without a counter. Say what it counts in the tab's `title`.
+   */
+  count?: number;
+  /** `"alert"` — the counter on a red plate, e.g. when overdue work is among it; neutral by default. */
+  tone?: "neutral" | "alert";
+};
+
+export const TabsTrigger = forwardRef<ElementRef<typeof TabsPrimitive.Trigger>, TabsTriggerProps>(
+  ({count, tone = "neutral", className, children, ...props}, ref) => (
     <TabsPrimitive.Trigger
       ref={ref}
       data-variant={useContext(VariantContext)}
       className={cx("fui-tabs-trigger", className)}
       {...props}
-    />
+    >
+      {children}
+      {count != null && (
+        <span className="fui-tabs-trigger__count" data-tone={tone} data-zero={count === 0 ? "" : undefined} aria-hidden={count === 0 || undefined}>
+          {count}
+        </span>
+      )}
+    </TabsPrimitive.Trigger>
   ),
 );
 TabsTrigger.displayName = "TabsTrigger";
@@ -59,7 +76,12 @@ export const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, 
 );
 TabsContent.displayName = "TabsContent";
 
-export type SegmentedOption<T extends string> = {value: T; label: ReactNode};
+export type SegmentedOption<T extends string> = {
+  value: T;
+  label: ReactNode;
+  /** Mark before the label: a Dot in the option's color, an emoji, a direction arrow. */
+  glyph?: ReactNode;
+};
 
 export type SegmentedControlProps<T extends string> = {
   options: SegmentedOption<T>[];
@@ -119,6 +141,7 @@ export function SegmentedControl<T extends string>({options, value, onValueChang
             className="fui-tabs-trigger"
             onClick={() => onValueChange(option.value)}
           >
+            {option.glyph}
             {option.label}
           </button>
         );
@@ -175,6 +198,7 @@ export function SegmentedToggles<T extends string>({options, value, onValueChang
             className="fui-tabs-trigger"
             onClick={() => toggle(option.value)}
           >
+            {option.glyph}
             {option.label}
           </button>
         );

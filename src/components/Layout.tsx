@@ -1,9 +1,10 @@
-// Page-level structure: page title row, section headers, separators, a details side panel and the list + panel
-// layout, sized like Fibery entity pages.
+// Page-level structure: page title row, section headers (also collapsible, with a "show all" row under a cut list),
+// separators (also the "now" line), a details side panel and the list + panel layout, sized like Fibery entity pages.
 import type {HTMLAttributes, KeyboardEvent, ReactNode} from "react";
-import {X} from "lucide-react";
+import {ChevronRight, X} from "lucide-react";
 import {cx} from "../cx";
-import {IconButton} from "./Button";
+import type {Hue} from "../colors";
+import {Button, IconButton} from "./Button";
 import {useKitTexts} from "./KitLang";
 
 export type PageHeaderProps = {
@@ -35,19 +36,101 @@ export type SectionHeaderProps = {
   /** Number shown next to the title, e.g. the size of a collection. */
   count?: number;
   actions?: ReactNode;
+  /**
+   * `"muted"` (default) — a quiet label above a relation list, as on Fibery entity pages. `"strong"` — a 600-weight
+   * title in the text color, for screens made of several lists (a worklist's sections).
+   */
+  tone?: "muted" | "strong";
+  /** Puts the icon on a 20px plate of this highlight hue, like a database icon in Fibery's sidebar: the section's code. */
+  iconHue?: Hue;
+  /** Chevron before the title; the title becomes a toggle. Controlled: render the content while `open`. */
+  collapsible?: boolean;
+  /** Open state of a collapsible header; open when omitted. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Anchor for CountNav and links; the header keeps clear of a sticky bar above when scrolled to. */
+  id?: string;
+  /** `id` of the content a collapsible header shows and hides. */
+  "aria-controls"?: string;
   className?: string;
 };
 
-/** Muted section label like "Skills" above a relation list on a Fibery entity page. */
-export function SectionHeader({title, icon, count, actions, className}: SectionHeaderProps) {
+/**
+ * Section label above a list: muted like "Skills" on a Fibery entity page, or strong with a hued icon plate and a
+ * collapse chevron for the sections of a worklist.
+ */
+export function SectionHeader({
+  title,
+  icon,
+  count,
+  actions,
+  tone = "muted",
+  iconHue,
+  collapsible,
+  open = true,
+  onOpenChange,
+  id,
+  "aria-controls": controls,
+  className,
+}: SectionHeaderProps) {
+  const heading = (
+    <>
+      {icon && iconHue ? (
+        <span className="fui-section-header__plate" data-hue={iconHue}>
+          {icon}
+        </span>
+      ) : (
+        icon
+      )}
+      {title}
+      {count != null && <span className="fui-section-header__count">{count}</span>}
+    </>
+  );
   return (
-    <div className={cx("fui-section-header", className)}>
+    <div id={id} data-tone={tone} className={cx("fui-section-header", className)}>
       <h2 className="fui-section-header__title">
-        {icon}
-        {title}
-        {count != null && <span className="fui-section-header__count">{count}</span>}
+        {collapsible ? (
+          <button
+            type="button"
+            className="fui-section-header__toggle"
+            aria-expanded={open}
+            aria-controls={controls}
+            onClick={() => onOpenChange?.(!open)}
+          >
+            <ChevronRight className="fui-section-header__chevron" aria-hidden />
+            {heading}
+          </button>
+        ) : (
+          heading
+        )}
       </h2>
       {actions && <div className="fui-section-header__actions">{actions}</div>}
+    </div>
+  );
+}
+
+export type ShowMoreProps = {
+  /** Rows on screen. */
+  shown: number;
+  /** Rows in all. Nothing renders once everything is shown. */
+  total: number;
+  onShowAll: () => void;
+  className?: string;
+};
+
+/**
+ * Row under a list cut short: «Показано 15 из 37» / "Showing 15 of 37" (fixed width, tabular digits) and
+ * «Показать все» / "Show all".
+ */
+export function ShowMore({shown, total, onShowAll, className}: ShowMoreProps) {
+  const t = useKitTexts();
+  if (shown >= total) return null;
+  return (
+    <div className={cx("fui-show-more", className)}>
+      <span className="fui-show-more__count">{t.shownOf(shown, total)}</span>
+      <Button variant="ghost" size="sm" onClick={onShowAll}>
+        {t.showAll}
+      </Button>
     </div>
   );
 }
@@ -126,10 +209,14 @@ export function PanelLayout({children, panel, onDismiss, className}: PanelLayout
   );
 }
 
-export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
+export type SeparatorProps = HTMLAttributes<HTMLElement> & {
   orientation?: "horizontal" | "vertical";
   /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */
   label?: ReactNode;
+  /** `"alert"` — a red line and caption, e.g. «сейчас 11:42» between past and coming rows of a time-ordered list. */
+  tone?: "default" | "alert";
+  /** `"li"` to stand between the rows of a List. */
+  as?: "div" | "li";
 };
 
 export type InsetProps = HTMLAttributes<HTMLDivElement> & {
@@ -147,21 +234,23 @@ export function Inset({footer, className, children, ...props}: InsetProps) {
   );
 }
 
-/** Hairline divider; with `label`, a captioned one ("На английском ————"). */
-export function Separator({orientation = "horizontal", label, className, ...props}: SeparatorProps) {
+/** Hairline divider; with `label`, a captioned one ("На английском ————"); `tone="alert"` makes it the "now" line. */
+export function Separator({orientation = "horizontal", label, tone = "default", as: Tag = "div", className, ...props}: SeparatorProps) {
+  const tint = tone === "alert" ? "alert" : undefined;
   if (label != null) {
     return (
-      <div className={cx("fui-separator-labeled", className)} {...props}>
+      <Tag data-tone={tint} className={cx("fui-separator-labeled", className)} {...props}>
         <span className="fui-separator-labeled__text">{label}</span>
         <div role="separator" aria-orientation="horizontal" data-orientation="horizontal" className="fui-separator" />
-      </div>
+      </Tag>
     );
   }
   return (
-    <div
+    <Tag
       role="separator"
       aria-orientation={orientation}
       data-orientation={orientation}
+      data-tone={tint}
       className={cx("fui-separator", className)}
       {...props}
     />

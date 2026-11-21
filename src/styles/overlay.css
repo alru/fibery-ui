@@ -281,3 +281,24 @@
   .fui-tabs-content[data-state="inactive"] { display: none; }
   .fui-tabs-content:focus-visible { box-shadow: var(--fui-focus-ring); border-radius: 6px; }
 }
+
+@layer components {
+  /* ─── TabsTrigger count: a round counter with room for "999"; 0 keeps its place invisibly ─── */
+  .fui-tabs-trigger__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 9999px;
+    background: var(--fui-subtle);
+    color: var(--foreground);
+    font-size: 12px;
+    font-weight: var(--fui-regular);
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fui-tabs-trigger__count[data-tone="alert"] { background: var(--highlight-red-bg); color: var(--highlight-red-fg-on-bg); }
+  .fui-tabs-trigger__count[data-zero] { visibility: hidden; }
+}

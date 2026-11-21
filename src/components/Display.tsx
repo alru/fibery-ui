@@ -1,7 +1,23 @@
-// Content building blocks modeled on Fibery entity pages: avatar, card, relation-style list rows, property list.
-import {forwardRef, useState, type HTMLAttributes, type KeyboardEvent, type LiHTMLAttributes, type ReactNode} from "react";
-import {ChevronDown} from "lucide-react";
+// Content building blocks modeled on Fibery entity pages: avatar, card, list rows (Fibery relation rows or divided
+// worklist rows with an actions column), property list.
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+  type KeyboardEvent,
+  type LiHTMLAttributes,
+  type ReactNode,
+} from "react";
+import {ChevronDown, Plus} from "lucide-react";
 import {cx} from "../cx";
+import type {Hue} from "../colors";
+import {Button, IconButton, type IconButtonProps} from "./Button";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Tooltip} from "./Overlay";
+import {Spinner} from "./States";
+import {useKitTexts} from "./KitLang";
 
 export type AvatarProps = {
   /** Used for initials and as the image alt text. */
@@ -9,6 +25,8 @@ export type AvatarProps = {
   /** Image URL, e.g. `makeFileUrl(secret)` of a Fibery avatar. */
   src?: string;
   size?: "sm" | "md" | "lg";
+  /** Initials on a highlight hue, e.g. `hueFor(user.id)`, so people are told apart at a glance; neutral by default. */
+  hue?: Hue;
   className?: string;
 };
 
@@ -16,9 +34,9 @@ const initials = (name: string) =>
   name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
 
 /** Round avatar, 20 / 24 / 32px; falls back to initials. */
-export function Avatar({name, src, size = "md", className}: AvatarProps) {
+export function Avatar({name, src, size = "md", hue, className}: AvatarProps) {
   return (
-    <span data-size={size} className={cx("fui-avatar", className)} title={name}>
+    <span data-size={size} data-hue={hue} className={cx("fui-avatar", className)} title={name}>
       {src ? <img src={src} alt={name} /> : initials(name)}
     </span>
   );
@@ -60,9 +78,17 @@ export function CardContent({className, ...props}: HTMLAttributes<HTMLDivElement
   return <div className={cx("fui-card__content", className)} {...props} />;
 }
 
+export type ListProps = HTMLAttributes<HTMLUListElement> & {
+  /**
+   * `"default"` — Fibery relation rows: ringed boxes with a 4px gap. `"divided"` — a worklist: rows edge to edge
+   * with a hairline between them, no rings, 13px text; for long lists that are scanned and worked through.
+   */
+  variant?: "default" | "divided";
+};
+
 /** Vertical stack of ListItem rows. */
-export const List = forwardRef<HTMLUListElement, HTMLAttributes<HTMLUListElement>>(({className, ...props}, ref) => (
-  <ul ref={ref} className={cx("fui-list", className)} {...props} />
+export const List = forwardRef<HTMLUListElement, ListProps>(({variant = "default", className, ...props}, ref) => (
+  <ul ref={ref} data-variant={variant} className={cx("fui-list", className)} {...props} />
 ));
 List.displayName = "List";
 
@@ -77,12 +103,34 @@ export type ListItemProps = Omit<LiHTMLAttributes<HTMLLIElement>, "onClick"> & {
   multiline?: boolean;
   /** Accent-tinted state for the row whose details are open, e.g. in a SidePanel. */
   selected?: boolean;
+  /**
+   * Row verbs at the right edge, usually RowActions and a "⋯" menu. The first is the main verb and always shows;
+   * the others show on hover, focus inside the row, while selected and on touch screens, and keep their place
+   * otherwise. Clicks and keys inside never reach the row's `onClick`.
+   */
+  actions?: ReactNode[];
+  /** Slots (28px each) the actions column reserves, so rows with fewer verbs keep the column at one width. */
+  actionSlots?: number;
+  /** Shows every action all the time, e.g. in a short list where each row matters. */
+  actionsVisible?: boolean;
+  /** The row's action is being saved: a spinner in place of the first action, the others disabled. */
+  busy?: boolean;
 };
 
-/** Row in the style of Fibery relation lists: ringed, radius 6px, single-line text with ellipsis. */
+const stopEvent = (e: {stopPropagation: () => void}) => e.stopPropagation();
+
+/**
+ * Row in the style of Fibery relation lists: ringed, radius 6px, single-line text with ellipsis; inside
+ * `<List variant="divided">`, a flat worklist row.
+ */
 export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
-  ({leading, trailing, onClick, multiline, selected, className, children, ...props}, ref) => {
+  (
+    {leading, trailing, onClick, multiline, selected, actions, actionSlots, actionsVisible, busy, className, children, ...props},
+    ref,
+  ) => {
     const onKeyDown = (e: KeyboardEvent<HTMLLIElement>) => {
+      // Enter on a control inside the row belongs to that control.
+      if (e.target !== e.currentTarget) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         onClick?.();
@@ -93,6 +141,7 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
         ref={ref}
         data-multiline={multiline ? "" : undefined}
         data-selected={selected ? "" : undefined}
+        aria-busy={busy || undefined}
         className={cx("fui-list-item", className)}
         {...(onClick && {role: "button", tabIndex: 0, onClick, onKeyDown, "aria-pressed": selected, "data-interactive": ""})}
         {...props}
@@ -100,15 +149,58 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
         {leading}
         <span className="fui-list-item__main">{children}</span>
         {trailing && <span className="fui-list-item__trailing">{trailing}</span>}
+        {actions && (
+          <span
+            className="fui-list-item__actions"
+            data-visible={actionsVisible ? "" : undefined}
+            style={{"--fui-action-slots": Math.max(actionSlots ?? 0, actions.length)} as CSSProperties}
+            onClick={stopEvent}
+            onKeyDown={stopEvent}
+          >
+            {/* A disabled fieldset disables every button inside, whatever the app put there. */}
+            <fieldset className="fui-list-item__action-set" disabled={busy}>
+              {actions.map((action, i) => (
+                <span key={i} className="fui-list-item__action" data-main={i === 0 ? "" : undefined}>
+                  {i === 0 && busy ? <Spinner size="sm" /> : action}
+                </span>
+              ))}
+            </fieldset>
+          </span>
+        )}
       </li>
     );
   },
 );
 ListItem.displayName = "ListItem";
 
+export type RowActionProps = Omit<IconButtonProps, "aria-label" | "size" | "variant"> & {
+  /** The verb, e.g. "Done": the tooltip and the accessible name. */
+  label: string;
+};
+
+/**
+ * Icon-only verb for a ListItem's `actions`: a small ghost IconButton with a tooltip. Also works as a menu trigger
+ * (`<DropdownMenuTrigger asChild><RowAction … /></DropdownMenuTrigger>`).
+ */
+export const RowAction = forwardRef<HTMLButtonElement, RowActionProps>(({label, ...props}, ref) => (
+  <Tooltip content={label}>
+    <IconButton ref={ref} aria-label={label} size="sm" {...props} />
+  </Tooltip>
+));
+RowAction.displayName = "RowAction";
+
+const HideEmptyContext = createContext(false);
+
+export type PropertyListProps = HTMLAttributes<HTMLDListElement> & {
+  /** Leaves out the properties without a value (see Property `empty`); pair with PropertyAdd to fill one in. */
+  hideEmpty?: boolean;
+};
+
 /** Two-column label/value grid, like the field list on a Fibery entity page. */
-export const PropertyList = forwardRef<HTMLDListElement, HTMLAttributes<HTMLDListElement>>(({className, ...props}, ref) => (
-  <dl ref={ref} className={cx("fui-properties", className)} {...props} />
+export const PropertyList = forwardRef<HTMLDListElement, PropertyListProps>(({hideEmpty = false, className, ...props}, ref) => (
+  <HideEmptyContext.Provider value={hideEmpty}>
+    <dl ref={ref} className={cx("fui-properties", className)} {...props} />
+  </HideEmptyContext.Provider>
 ));
 PropertyList.displayName = "PropertyList";
 
@@ -116,11 +208,21 @@ export type PropertyProps = {
   label: ReactNode;
   /** Lucide icon shown before the label, e.g. `<Mail />` for an email field. */
   icon?: ReactNode;
+  /**
+   * The value is empty, so a `hideEmpty` list leaves the row out. By default: children are null, false or "".
+   * Set it when the value is a component, e.g. `empty={deal.closeDate == null}` around an InlineDate.
+   */
+  empty?: boolean;
   children: ReactNode;
 };
 
+const isBlank = (node: ReactNode): boolean =>
+  node == null || node === false || node === "" || (Array.isArray(node) && node.every(isBlank));
+
 /** One row of a PropertyList. */
-export function Property({label, icon, children}: PropertyProps) {
+export function Property({label, icon, empty, children}: PropertyProps) {
+  const hideEmpty = useContext(HideEmptyContext);
+  if (hideEmpty && (empty ?? isBlank(children))) return null;
   return (
     <>
       <dt className="fui-property__label">
@@ -129,6 +231,38 @@ export function Property({label, icon, children}: PropertyProps) {
       </dt>
       <dd className="fui-property__value">{children}</dd>
     </>
+  );
+}
+
+export type PropertyAddProps = {
+  /** The empty fields a `hideEmpty` list left out. Nothing renders while there are none. */
+  fields: {id: string; label: ReactNode; icon?: ReactNode}[];
+  /** The user picked a field: show its row, usually with its editor open (`startEditing` of an Inline* control). */
+  onAdd: (id: string) => void;
+  /** Button text after the plus; «Поле» / "Field" by default. */
+  label?: ReactNode;
+  className?: string;
+};
+
+/** «+ Поле» / "+ Field" button with a menu of the empty fields, e.g. in a PropertyGroup's `actions`. */
+export function PropertyAdd({fields, onAdd, label, className}: PropertyAddProps) {
+  const t = useKitTexts();
+  if (fields.length === 0) return null;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" icon={<Plus />} className={className}>
+          {label ?? t.addField}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {fields.map((f) => (
+          <DropdownMenuItem key={f.id} icon={f.icon} onSelect={() => onAdd(f.id)}>
+            {f.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
