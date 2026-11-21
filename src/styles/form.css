@@ -183,13 +183,16 @@
     .fui-inline-edit:not([data-editing]) .fui-inline-edit__button { opacity: 1; }
   }
 
-  .fui-inline-select { flex-direction: column; align-items: flex-start; }
+  /* The hover plate reaches 4px past the text on both sides. Those -4px sit on the column, not on the trigger: a
+     negative side margin on the trigger made the shrink-to-fit column 8px narrower than the trigger needs, and the
+     value was cut. */
+  .fui-inline-select { flex-direction: column; align-items: flex-start; margin-inline: -4px; }
   .fui-inline-select__trigger {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     max-width: 100%;
-    margin: -2px -4px;
+    margin: -2px 0;
     padding: 2px 4px;
     border: 0;
     border-radius: 4px;
@@ -205,7 +208,8 @@
   .fui-inline-select__trigger:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
   .fui-inline-select__trigger:disabled { cursor: default; }
   .fui-inline-select__trigger[aria-invalid="true"] { box-shadow: inset 0 0 0 1px var(--destructive); }
-  .fui-inline-select .fui-inline-edit__value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* A long value wraps rather than ending with "…" (a card's property column is narrow). */
+  .fui-inline-select .fui-inline-edit__value { min-width: 0; overflow-wrap: anywhere; }
   .fui-inline-select__chevron { flex-shrink: 0; width: 14px; height: 14px; color: var(--muted-foreground); opacity: 0; transition: opacity 0.12s; }
   .fui-inline-select__trigger:hover .fui-inline-select__chevron,
   .fui-inline-select__trigger:focus-visible .fui-inline-select__chevron,
