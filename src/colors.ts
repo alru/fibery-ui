@@ -1,6 +1,8 @@
 // Fibery option colors and emoji on the workspace theme. Fibery stores an option's color as a hex (`enum/color`) and
 // its emoji as a shortcode (`enum/icon`, ":rocket:"); apps render them with the theme's 12 highlight hues, so light and
-// dark themes keep working and no shade is ever computed from the hex. Pure, without imports: Node tests use it as is.
+// dark themes keep working and no shade is ever computed from the hex. Also the check that an emoji really renders
+// (a missing glyph is an empty box). Pure, without imports (the canvas is used only when a DOM is there): Node tests
+// use it as is.
 
 /** One of the 12 highlight hues the Fibery theme passes into apps (`--highlight-<hue>-bg` / `-fg` / `-fg-on-bg`). */
 export type Hue =
@@ -155,4 +157,65 @@ export function hueFor(id: string): Hue {
     hash = Math.imul(hash, 0x01000193);
   }
   return PERSON_HUES[(hash >>> 0) % PERSON_HUES.length];
+}
+
+/** Pixels of one character, drawn the same way every time; `null` where nothing can draw (no DOM, no canvas). */
+export type GlyphProbe = (char: string) => ArrayLike<number> | null;
+
+// A code point no font has: whatever the browser draws for it is what "missing" looks like on this machine.
+const TOFU = "\u{10FFFD}";
+const PROBE_SIZE = 20;
+
+let probeContext: CanvasRenderingContext2D | null | undefined;
+
+const canvasProbe: GlyphProbe = (char) => {
+  const doc = (globalThis as {document?: Document}).document;
+  if (!doc) return null;
+  if (probeContext === undefined) {
+    const canvas = doc.createElement("canvas");
+    canvas.width = PROBE_SIZE;
+    canvas.height = PROBE_SIZE;
+    probeContext = canvas.getContext("2d", {willReadFrequently: true});
+  }
+  if (!probeContext) return null;
+  // The page's own font stack, so the canvas falls back through the same fonts the text does.
+  const family = doc.body ? getComputedStyle(doc.body).fontFamily : "";
+  probeContext.clearRect(0, 0, PROBE_SIZE, PROBE_SIZE);
+  probeContext.font = `16px ${family || "sans-serif"}`;
+  probeContext.textBaseline = "top";
+  probeContext.fillText(char, 0, 0);
+  return probeContext.getImageData(0, 0, PROBE_SIZE, PROBE_SIZE).data;
+};
+
+const samePixels = (a: ArrayLike<number>, b: ArrayLike<number>) => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+};
+
+const blankPixels = (a: ArrayLike<number>) => {
+  for (let i = 0; i < a.length; i++) if (a[i] !== 0) return false;
+  return true;
+};
+
+const rendersCache = new Map<string, boolean>();
+const tofuCache = new WeakMap<GlyphProbe, ArrayLike<number> | null>();
+
+/**
+ * Whether this browser draws the emoji (or any character) with a real glyph: it is drawn on a canvas and compared
+ * with the "missing glyph" box of a code point no font has, and with nothing at all. On Windows some emoji (e.g. a
+ * text-style ✉️ in certain font stacks) come out as an empty box; show the option's name alone then, never the box.
+ * Cached per character for the session. Without a DOM (tests, server) it answers `true` and caches nothing.
+ * `probe` replaces the canvas, for tests.
+ */
+export function emojiRenders(char: string, probe: GlyphProbe = canvasProbe): boolean {
+  const cached = rendersCache.get(char);
+  if (cached !== undefined) return cached;
+  const sample = probe(char);
+  if (!tofuCache.has(probe)) tofuCache.set(probe, probe(TOFU));
+  const tofu = tofuCache.get(probe);
+  if (!sample || !tofu) return true;
+  const result = !blankPixels(sample) && !samePixels(sample, tofu);
+  rendersCache.set(char, result);
+  return result;
 }

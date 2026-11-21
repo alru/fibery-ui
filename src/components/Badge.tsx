@@ -1,9 +1,10 @@
-// Badges and marks: theme-colored labels (Badge), Fibery options on theme hues (OptionBadge), labels painted with an
-// option's own color (EnumBadge), 8px dots (Dot) and the progress ring of a workflow state (StageGlyph).
+// Badges and marks: theme-colored labels and pills (Badge), Fibery options on theme hues (OptionBadge), labels painted
+// with an option's own color (EnumBadge), 8px dots (Dot), the progress ring of a workflow state (StageGlyph) and emoji
+// that are left out where the browser can't draw them (Emoji).
 import {forwardRef, type HTMLAttributes, type ReactNode} from "react";
 import {X} from "lucide-react";
 import {cx} from "../cx";
-import {fiberyEmoji, fiberyHue, type Hue} from "../colors";
+import {emojiRenders, fiberyEmoji, fiberyHue, type Hue} from "../colors";
 import {sectorPath} from "../glyphs";
 import {useKitTexts} from "./KitLang";
 
@@ -16,6 +17,16 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: "soft" | "outline";
   /** Small uppercase letter-spaced label, like Fibery's database type badge. */
   caps?: boolean;
+  /**
+   * `"rect"` (default) — Fibery's own 4px corners. `"pill"` — round ends, 8px sides, medium weight: a record's state
+   * in lists and tables; with `variant="outline"` and no hue, a neutral chip for an attribute (a channel, a source).
+   */
+  shape?: "rect" | "pill";
+  /**
+   * The text wraps inside the badge instead of staying on one line, once the badge is wider than its container
+   * (a narrow property column). Nothing is ever cut with "…".
+   */
+  wrap?: boolean;
   /** Adds a × button, e.g. for an active filter chip. */
   onRemove?: () => void;
   /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -24,7 +35,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({hue, variant = "soft", caps, onRemove, removeLabel, className, children, ...props}, ref) => {
+  ({hue, variant = "soft", caps, shape = "rect", wrap, onRemove, removeLabel, className, children, ...props}, ref) => {
     const t = useKitTexts();
     return (
       <span
@@ -32,6 +43,8 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         data-hue={hue}
         data-variant={variant}
         data-caps={caps ? "" : undefined}
+        data-shape={shape === "pill" ? "pill" : undefined}
+        data-wrap={wrap ? "" : undefined}
         className={cx("fui-badge", className)}
         {...props}
       >
@@ -54,6 +67,8 @@ export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "ch
   color?: string | null;
   /** `"dot"` — colored dot + name; `"circle"` — name inside a colored ring (for one-letter values like levels). */
   variant?: "dot" | "circle";
+  /** A long name wraps onto more lines (the dot stays at the first) instead of ending with "…". */
+  wrap?: boolean;
 };
 
 /**
@@ -61,10 +76,11 @@ export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "ch
  * so it is applied as-is and never used as a text background.
  */
 export const EnumBadge = forwardRef<HTMLSpanElement, EnumBadgeProps>(
-  ({name, color, variant = "dot", className, style, ...props}, ref) => (
+  ({name, color, variant = "dot", wrap, className, style, ...props}, ref) => (
     <span
       ref={ref}
       data-variant={variant}
+      data-wrap={wrap ? "" : undefined}
       className={cx("fui-enum-badge", className)}
       style={color ? {...style, ["--fui-enum-color" as string]: color} : style}
       {...props}
@@ -119,21 +135,24 @@ export type OptionBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "
   variant?: "soft" | "outline" | "dot";
   /** Mark before the name in place of the emoji, e.g. a StageGlyph. */
   glyph?: ReactNode;
+  /** Badge shape for `"soft"` and `"outline"`, see Badge: `"pill"` for states in lists and tables. */
+  shape?: "rect" | "pill";
+  /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
+  wrap?: boolean;
 };
 
 /**
  * A Fibery select or workflow option in the owner's colors and emoji, drawn with the theme's highlight hues (so light
- * and dark themes work): `fiberyHue(color)` picks the hue, `fiberyEmoji(icon)` the emoji. No color → neutral badge
- * (or a grey dot).
+ * and dark themes work): `fiberyHue(color)` picks the hue, `fiberyEmoji(icon)` the emoji (left out where the browser
+ * can't draw it). No color → neutral badge (or a grey dot).
  */
 export const OptionBadge = forwardRef<HTMLSpanElement, OptionBadgeProps>(
-  ({name, color, icon, fallbackHue, variant = "soft", glyph, className, ...props}, ref) => {
+  ({name, color, icon, fallbackHue, variant = "soft", glyph, shape = "rect", wrap, className, ...props}, ref) => {
     const hue = fiberyHue(color) ?? fallbackHue;
-    const emoji = fiberyEmoji(icon);
-    const mark = glyph ?? (emoji && <span className="fui-emoji" aria-hidden>{emoji}</span>);
+    const mark = glyph ?? <Emoji char={fiberyEmoji(icon)} />;
     if (variant === "dot") {
       return (
-        <span ref={ref} className={cx("fui-option-dot", className)} {...props}>
+        <span ref={ref} data-wrap={wrap ? "" : undefined} className={cx("fui-option-dot", className)} {...props}>
           <Dot hue={hue ?? "grey"} />
           {mark}
           <span className="fui-option-dot__name">{name}</span>
@@ -141,7 +160,15 @@ export const OptionBadge = forwardRef<HTMLSpanElement, OptionBadgeProps>(
       );
     }
     return (
-      <Badge ref={ref} hue={hue} variant={variant} className={cx("fui-option-badge", className)} {...props}>
+      <Badge
+        ref={ref}
+        hue={hue}
+        variant={variant}
+        shape={shape}
+        wrap={wrap ?? shape === "pill"}
+        className={cx("fui-option-badge", className)}
+        {...props}
+      >
         {mark}
         <span className="fui-option-badge__name">{name}</span>
       </Badge>
@@ -192,5 +219,31 @@ export function StageGlyph({type, step = 0, steps = 1, className, ...props}: Sta
       {type === "paused" && <path d="M4.9 4.2v3.6M7.1 4.2v3.6" strokeWidth="1.4" />}
       {type === "failed" && <path d="m4.4 4.4 3.2 3.2m0-3.2-3.2 3.2" strokeWidth="1.4" />}
     </svg>
+  );
+}
+
+export type EmojiProps = Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
+  /** The emoji, e.g. `fiberyEmoji(option.icon)`; empty renders nothing. */
+  char: string | null | undefined;
+  /** Accessible name; without it the emoji is decorative (the text next to it says what it means). */
+  label?: string;
+};
+
+/**
+ * An emoji at 12px in a 14px box, e.g. a channel's before its name. Renders nothing where the browser can't draw it
+ * (`emojiRenders`): an empty box is worse than no mark, and the name next to it carries the meaning.
+ */
+export function Emoji({char, label, className, ...props}: EmojiProps) {
+  if (!char || !emojiRenders(char)) return null;
+  return (
+    <span
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+      className={cx("fui-emoji-mark", className)}
+      {...props}
+    >
+      {char}
+    </span>
   );
 }

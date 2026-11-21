@@ -43,29 +43,46 @@ export function Avatar({name, src, size = "md", hue, className}: AvatarProps) {
 }
 
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
-  /** Adds hover elevation and pointer cursor; pair with `onClick`. */
+  /** Adds a hover state and pointer cursor; pair with `onClick`. */
   interactive?: boolean;
+  /**
+   * `"raised"` (default) — Fibery's card ring and soft shadow. `"flat"` — the ring alone: a sheet on a grey page
+   * (`bg-muted`), for columns, board cards and metric cards; when interactive, hover tints the background and the
+   * ring stays.
+   */
+  variant?: "raised" | "flat";
 };
 
-/** Surface with Fibery's card ring and soft shadow, radius 8px. */
-export const Card = forwardRef<HTMLDivElement, CardProps>(({interactive, className, ...props}, ref) => (
-  <div ref={ref} data-interactive={interactive ? "" : undefined} className={cx("fui-card", className)} {...props} />
+/** Surface with Fibery's card ring (and soft shadow unless flat), radius 8px. */
+export const Card = forwardRef<HTMLDivElement, CardProps>(({interactive, variant = "raised", className, ...props}, ref) => (
+  <div
+    ref={ref}
+    data-interactive={interactive ? "" : undefined}
+    data-variant={variant === "flat" ? "flat" : undefined}
+    className={cx("fui-card", className)}
+    {...props}
+  />
 ));
 Card.displayName = "Card";
 
 export type CardHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   title: ReactNode;
+  /** Number after the title in muted monospace digits, e.g. the rows of a worklist column. */
+  count?: number;
   description?: ReactNode;
   /** Right-aligned controls, e.g. an IconButton with a menu. */
   actions?: ReactNode;
 };
 
 /** Card title row with optional description and actions. */
-export function CardHeader({title, description, actions, className, ...props}: CardHeaderProps) {
+export function CardHeader({title, count, description, actions, className, ...props}: CardHeaderProps) {
   return (
     <div className={cx("fui-card__header", className)} {...props}>
       <div className="fui-card__heading">
-        <h3 className="fui-card__title">{title}</h3>
+        <h3 className="fui-card__title">
+          {title}
+          {count != null && <span className="fui-card__count">{count}</span>}
+        </h3>
         {description && <p className="fui-card__description">{description}</p>}
       </div>
       {actions && <div className="fui-card__actions">{actions}</div>}

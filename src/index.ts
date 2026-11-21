@@ -7,14 +7,16 @@ export {
   OptionBadge,
   Dot,
   StageGlyph,
+  Emoji,
   type BadgeProps,
+  type EmojiProps,
   type EnumBadgeProps,
   type OptionBadgeProps,
   type DotProps,
   type StageGlyphProps,
   type Hue,
 } from "./components/Badge";
-export {fiberyHue, fiberyEmoji, hueFor} from "./colors";
+export {fiberyHue, fiberyEmoji, hueFor, emojiRenders, type GlyphProbe} from "./colors";
 export {
   Avatar,
   Card,
@@ -43,6 +45,8 @@ export {CountNav, type CountNavItem, type CountNavProps} from "./components/Coun
 export {ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps} from "./components/Chips";
 export {
   formatQuickDate,
+  formatShortDay,
+  formatShortDayTime,
   fromDateInputs,
   matchQuickTerm,
   nowLineIndex,
@@ -50,8 +54,10 @@ export {
   toDateInput,
   toTimeInput,
   type QuickTerm,
+  type ShortDateOptions,
 } from "./dates";
 export {
+  Page,
   PageHeader,
   SectionHeader,
   ShowMore,
@@ -59,6 +65,7 @@ export {
   PanelLayout,
   Separator,
   Inset,
+  type PageProps,
   type PageHeaderProps,
   type SectionHeaderProps,
   type ShowMoreProps,
@@ -136,7 +143,10 @@ export {
   type SegmentedOption,
 } from "./components/Tabs";
 export {Highlight, normalizeSearchText, searchTokens, type HighlightProps} from "./components/Highlight";
-export {Table, TableGroupRow, type TableProps, type TableGroupRowProps} from "./components/Table";
+export {Table, TableGroupRow, SortHeader, type TableProps, type TableGroupRowProps, type SortHeaderProps} from "./components/Table";
+export {Board, type BoardColumn, type BoardProps} from "./components/Board";
+export {MetricCard, type MetricCardProps, type MetricCompare} from "./components/Metric";
+export {formatDelta} from "./metrics";
 export {HeatValue, type HeatValueProps} from "./components/HeatValue";
 export {
   BarList,

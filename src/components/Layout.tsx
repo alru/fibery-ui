@@ -1,11 +1,31 @@
-// Page-level structure: page title row, section headers (also collapsible, with a "show all" row under a cut list),
-// separators (also the "now" line), a details side panel and the list + panel layout, sized like Fibery entity pages.
+// Page-level structure: the page's content column, page title row, section headers (also collapsible, with a "show
+// all" row under a cut list), separators (also the "now" line), a details side panel and the list + panel layout,
+// sized like Fibery entity pages.
 import type {HTMLAttributes, KeyboardEvent, ReactNode} from "react";
 import {ChevronRight, X} from "lucide-react";
 import {cx} from "../cx";
 import type {Hue} from "../colors";
 import {Button, IconButton} from "./Button";
 import {useKitTexts} from "./KitLang";
+
+export type PageProps = HTMLAttributes<HTMLDivElement> & {
+  /** `"default"` — a column up to 1440px, centered; `"wide"` — the full width (e.g. a board that needs every pixel). */
+  width?: "default" | "wide";
+};
+
+/**
+ * The content column of an app page: centered up to 1440px with 24px sides (16px below 720px), so rows and tables
+ * don't stretch across a 1600px screen. It is a size container: container-query classes inside
+ * (`@max-[720px]:…`) answer to the column's width, not the window's. Put the page background (e.g. `bg-muted`) on the
+ * element around it.
+ */
+export function Page({width = "default", className, children, ...props}: PageProps) {
+  return (
+    <div data-width={width === "wide" ? "wide" : undefined} className={cx("fui-page", className)} {...props}>
+      <div className="fui-page__body">{children}</div>
+    </div>
+  );
+}
 
 export type PageHeaderProps = {
   title: ReactNode;

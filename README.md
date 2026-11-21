@@ -98,7 +98,12 @@ const lang = useKitLang();                             // inside the provider, e
 ```tsx
 <Badge>Draft</Badge>  <Badge hue="green">Done</Badge>  <Badge variant="outline" hue="red">Blocked</Badge>
 <Badge caps>Contractor</Badge>                          // Fibery's uppercase type label
+<Badge shape="pill" hue="violet">Proposed</Badge>        // pill: round ends, medium weight — a state in lists and tables
+<Badge shape="pill" variant="outline"><Emoji char="✉️" />Email</Badge>   // neutral outline pill: an attribute chip
+<Badge shape="pill" wrap>Inbound: Referral from partner</Badge>          // wraps inside once wider than its container, never "…"
+<Emoji char={fiberyEmoji(channel.icon)} />               // 12px in a 14px box; nothing where the browser can't draw it
 <EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name; a long name ends with "…" at its container's width
+<EnumBadge wrap name={state["enum/name"]} color={state["enum/color"]} />       // …or wraps, the dot at the first line
 <EnumBadge name="A" color="#4FAF54" variant="circle" />                         // letter in a ring
 <Avatar name="Jane Doe" src={url} size="sm" />
 <Avatar name="Jane Doe" size="sm" hue={hueFor(user.id)} />                      // initials on a stable person hue
@@ -110,6 +115,8 @@ const lang = useKitLang();                             // inside the provider, e
 fiberyHue("#FBA32F");        // "yellow" — Fibery's 17 standard colors by a fixed table, other hex → nearest; null → null
 fiberyEmoji(":rocket:");     // "🚀" — enum/icon shortcode → emoji; unknown → null (never the code as text)
 hueFor(user.id);             // "blue" | "turquoise" | "aquamarine" | "purple" | "pink", stable per id (avatars)
+emojiRenders("✉️");          // false where the browser draws an empty box: drawn on a canvas, compared with a missing
+                             // glyph; cached per character; true without a DOM. Emoji and OptionBadge use it.
 
 // Read options from the enum type itself (all options, also unused ones), cache, refetch on window focus:
 // {"q/from": "<field's typeObject.name>", "q/select": {"id": "fibery/id", "name": "enum/name",
@@ -117,6 +124,8 @@ hueFor(user.id);             // "blue" | "turquoise" | "aquamarine" | "purple" |
 <OptionBadge name={o.name} color={o.color} icon={o.icon} />                    // soft: the record's own state
 <OptionBadge variant="outline" name="Lost" color="#D40915" />                  // outline: the record dropped out
 <OptionBadge variant="dot" name="Inbound: Website Form" color="#FBA32F" />     // dot + text: an attribute
+<OptionBadge shape="pill" name="Potential Client" color="#199EE3" />           // pill; its name wraps by default (wrap={false} to cut)
+<OptionBadge variant="dot" wrap name="High (60-80%)" color="#4FAF54" />        // dot + text that wraps instead of "…"
 <OptionBadge name="Qualified" color={null} fallbackHue="aqua"                   // the app's own code while Fibery has none
   glyph={<StageGlyph type="started" step={3} steps={6} />} />
 
@@ -129,6 +138,11 @@ hueFor(user.id);             // "blue" | "turquoise" | "aquamarine" | "purple" |
 <Card interactive onClick={…}>
   <CardHeader title="Skills" description="4 linked" actions={<IconButton … />} />
   <CardContent>…</CardContent>
+</Card>
+// Flat sheet for a grey page (bg-muted): the 1px ring without the shadow; interactive → hover tints, ring stays.
+<Card variant="flat">
+  <CardHeader title="Due now" count={12} />           // count: muted monospace digits after the title
+  …
 </Card>
 
 <List>                                                  // Fibery relation rows
@@ -161,6 +175,27 @@ hueFor(user.id);             // "blue" | "turquoise" | "aquamarine" | "purple" |
 </Table>
 <Table editing>…<tr data-interactive tabIndex={0} onClick={edit}>…</tr>…</Table>  // explicit edit mode, clickable rows
 <tr data-interactive data-selected={open ? "" : undefined} onClick={select}>…</tr>   // row shown in a SidePanel
+
+// Working table on a grey page: flat ring, header on --muted that sticks under the app's 48px bar, rows aligned to
+// their first line, 10px rows and 16px outer edges. A sticky header means no sideways scroll: fit the columns.
+// `responsive`: the table answers to its own width — below 720px `data-narrow-hide` cells drop out and
+// `data-narrow-only` wrappers show (gather the hidden values under the row's anchor); other widths: container-query
+// classes on cells. SortHeader renders the <th> with aria-sort and a button across the cell; the arrow shows only on
+// the active column (its place is kept on the others).
+<Table flat header="tinted" stickyHeader={48} valign="top" density="comfortable" responsive>
+  <thead><tr>
+    <SortHeader active={sort.key === "name"} dir={sort.dir} onSort={() => sortBy("name")}>Company</SortHeader>
+    <SortHeader active={sort.key === "stage"} dir={sort.dir} onSort={() => sortBy("stage")} data-narrow-hide="">Stage</SortHeader>
+    <SortHeader active={sort.key === "last"} dir={sort.dir} onSort={() => sortBy("last")} className="w-[12ch]">Last touch</SortHeader>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td>Acme Games<div data-narrow-only=""><Badge shape="pill" hue="violet">Proposed</Badge></div></td>
+      <td data-narrow-hide=""><Badge shape="pill" hue="violet">Proposed</Badge></td>
+      <td className="font-mono">{formatShortDay("2026-11-20")}</td>
+    </tr>
+  </tbody>
+</Table>
 
 // Rename in place: pencil on hover (also of the table row), Enter / blur saves, Escape cancels.
 <InlineEdit value={group.name} label="Rename group" hint="Renames it in 12 skills" onSave={(name) => rename(name)}>
@@ -222,6 +257,14 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 <FlowChart upLabel="Пришли" downLabel="Ушли" levelLabel="В работе на конец месяца" periods={months.map((m) => ({
   key: m.id, label: "янв", name: "январь 2026", up: m.in, down: m.out, level: m.headcount, onUpClick: () => open(m),
 }))} />
+
+// Metric card (a flat sheet): the number in 24px monospace, the label, a required definition line, and the previous
+// period pinned to the bottom — «было 11 · ↑ +7» / "was 11 · ↑ +7", never colored (growth isn't always good).
+// compare={null} keeps the line's room empty ("all time"), so cards don't change height with the period.
+<MetricCard value={41} label="Deals in progress" definition="Open deals past the first contact" compare={{prev: 34, delta: 7}} />
+<MetricCard value={12} label="Due today" definition="Today and overdue up to 30 days" onClick={openToday} />  // whole card is a button
+<MetricCard value={0} label="…" definition="…" loading compare={null} />   // grey block in place of the number
+formatDelta(-6);                                        // "−6" (true minus); "+7"; 0 → "0"
 ```
 
 ```tsx
@@ -241,6 +284,28 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 **Layout**
 
 ```tsx
+// Content column: centered up to 1440px, 24px sides (16px below 720px); a size container, so container-query
+// classes inside answer to the column's width. The page background goes on the element around it.
+<div className="min-h-screen bg-muted"><Page>…</Page></div>
+<Page width="wide">…</Page>                              // full width, still padded
+
+// Kanban board: columns 248px (--fui-board-column), as tall as the tallest; scrolls sideways inside itself.
+// Native HTML5 drag and drop, no dependencies: a drop only calls onMove — the app moves the card (and puts it back
+// if Fibery refuses). canDrag keeps a card in place; `collapsed` starts a column as a 56px strip (click or a card
+// dragged over opens it, a button folds it back); after `limit` (50) cards «Ещё N», or onMore for a list view.
+// Give keyboard users the same move in the card's menu.
+<Board
+  aria-label="Deals"
+  columns={stages.map((s) => ({id: s.id, title: s.name, cards: s.deals, aside: s.hours && `Σ ${s.hours} h`,
+    note: s.noStep > 0 && <Button variant="ghost" size="sm" onClick={() => onlyNoStep(s.id)}>no step {s.noStep}</Button>,
+    collapsed: s.id === "draft"}))}
+  cardId={(deal) => deal.id}
+  renderCard={(deal) => <Card variant="flat" interactive onClick={() => open(deal)}>…</Card>}
+  canDrag={(id) => canEdit(id)}
+  onMove={(id, from, to) => moveDeal(id, to)}
+  onMore={(columnId) => showList(columnId)} moreLabel={(n) => `${n} more in the list`}
+/>
+
 <PageHeader eyebrow={<Badge caps>Contractor</Badge>} title="Jane Doe" actions={…} />
 <SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
 // Worklist section: 600-weight title, icon on a 20px plate of its hue, collapse chevron (controlled), anchor id.
@@ -303,6 +368,12 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 // `deselectable` lets a click on the picked chip clear an optional value. Arrow keys move the choice.
 <ChipGroup aria-label="Channel" deselectable visible={5} value={channel} onValueChange={setChannel}
   options={channels.map((c) => ({value: c.id, label: c.name, glyph: <span className="fui-emoji">{fiberyEmoji(c.icon)}</span>}))} />
+
+// The one date format of lists and tables: dd.mm.yy, the same in both languages. A calendar day string stays that
+// day; instants and Dates are shown in local time; empty or unreadable → "".
+formatShortDay("2026-11-24");                            // "24.11.26"
+formatShortDay(date, {weekday: true, lang: "en"});       // "Tue 24.11.26"
+formatShortDayTime(date);                                // "24.11.26 14:30"
 
 // Planning date: quick terms (the app computes their dates), «Дата…» opens date + time inputs, and the resolved
 // date under the chips («вт 24 ноября, 10:00» / "Tue 24 November, 10:00") — a click on it adjusts the time.
@@ -711,7 +782,7 @@ const spec: ImportSpec<Task, Context, Patch> = {
 ```sh
 npm install
 npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
-npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands, languages, colors, dates); no extra dependencies
+npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands, languages, colors, emoji, dates, metrics); no extra dependencies
 ```
 
 Pure modules import each other as `./x.ts` (`rewriteRelativeImportExtensions` turns that into `.js` on build), so Node
