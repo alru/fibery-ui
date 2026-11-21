@@ -3,6 +3,15 @@ import { ChevronRight, X } from "lucide-react";
 import { cx } from "../cx";
 import { Button, IconButton } from "./Button";
 import { useKitTexts } from "./KitLang";
+/**
+ * The content column of an app page: centered up to 1440px with 24px sides (16px below 720px), so rows and tables
+ * don't stretch across a 1600px screen. It is a size container: container-query classes inside
+ * (`@max-[720px]:…`) answer to the column's width, not the window's. Put the page background (e.g. `bg-muted`) on the
+ * element around it.
+ */
+export function Page({ width = "default", className, children, ...props }) {
+    return (_jsx("div", { "data-width": width === "wide" ? "wide" : undefined, className: cx("fui-page", className), ...props, children: _jsx("div", { className: "fui-page__body", children: children }) }));
+}
 /** Page title in Fibery's entity-title size (30px / 600) with optional actions on the right. */
 export function PageHeader({ title, description, eyebrow, actions, className }) {
     return (_jsxs("header", { className: cx("fui-page-header", className), children: [_jsxs("div", { className: "fui-page-header__heading", children: [eyebrow && _jsx("div", { className: "fui-page-header__eyebrow", children: eyebrow }), _jsx("h1", { className: "fui-page-header__title", children: title }), description && _jsx("p", { className: "fui-page-header__description", children: description })] }), actions && _jsx("div", { className: "fui-page-header__actions", children: actions })] }));

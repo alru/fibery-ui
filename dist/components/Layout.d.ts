@@ -1,5 +1,16 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import type { Hue } from "../colors";
+export type PageProps = HTMLAttributes<HTMLDivElement> & {
+    /** `"default"` — a column up to 1440px, centered; `"wide"` — the full width (e.g. a board that needs every pixel). */
+    width?: "default" | "wide";
+};
+/**
+ * The content column of an app page: centered up to 1440px with 24px sides (16px below 720px), so rows and tables
+ * don't stretch across a 1600px screen. It is a size container: container-query classes inside
+ * (`@max-[720px]:…`) answer to the column's width, not the window's. Put the page background (e.g. `bg-muted`) on the
+ * element around it.
+ */
+export declare function Page({ width, className, children, ...props }: PageProps): import("react").JSX.Element;
 export type PageHeaderProps = {
     title: ReactNode;
     description?: ReactNode;

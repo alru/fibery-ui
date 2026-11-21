@@ -35,6 +35,10 @@ declare const RU: {
     textareaHint: string;
     addField: string;
     now: string;
+    empty: string;
+    expandColumn: string;
+    collapseColumn: string;
+    was: string;
     accessChecking: string;
     accessDenied: string;
     accessDeniedText: (missing: number) => string;

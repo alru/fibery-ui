@@ -14,22 +14,36 @@ export type AvatarProps = {
 /** Round avatar, 20 / 24 / 32px; falls back to initials. */
 export declare function Avatar({ name, src, size, hue, className }: AvatarProps): import("react").JSX.Element;
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
-    /** Adds hover elevation and pointer cursor; pair with `onClick`. */
+    /** Adds a hover state and pointer cursor; pair with `onClick`. */
     interactive?: boolean;
+    /**
+     * `"raised"` (default) — Fibery's card ring and soft shadow. `"flat"` — the ring alone: a sheet on a grey page
+     * (`bg-muted`), for columns, board cards and metric cards; when interactive, hover tints the background and the
+     * ring stays.
+     */
+    variant?: "raised" | "flat";
 };
-/** Surface with Fibery's card ring and soft shadow, radius 8px. */
+/** Surface with Fibery's card ring (and soft shadow unless flat), radius 8px. */
 export declare const Card: import("react").ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & {
-    /** Adds hover elevation and pointer cursor; pair with `onClick`. */
+    /** Adds a hover state and pointer cursor; pair with `onClick`. */
     interactive?: boolean;
+    /**
+     * `"raised"` (default) — Fibery's card ring and soft shadow. `"flat"` — the ring alone: a sheet on a grey page
+     * (`bg-muted`), for columns, board cards and metric cards; when interactive, hover tints the background and the
+     * ring stays.
+     */
+    variant?: "raised" | "flat";
 } & import("react").RefAttributes<HTMLDivElement>>;
 export type CardHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
     title: ReactNode;
+    /** Number after the title in muted monospace digits, e.g. the rows of a worklist column. */
+    count?: number;
     description?: ReactNode;
     /** Right-aligned controls, e.g. an IconButton with a menu. */
     actions?: ReactNode;
 };
 /** Card title row with optional description and actions. */
-export declare function CardHeader({ title, description, actions, className, ...props }: CardHeaderProps): import("react").JSX.Element;
+export declare function CardHeader({ title, count, description, actions, className, ...props }: CardHeaderProps): import("react").JSX.Element;
 /** Padded card body. */
 export declare function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>): import("react").JSX.Element;
 export type ListProps = HTMLAttributes<HTMLUListElement> & {

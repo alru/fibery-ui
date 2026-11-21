@@ -26,6 +26,20 @@ export declare function fromDateInputs(date: string, time?: string): Date | null
  * the date alone.
  */
 export declare function formatQuickDate(d: Date, lang?: KitLang, withTime?: boolean): string;
+export type ShortDateOptions = {
+    /** Puts the short weekday first: «пн 24.11.26» / "Mon 24.11.26". */
+    weekday?: boolean;
+    /** Language of the weekday; the digits are the same in both. */
+    lang?: KitLang;
+};
+/**
+ * The one date format of lists and tables: "24.11.26" (dd.mm.yy), the same in both languages, so a column of dates
+ * reads like a ledger. Takes a calendar day ("2026-11-24", kept as that day), an ISO instant, a Date or a timestamp
+ * (shown in local time). Empty or unreadable input → "".
+ */
+export declare function formatShortDay(value: Date | string | number | null | undefined, options?: ShortDateOptions): string;
+/** `formatShortDay` with the local time: "24.11.26 14:30" (with `weekday`: «пн 24.11.26 14:30»). */
+export declare function formatShortDayTime(value: Date | string | number | null | undefined, options?: ShortDateOptions): string;
 /**
  * Where the "now" line goes in a list sorted by time: the number of rows above it. `"asc"` (earliest first, e.g.
  * today's steps): rows whose time has come stay above. `"desc"` (latest first, e.g. a history with the planned on

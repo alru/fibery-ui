@@ -41,6 +41,34 @@ export function formatQuickDate(d, lang = "ru", withTime = true) {
     const date = `${part("weekday").replace(/\.$/, "")} ${part("day")} ${part("month")}`;
     return withTime ? `${date}, ${toTimeInput(d)}` : date;
 }
+// A calendar day without a time ("2026-11-24") is that day wherever the user is; parsing it as Date would make it
+// midnight UTC, the previous day west of Greenwich.
+const DAY_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+const localDate = (value) => {
+    const day = typeof value === "string" ? DAY_ONLY.exec(value) : null;
+    const d = day ? new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])) : new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+};
+const weekdayOf = (d, lang) => new Intl.DateTimeFormat(lang === "en" ? "en-GB" : "ru-RU", { weekday: "short" }).format(d).replace(/\.$/, "");
+/**
+ * The one date format of lists and tables: "24.11.26" (dd.mm.yy), the same in both languages, so a column of dates
+ * reads like a ledger. Takes a calendar day ("2026-11-24", kept as that day), an ISO instant, a Date or a timestamp
+ * (shown in local time). Empty or unreadable input → "".
+ */
+export function formatShortDay(value, options = {}) {
+    if (value == null || value === "")
+        return "";
+    const d = localDate(value);
+    if (!d)
+        return "";
+    const date = `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${pad(d.getFullYear() % 100)}`;
+    return options.weekday ? `${weekdayOf(d, options.lang ?? "ru")} ${date}` : date;
+}
+/** `formatShortDay` with the local time: "24.11.26 14:30" (with `weekday`: «пн 24.11.26 14:30»). */
+export function formatShortDayTime(value, options = {}) {
+    const date = formatShortDay(value, options);
+    return date && `${date} ${toTimeInput(localDate(value))}`;
+}
 /**
  * Where the "now" line goes in a list sorted by time: the number of rows above it. `"asc"` (earliest first, e.g.
  * today's steps): rows whose time has come stay above. `"desc"` (latest first, e.g. a history with the planned on

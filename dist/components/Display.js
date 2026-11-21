@@ -13,12 +13,12 @@ const initials = (name) => name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?
 export function Avatar({ name, src, size = "md", hue, className }) {
     return (_jsx("span", { "data-size": size, "data-hue": hue, className: cx("fui-avatar", className), title: name, children: src ? _jsx("img", { src: src, alt: name }) : initials(name) }));
 }
-/** Surface with Fibery's card ring and soft shadow, radius 8px. */
-export const Card = forwardRef(({ interactive, className, ...props }, ref) => (_jsx("div", { ref: ref, "data-interactive": interactive ? "" : undefined, className: cx("fui-card", className), ...props })));
+/** Surface with Fibery's card ring (and soft shadow unless flat), radius 8px. */
+export const Card = forwardRef(({ interactive, variant = "raised", className, ...props }, ref) => (_jsx("div", { ref: ref, "data-interactive": interactive ? "" : undefined, "data-variant": variant === "flat" ? "flat" : undefined, className: cx("fui-card", className), ...props })));
 Card.displayName = "Card";
 /** Card title row with optional description and actions. */
-export function CardHeader({ title, description, actions, className, ...props }) {
-    return (_jsxs("div", { className: cx("fui-card__header", className), ...props, children: [_jsxs("div", { className: "fui-card__heading", children: [_jsx("h3", { className: "fui-card__title", children: title }), description && _jsx("p", { className: "fui-card__description", children: description })] }), actions && _jsx("div", { className: "fui-card__actions", children: actions })] }));
+export function CardHeader({ title, count, description, actions, className, ...props }) {
+    return (_jsxs("div", { className: cx("fui-card__header", className), ...props, children: [_jsxs("div", { className: "fui-card__heading", children: [_jsxs("h3", { className: "fui-card__title", children: [title, count != null && _jsx("span", { className: "fui-card__count", children: count })] }), description && _jsx("p", { className: "fui-card__description", children: description })] }), actions && _jsx("div", { className: "fui-card__actions", children: actions })] }));
 }
 /** Padded card body. */
 export function CardContent({ className, ...props }) {

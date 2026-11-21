@@ -1027,6 +1027,214 @@
 }
 
 @layer components {
+  /* ─── Page: the content column, centered up to 1440px; a size container for the app's container queries ─── */
+  .fui-page { container-type: inline-size; width: 100%; max-width: 1440px; margin-inline: auto; }
+  .fui-page[data-width="wide"] { max-width: none; }
+  .fui-page__body { padding: 20px 24px; }
+  @container (max-width: 719.98px) {
+    .fui-page__body { padding: 16px; }
+  }
+
+  /* ─── Badge shape="pill": round ends (10px = half the 20px height), 8px sides, medium weight. A neutral outline
+     pill is an attribute chip (channel, source), so it keeps the regular weight. ─── */
+  .fui-badge[data-shape="pill"] { padding: 0 8px; border-radius: 10px; font-weight: 500; }
+  .fui-badge[data-shape="pill"][data-variant="outline"]:not([data-hue]) { font-weight: var(--fui-regular); }
+  .fui-badge[data-shape="pill"]:has(> .fui-badge__remove) { padding-right: 2px; }
+  /* wrap: the text wraps once the badge is wider than its container; one line stays 20px high, marks stay at the
+     first line. break-word (not anywhere) keeps whole words in a table column's minimum width. */
+  .fui-badge[data-wrap] {
+    align-items: flex-start;
+    max-width: 100%;
+    height: auto;
+    min-height: 20px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  .fui-badge[data-wrap] > svg { margin-top: 2px; }
+  .fui-badge[data-wrap] > .fui-emoji-mark { margin-top: 1px; }
+  .fui-badge[data-wrap] .fui-option-badge__name { overflow: visible; text-overflow: clip; white-space: normal; }
+
+  /* ─── Emoji: 12px in a 14px box, so a row with and without one keeps its height ─── */
+  .fui-emoji-mark {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    font-size: 12px;
+    font-style: normal;
+    line-height: 1;
+  }
+
+  /* ─── EnumBadge / OptionBadge dot wrap: the name wraps, the mark stays at the first 20px line ─── */
+  .fui-enum-badge[data-wrap],
+  .fui-option-dot[data-wrap] { align-items: flex-start; }
+  .fui-enum-badge[data-wrap] .fui-enum-badge__name,
+  .fui-option-dot[data-wrap] .fui-option-dot__name { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: break-word; }
+  .fui-enum-badge[data-wrap] .fui-enum-badge__dot,
+  .fui-option-dot[data-wrap] > .fui-dot { margin-top: 6px; }
+  .fui-option-dot[data-wrap] > .fui-emoji-mark { margin-top: 3px; }
+
+  /* ─── Card variant="flat": the ring alone; hover tints the background, the ring stays ─── */
+  .fui-card[data-variant="flat"] { box-shadow: 0 0 0 1px var(--border); }
+  .fui-card[data-variant="flat"][data-interactive] { transition: background-color 0.12s; }
+  .fui-card[data-variant="flat"][data-interactive]:hover {
+    box-shadow: 0 0 0 1px var(--border);
+    background-image: linear-gradient(var(--fui-hover), var(--fui-hover));
+  }
+  .fui-card[data-variant="flat"][data-interactive]:focus-visible { box-shadow: 0 0 0 1px var(--border), var(--fui-focus-ring); }
+  .fui-card__title:has(> .fui-card__count) { display: flex; align-items: baseline; gap: 8px; }
+  .fui-card__count {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Table options: flat ring, tinted / sticky header, top-aligned rows, comfortable density, narrow mode ─── */
+  .fui-table-wrap[data-flat]:not([data-editing]) { box-shadow: 0 0 0 1px var(--border); }
+  /* A sideways scroll box would keep the header from sticking; clip still rounds the corners. */
+  .fui-table-wrap[data-sticky] { overflow-x: clip; }
+  .fui-table-wrap[data-sticky] thead th {
+    position: sticky;
+    top: var(--fui-sticky-top, 0px);
+    z-index: 1;
+    border-bottom: 0;
+    background-color: var(--card);
+    /* A collapsed border doesn't travel with a sticky cell; the inset line does. */
+    box-shadow: inset 0 -1px 0 var(--border);
+  }
+  .fui-table-wrap[data-header="tinted"] thead th { background-color: var(--muted); }
+  .fui-table-wrap[data-valign="top"] tbody :is(td, th) { vertical-align: top; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table :is(th, td) { padding: 10px 12px; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table thead th { padding-top: 8px; padding-bottom: 8px; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table tr > :first-child { padding-left: 16px; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table tr > :last-child { padding-right: 16px; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table tr > [data-indent="1"] { padding-left: 32px; }
+  .fui-table-wrap[data-density="comfortable"] .fui-table tr > [data-indent="2"] { padding-left: 48px; }
+  .fui-table-wrap[data-responsive] { container-type: inline-size; }
+  .fui-table-wrap:not([data-responsive]) [data-narrow-only] { display: none; }
+  @container (min-width: 720px) {
+    .fui-table-wrap[data-responsive] [data-narrow-only] { display: none; }
+  }
+  @container (max-width: 719.98px) {
+    .fui-table-wrap[data-responsive] [data-narrow-hide] { display: none; }
+  }
+
+  /* ─── SortHeader: the button's ::after covers the whole cell, so the padding is clickable too ─── */
+  .fui-sort-header { position: relative; }
+  .fui-table thead th[aria-sort] { color: var(--foreground); }
+  .fui-sort-header:hover { background-image: linear-gradient(var(--fui-hover), var(--fui-hover)); }
+  .fui-sort-header__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .fui-sort-header__button::after { content: ""; position: absolute; inset: 0; }
+  .fui-sort-header__button:focus-visible { outline: none; }
+  .fui-sort-header__button:focus-visible::after { box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent); }
+  .fui-sort-header__arrow { flex-shrink: 0; width: 12px; height: 12px; visibility: hidden; }
+  .fui-sort-header__arrow[data-active] { visibility: visible; }
+
+  /* ─── Board: columns as tall as the tallest, sideways scroll inside the board. Column rings are inset, so the
+     scroll box never clips them. ─── */
+  .fui-board { display: flex; align-items: stretch; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+  .fui-board__column {
+    display: flex;
+    flex: 0 0 var(--fui-board-column, 248px);
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 8px;
+    background: var(--muted);
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: background-color 0.12s, box-shadow 0.12s;
+  }
+  .fui-board__column[data-collapsed] { flex-basis: 56px; }
+  .fui-board__column[data-drop-target] {
+    background: color-mix(in oklab, var(--muted), var(--primary) 6%);
+    box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+  }
+  .fui-board__header { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 8px; }
+  .fui-board__heading { display: flex; align-items: center; gap: 8px; min-height: 24px; }
+  .fui-board__title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    color: var(--foreground);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    overflow-wrap: break-word;
+  }
+  .fui-board__count {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    font-variant-numeric: tabular-nums;
+  }
+  .fui-board__aside {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .fui-board__fold { margin: -2px -6px -2px auto; }
+  .fui-board__aside + .fui-board__fold { margin-left: 0; }
+  .fui-board__note { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+  .fui-board__cards { display: flex; flex: 1; flex-direction: column; gap: 8px; margin: 0; padding: 0 8px 8px; list-style: none; }
+  .fui-board__card { min-width: 0; }
+  .fui-board__card[draggable="true"] { cursor: grab; }
+  .fui-board__card[data-dragging] { opacity: 0.5; }
+  .fui-board__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    border: 1px dashed var(--fui-line-strong);
+    border-radius: 8px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .fui-board__more { padding: 0 8px 8px; }
+  .fui-board__strip {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--foreground);
+    font: inherit;
+    cursor: pointer;
+  }
+  .fui-board__strip:hover { background: var(--fui-hover); }
+  .fui-board__strip:focus-visible { outline: none; box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent); }
+  .fui-board__strip-title { font-size: 14px; font-weight: 600; line-height: 20px; white-space: nowrap; writing-mode: vertical-rl; }
+}
+
+@layer components {
   /* ─── Charts: one color token per series, --fui-chart; neutral unless a highlight hue is set ─── */
   .fui-chart-hue { --fui-chart: color-mix(in oklab, var(--foreground) 28%, transparent); }
   .fui-chart-hue[data-hue="grey"] { --fui-chart: var(--highlight-grey-fg); }
@@ -1194,6 +1402,58 @@
 /* Bars grow out of the axis once, when the chart mounts; reduced motion turns it off (base.css). */
 @keyframes fui-grow-y {
   from { transform: scaleY(0); }
+}
+
+@layer components {
+  /* ─── MetricCard: a flat sheet; the comparison line sits at the bottom, so cards in a row line up ─── */
+  .fui-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
+    padding: 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--card-foreground);
+    box-shadow: 0 0 0 1px var(--border);
+    font: inherit;
+    text-align: left;
+  }
+  button.fui-metric { width: 100%; cursor: pointer; transition: background-color 0.12s; }
+  .fui-metric[data-interactive]:hover { background-image: linear-gradient(var(--fui-hover), var(--fui-hover)); }
+  .fui-metric[data-interactive]:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--border), var(--fui-focus-ring); }
+  .fui-metric__value {
+    display: flex;
+    align-items: center;
+    min-width: 4ch;
+    min-height: 32px;
+    color: var(--foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+    font-variant-numeric: tabular-nums;
+  }
+  .fui-metric__skeleton { width: 56px; height: 24px; }
+  .fui-metric__label { margin-top: 4px; color: var(--foreground); font-size: 14px; font-weight: var(--fui-regular); line-height: 20px; }
+  .fui-metric__definition,
+  .fui-metric__note { margin-top: 2px; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
+  .fui-metric__compare {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 16px;
+    margin-top: auto;
+    padding-top: 8px;
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .fui-metric__compare > svg { width: 12px; height: 12px; }
 }
 
 @layer components {

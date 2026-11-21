@@ -1,20 +1,23 @@
 // Public entry of @alru/fibery-ui. Styles ship separately: import "@alru/fibery-ui/style.css".
 export { Button, IconButton } from "./components/Button";
 export { CopyButton } from "./components/CopyButton";
-export { Badge, EnumBadge, OptionBadge, Dot, StageGlyph, } from "./components/Badge";
-export { fiberyHue, fiberyEmoji, hueFor } from "./colors";
+export { Badge, EnumBadge, OptionBadge, Dot, StageGlyph, Emoji, } from "./components/Badge";
+export { fiberyHue, fiberyEmoji, hueFor, emojiRenders } from "./colors";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, RowAction, PropertyList, Property, PropertyAdd, PropertyGroup, } from "./components/Display";
 export { Timeline } from "./components/Timeline";
 export { CountNav } from "./components/CountNav";
 export { ChipGroup, QuickDate } from "./components/Chips";
-export { formatQuickDate, fromDateInputs, matchQuickTerm, nowLineIndex, sameDay, toDateInput, toTimeInput, } from "./dates";
-export { PageHeader, SectionHeader, ShowMore, SidePanel, PanelLayout, Separator, Inset, } from "./components/Layout";
+export { formatQuickDate, formatShortDay, formatShortDayTime, fromDateInputs, matchQuickTerm, nowLineIndex, sameDay, toDateInput, toTimeInput, } from "./dates";
+export { Page, PageHeader, SectionHeader, ShowMore, SidePanel, PanelLayout, Separator, Inset, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, } from "./components/Form";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator, MultiSelect, } from "./components/Select";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Popover, PopoverTrigger, PopoverAnchor, PopoverClose, PopoverContent, Tooltip, Dialog, DialogTrigger, DialogClose, DialogContent, DialogFooter, ConfirmDialog, } from "./components/Overlay";
 export { Tabs, TabsList, TabsTrigger, TabsContent, SegmentedControl, SegmentedToggles, } from "./components/Tabs";
 export { Highlight, normalizeSearchText, searchTokens } from "./components/Highlight";
-export { Table, TableGroupRow } from "./components/Table";
+export { Table, TableGroupRow, SortHeader } from "./components/Table";
+export { Board } from "./components/Board";
+export { MetricCard } from "./components/Metric";
+export { formatDelta } from "./metrics";
 export { HeatValue } from "./components/HeatValue";
 export { BarList, StackedBar, FlowChart, } from "./components/Chart";
 export { Combobox, Autocomplete, PickerButton, } from "./components/Combobox";

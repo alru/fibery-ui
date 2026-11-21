@@ -8,6 +8,16 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
     variant?: "soft" | "outline";
     /** Small uppercase letter-spaced label, like Fibery's database type badge. */
     caps?: boolean;
+    /**
+     * `"rect"` (default) — Fibery's own 4px corners. `"pill"` — round ends, 8px sides, medium weight: a record's state
+     * in lists and tables; with `variant="outline"` and no hue, a neutral chip for an attribute (a channel, a source).
+     */
+    shape?: "rect" | "pill";
+    /**
+     * The text wraps inside the badge instead of staying on one line, once the badge is wider than its container
+     * (a narrow property column). Nothing is ever cut with "…".
+     */
+    wrap?: boolean;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
     /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -21,6 +31,16 @@ export declare const Badge: import("react").ForwardRefExoticComponent<HTMLAttrib
     variant?: "soft" | "outline";
     /** Small uppercase letter-spaced label, like Fibery's database type badge. */
     caps?: boolean;
+    /**
+     * `"rect"` (default) — Fibery's own 4px corners. `"pill"` — round ends, 8px sides, medium weight: a record's state
+     * in lists and tables; with `variant="outline"` and no hue, a neutral chip for an attribute (a channel, a source).
+     */
+    shape?: "rect" | "pill";
+    /**
+     * The text wraps inside the badge instead of staying on one line, once the badge is wider than its container
+     * (a narrow property column). Nothing is ever cut with "…".
+     */
+    wrap?: boolean;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
     /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -33,6 +53,8 @@ export type EnumBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "ch
     color?: string | null;
     /** `"dot"` — colored dot + name; `"circle"` — name inside a colored ring (for one-letter values like levels). */
     variant?: "dot" | "circle";
+    /** A long name wraps onto more lines (the dot stays at the first) instead of ending with "…". */
+    wrap?: boolean;
 };
 /**
  * Renders a Fibery select/workflow option in its own color. The color is data, not theme,
@@ -45,6 +67,8 @@ export declare const EnumBadge: import("react").ForwardRefExoticComponent<Omit<H
     color?: string | null;
     /** `"dot"` — colored dot + name; `"circle"` — name inside a colored ring (for one-letter values like levels). */
     variant?: "dot" | "circle";
+    /** A long name wraps onto more lines (the dot stays at the first) instead of ending with "…". */
+    wrap?: boolean;
 } & import("react").RefAttributes<HTMLSpanElement>>;
 export type DotProps = Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
     /** Theme hue; omit for grey (filled) or the text color (ring). */
@@ -82,11 +106,15 @@ export type OptionBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "
     variant?: "soft" | "outline" | "dot";
     /** Mark before the name in place of the emoji, e.g. a StageGlyph. */
     glyph?: ReactNode;
+    /** Badge shape for `"soft"` and `"outline"`, see Badge: `"pill"` for states in lists and tables. */
+    shape?: "rect" | "pill";
+    /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
+    wrap?: boolean;
 };
 /**
  * A Fibery select or workflow option in the owner's colors and emoji, drawn with the theme's highlight hues (so light
- * and dark themes work): `fiberyHue(color)` picks the hue, `fiberyEmoji(icon)` the emoji. No color → neutral badge
- * (or a grey dot).
+ * and dark themes work): `fiberyHue(color)` picks the hue, `fiberyEmoji(icon)` the emoji (left out where the browser
+ * can't draw it). No color → neutral badge (or a grey dot).
  */
 export declare const OptionBadge: import("react").ForwardRefExoticComponent<Omit<HTMLAttributes<HTMLSpanElement>, "children" | "color"> & {
     /** Option name (`enum/name`). */
@@ -104,6 +132,10 @@ export declare const OptionBadge: import("react").ForwardRefExoticComponent<Omit
     variant?: "soft" | "outline" | "dot";
     /** Mark before the name in place of the emoji, e.g. a StageGlyph. */
     glyph?: ReactNode;
+    /** Badge shape for `"soft"` and `"outline"`, see Badge: `"pill"` for states in lists and tables. */
+    shape?: "rect" | "pill";
+    /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
+    wrap?: boolean;
 } & import("react").RefAttributes<HTMLSpanElement>>;
 export type StageGlyphProps = {
     /**
@@ -123,3 +155,14 @@ export type StageGlyphProps = {
  * the state's name. Drawn in `currentColor`; inside a neutral Badge it takes the muted text color.
  */
 export declare function StageGlyph({ type, step, steps, className, ...props }: StageGlyphProps): import("react").JSX.Element;
+export type EmojiProps = Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
+    /** The emoji, e.g. `fiberyEmoji(option.icon)`; empty renders nothing. */
+    char: string | null | undefined;
+    /** Accessible name; without it the emoji is decorative (the text next to it says what it means). */
+    label?: string;
+};
+/**
+ * An emoji at 12px in a 14px box, e.g. a channel's before its name. Renders nothing where the browser can't draw it
+ * (`emojiRenders`): an empty box is worse than no mark, and the name next to it carries the meaning.
+ */
+export declare function Emoji({ char, label, className, ...props }: EmojiProps): import("react").JSX.Element | null;
