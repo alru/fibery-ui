@@ -10,7 +10,7 @@ const VariantContext = createContext("segmented");
 /** Row of tab triggers; `variant` styles the whole row. */
 export const TabsList = forwardRef(({ variant = "segmented", className, ...props }, ref) => (_jsx(VariantContext.Provider, { value: variant, children: _jsx(TabsPrimitive.List, { ref: ref, "data-variant": variant, className: cx("fui-tabs-list", className), ...props }) })));
 TabsList.displayName = "TabsList";
-export const TabsTrigger = forwardRef(({ className, ...props }, ref) => (_jsx(TabsPrimitive.Trigger, { ref: ref, "data-variant": useContext(VariantContext), className: cx("fui-tabs-trigger", className), ...props })));
+export const TabsTrigger = forwardRef(({ count, tone = "neutral", className, children, ...props }, ref) => (_jsxs(TabsPrimitive.Trigger, { ref: ref, "data-variant": useContext(VariantContext), className: cx("fui-tabs-trigger", className), ...props, children: [children, count != null && (_jsx("span", { className: "fui-tabs-trigger__count", "data-tone": tone, "data-zero": count === 0 ? "" : undefined, "aria-hidden": count === 0 || undefined, children: count }))] })));
 TabsTrigger.displayName = "TabsTrigger";
 export const TabsContent = forwardRef(({ keepMounted, className, ...props }, ref) => (_jsx(TabsPrimitive.Content, { ref: ref, forceMount: keepMounted || undefined, className: cx("fui-tabs-content", className), ...props })));
 TabsContent.displayName = "TabsContent";
@@ -31,7 +31,7 @@ export function SegmentedControl({ options, value, onValueChange, scale, label, 
     };
     const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
-            return (_jsx("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": (scale === "from" ? index >= selectedIndex : scale && index <= selectedIndex) ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: option.label }, option.value));
+            return (_jsxs("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": (scale === "from" ? index >= selectedIndex : scale && index <= selectedIndex) ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: [option.glyph, option.label] }, option.value));
         }) }));
     return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
 }
@@ -43,7 +43,7 @@ export function SegmentedToggles({ options, value, onValueChange, label, classNa
     const toggle = (option) => onValueChange(options.map((o) => o.value).filter((v) => (v === option ? !value.includes(v) : value.includes(v))));
     const group = (_jsx("div", { role: "group", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": "", className: cx("fui-tabs-list", !label && className), children: options.map((option) => {
             const on = value.includes(option.value);
-            return (_jsx("button", { type: "button", "aria-pressed": on, "data-variant": "segmented", "data-filled": on ? "" : undefined, className: "fui-tabs-trigger", onClick: () => toggle(option.value), children: option.label }, option.value));
+            return (_jsxs("button", { type: "button", "aria-pressed": on, "data-variant": "segmented", "data-filled": on ? "" : undefined, className: "fui-tabs-trigger", onClick: () => toggle(option.value), children: [option.glyph, option.label] }, option.value));
         }) }));
     return label ? (_jsxs("div", { className: cx("fui-segmented-field", className), children: [_jsx("span", { className: "fui-segmented-field__label", children: label }), group] })) : (group);
 }

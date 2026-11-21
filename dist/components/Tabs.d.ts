@@ -9,7 +9,24 @@ export type TabsListProps = ComponentPropsWithoutRef<typeof TabsPrimitive.List> 
 export declare const TabsList: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsListProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & {
     variant?: TabsVariant;
 } & import("react").RefAttributes<HTMLDivElement>>;
-export declare const TabsTrigger: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsTriggerProps & import("react").RefAttributes<HTMLButtonElement>, "ref"> & import("react").RefAttributes<HTMLButtonElement>>;
+export type TabsTriggerProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> & {
+    /**
+     * Round counter after the label (fixed width for "999", tabular digits). 0 hides it but keeps its place, so the
+     * tabs never shift; leave it undefined for a tab without a counter. Say what it counts in the tab's `title`.
+     */
+    count?: number;
+    /** `"alert"` — the counter on a red plate, e.g. when overdue work is among it; neutral by default. */
+    tone?: "neutral" | "alert";
+};
+export declare const TabsTrigger: import("react").ForwardRefExoticComponent<Omit<TabsPrimitive.TabsTriggerProps & import("react").RefAttributes<HTMLButtonElement>, "ref"> & {
+    /**
+     * Round counter after the label (fixed width for "999", tabular digits). 0 hides it but keeps its place, so the
+     * tabs never shift; leave it undefined for a tab without a counter. Say what it counts in the tab's `title`.
+     */
+    count?: number;
+    /** `"alert"` — the counter on a red plate, e.g. when overdue work is among it; neutral by default. */
+    tone?: "neutral" | "alert";
+} & import("react").RefAttributes<HTMLButtonElement>>;
 export type TabsContentProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & {
     /** Keep the panel mounted while hidden, so its state (filters, selection, scroll) survives tab switches. */
     keepMounted?: boolean;
@@ -21,6 +38,8 @@ export declare const TabsContent: import("react").ForwardRefExoticComponent<Omit
 export type SegmentedOption<T extends string> = {
     value: T;
     label: ReactNode;
+    /** Mark before the label: a Dot in the option's color, an emoji, a direction arrow. */
+    glyph?: ReactNode;
 };
 export type SegmentedControlProps<T extends string> = {
     options: SegmentedOption<T>[];

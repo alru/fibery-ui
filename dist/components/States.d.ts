@@ -7,6 +7,25 @@ export type SpinnerProps = {
 export declare function Spinner({ size, className }: SpinnerProps): import("react").JSX.Element;
 /** Pulsing placeholder block; size it with `className` or `style`. */
 export declare function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>): import("react").JSX.Element;
+export type SkeletonRowsProps = {
+    /** Number of rows; 5 by default. */
+    rows?: number;
+    /** Row height in px, the same as the real rows so nothing jumps when data arrives; 36 by default. */
+    height?: number;
+    /** Width of a block in a leading column, e.g. 40 for a time column; none by default. */
+    lead?: number;
+    /** Block widths per text line, e.g. `[[120, 180], [240]]` for a two-line row; `[[160]]` by default. */
+    lines?: number[][];
+    /** Block widths at the right edge, e.g. a badge and the actions. */
+    trail?: number[];
+    /** Hairlines between rows, as in `<List variant="divided">`; on by default. */
+    divided?: boolean;
+    /** Screen-reader text; «Загрузка…» / "Loading…" by default. */
+    label?: string;
+    className?: string;
+};
+/** Placeholder rows in the shape of the list that is loading: same height, columns and line count as the real rows. */
+export declare function SkeletonRows({ rows, height, lead, lines, trail, divided, label, className }: SkeletonRowsProps): import("react").JSX.Element;
 export type LoadingStateProps = {
     children?: ReactNode;
     className?: string;

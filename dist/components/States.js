@@ -12,6 +12,16 @@ export function Spinner({ size = "md", className }) {
 export function Skeleton({ className, ...props }) {
     return _jsx("div", { "aria-hidden": true, className: cx("fui-skeleton", className), ...props });
 }
+// Line widths shrink a little from row to row, so the placeholder reads as a list rather than a stamp.
+const ROW_SHRINK = [1, 0.82, 0.92, 0.7, 0.88];
+/** Placeholder rows in the shape of the list that is loading: same height, columns and line count as the real rows. */
+export function SkeletonRows({ rows = 5, height = 36, lead, lines = [[160]], trail, divided = true, label, className }) {
+    const t = useKitTexts();
+    return (_jsxs("div", { role: "status", "data-divided": divided ? "" : undefined, className: cx("fui-skeleton-rows", className), children: [_jsx("span", { className: "fui-visually-hidden", children: label ?? t.loading }), Array.from({ length: rows }, (_, row) => {
+                const k = ROW_SHRINK[row % ROW_SHRINK.length];
+                return (_jsxs("div", { className: "fui-skeleton-rows__row", style: { height }, children: [lead != null && _jsx(Skeleton, { className: "fui-skeleton-rows__block", style: { width: lead } }), _jsx("div", { className: "fui-skeleton-rows__lines", children: lines.map((blocks, i) => (_jsx("div", { className: "fui-skeleton-rows__line", children: blocks.map((w, j) => (_jsx(Skeleton, { className: "fui-skeleton-rows__block", style: { width: Math.round(w * k) } }, j))) }, i))) }), trail?.map((w, j) => _jsx(Skeleton, { className: "fui-skeleton-rows__block", style: { width: w } }, j))] }, row));
+            })] }));
+}
 /** Spinner with a caption, «Загрузка…» / "Loading…" by default. */
 export function LoadingState({ children, className }) {
     const t = useKitTexts();

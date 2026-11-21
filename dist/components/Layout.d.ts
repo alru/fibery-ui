@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import type { Hue } from "../colors";
 export type PageHeaderProps = {
     title: ReactNode;
     description?: ReactNode;
@@ -15,10 +16,42 @@ export type SectionHeaderProps = {
     /** Number shown next to the title, e.g. the size of a collection. */
     count?: number;
     actions?: ReactNode;
+    /**
+     * `"muted"` (default) — a quiet label above a relation list, as on Fibery entity pages. `"strong"` — a 600-weight
+     * title in the text color, for screens made of several lists (a worklist's sections).
+     */
+    tone?: "muted" | "strong";
+    /** Puts the icon on a 20px plate of this highlight hue, like a database icon in Fibery's sidebar: the section's code. */
+    iconHue?: Hue;
+    /** Chevron before the title; the title becomes a toggle. Controlled: render the content while `open`. */
+    collapsible?: boolean;
+    /** Open state of a collapsible header; open when omitted. */
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    /** Anchor for CountNav and links; the header keeps clear of a sticky bar above when scrolled to. */
+    id?: string;
+    /** `id` of the content a collapsible header shows and hides. */
+    "aria-controls"?: string;
     className?: string;
 };
-/** Muted section label like "Skills" above a relation list on a Fibery entity page. */
-export declare function SectionHeader({ title, icon, count, actions, className }: SectionHeaderProps): import("react").JSX.Element;
+/**
+ * Section label above a list: muted like "Skills" on a Fibery entity page, or strong with a hued icon plate and a
+ * collapse chevron for the sections of a worklist.
+ */
+export declare function SectionHeader({ title, icon, count, actions, tone, iconHue, collapsible, open, onOpenChange, id, "aria-controls": controls, className, }: SectionHeaderProps): import("react").JSX.Element;
+export type ShowMoreProps = {
+    /** Rows on screen. */
+    shown: number;
+    /** Rows in all. Nothing renders once everything is shown. */
+    total: number;
+    onShowAll: () => void;
+    className?: string;
+};
+/**
+ * Row under a list cut short: «Показано 15 из 37» / "Showing 15 of 37" (fixed width, tabular digits) and
+ * «Показать все» / "Show all".
+ */
+export declare function ShowMore({ shown, total, onShowAll, className }: ShowMoreProps): import("react").JSX.Element | null;
 export type SidePanelProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
     title: ReactNode;
     description?: ReactNode;
@@ -49,10 +82,14 @@ export type PanelLayoutProps = {
  * clicking the veil calls `onDismiss`.
  */
 export declare function PanelLayout({ children, panel, onDismiss, className }: PanelLayoutProps): import("react").JSX.Element;
-export type SeparatorProps = HTMLAttributes<HTMLDivElement> & {
+export type SeparatorProps = HTMLAttributes<HTMLElement> & {
     orientation?: "horizontal" | "vertical";
     /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */
     label?: ReactNode;
+    /** `"alert"` — a red line and caption, e.g. «сейчас 11:42» between past and coming rows of a time-ordered list. */
+    tone?: "default" | "alert";
+    /** `"li"` to stand between the rows of a List. */
+    as?: "div" | "li";
 };
 export type InsetProps = HTMLAttributes<HTMLDivElement> & {
     /** Strip under a hairline at the bottom, for small marks that belong to the item, e.g. link states as badges. */
@@ -60,5 +97,5 @@ export type InsetProps = HTMLAttributes<HTMLDivElement> & {
 };
 /** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
 export declare function Inset({ footer, className, children, ...props }: InsetProps): import("react").JSX.Element;
-/** Hairline divider; with `label`, a captioned one ("На английском ————"). */
-export declare function Separator({ orientation, label, className, ...props }: SeparatorProps): import("react").JSX.Element;
+/** Hairline divider; with `label`, a captioned one ("На английском ————"); `tone="alert"` makes it the "now" line. */
+export declare function Separator({ orientation, label, tone, as: Tag, className, ...props }: SeparatorProps): import("react").JSX.Element;
