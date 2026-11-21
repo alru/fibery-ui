@@ -1,7 +1,20 @@
 // Public entry of @alru/fibery-ui. Styles ship separately: import "@alru/fibery-ui/style.css".
 export {Button, IconButton, type ButtonProps, type IconButtonProps, type ButtonVariant, type ButtonSize} from "./components/Button";
 export {CopyButton, type CopyButtonProps} from "./components/CopyButton";
-export {Badge, EnumBadge, type BadgeProps, type EnumBadgeProps, type Hue} from "./components/Badge";
+export {
+  Badge,
+  EnumBadge,
+  OptionBadge,
+  Dot,
+  StageGlyph,
+  type BadgeProps,
+  type EnumBadgeProps,
+  type OptionBadgeProps,
+  type DotProps,
+  type StageGlyphProps,
+  type Hue,
+} from "./components/Badge";
+export {fiberyHue, fiberyEmoji, hueFor} from "./colors";
 export {
   Avatar,
   Card,
@@ -9,25 +22,46 @@ export {
   CardContent,
   List,
   ListItem,
+  RowAction,
   PropertyList,
   Property,
+  PropertyAdd,
   PropertyGroup,
   type AvatarProps,
   type CardProps,
   type CardHeaderProps,
+  type ListProps,
   type ListItemProps,
+  type RowActionProps,
+  type PropertyListProps,
   type PropertyProps,
+  type PropertyAddProps,
   type PropertyGroupProps,
 } from "./components/Display";
+export {Timeline, type TimelineItem, type TimelineProps} from "./components/Timeline";
+export {CountNav, type CountNavItem, type CountNavProps} from "./components/CountNav";
+export {ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps} from "./components/Chips";
+export {
+  formatQuickDate,
+  fromDateInputs,
+  matchQuickTerm,
+  nowLineIndex,
+  sameDay,
+  toDateInput,
+  toTimeInput,
+  type QuickTerm,
+} from "./dates";
 export {
   PageHeader,
   SectionHeader,
+  ShowMore,
   SidePanel,
   PanelLayout,
   Separator,
   Inset,
   type PageHeaderProps,
   type SectionHeaderProps,
+  type ShowMoreProps,
   type SidePanelProps,
   type PanelLayoutProps,
   type SeparatorProps,
@@ -95,6 +129,7 @@ export {
   SegmentedControl,
   SegmentedToggles,
   type TabsListProps,
+  type TabsTriggerProps,
   type TabsContentProps,
   type SegmentedControlProps,
   type SegmentedTogglesProps,
@@ -126,6 +161,7 @@ export {
 export {
   Spinner,
   Skeleton,
+  SkeletonRows,
   LoadingState,
   ErrorState,
   EmptyState,
@@ -134,6 +170,7 @@ export {
   type CalloutProps,
   type RefreshWarningProps,
   type SpinnerProps,
+  type SkeletonRowsProps,
   type LoadingStateProps,
   type ErrorStateProps,
   type EmptyStateProps,
@@ -143,7 +180,17 @@ export {useKitLang} from "./components/KitLang";
 export type {KitLang} from "./i18n";
 export {SelectionBar, type SelectionBarProps} from "./components/SelectionBar";
 export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
-export {InlineEdit, type InlineEditProps} from "./components/InlineEdit";
+export {
+  InlineEdit,
+  InlineSelect,
+  InlineDate,
+  InlineTextarea,
+  type InlineEditProps,
+  type InlineSelectProps,
+  type InlineSelectOption,
+  type InlineDateProps,
+  type InlineTextareaProps,
+} from "./components/InlineEdit";
 export {usePersistentState} from "./components/PersistentState";
 export {useWrapped} from "./components/Wrapped";
 export {ReloadAppButton, type ReloadAppButtonProps} from "./components/ReloadAppButton";

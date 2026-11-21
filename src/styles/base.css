@@ -24,6 +24,25 @@
     box-sizing: border-box;
   }
 
+  /* Hue tokens for kit elements that take a `hue` (rendered as data-hue): the highlight fill, the text on it, and the
+     hue's own color for text, icons and dots on a plain surface. Components read --fui-hue-*, so each hue is listed
+     once, here, as a full literal. */
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="grey"] { --fui-hue-bg: var(--highlight-grey-bg); --fui-hue-on: var(--highlight-grey-fg-on-bg); --fui-hue-fg: var(--highlight-grey-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="red"] { --fui-hue-bg: var(--highlight-red-bg); --fui-hue-on: var(--highlight-red-fg-on-bg); --fui-hue-fg: var(--highlight-red-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="pink"] { --fui-hue-bg: var(--highlight-pink-bg); --fui-hue-on: var(--highlight-pink-fg-on-bg); --fui-hue-fg: var(--highlight-pink-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="purple"] { --fui-hue-bg: var(--highlight-purple-bg); --fui-hue-on: var(--highlight-purple-fg-on-bg); --fui-hue-fg: var(--highlight-purple-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="violet"] { --fui-hue-bg: var(--highlight-violet-bg); --fui-hue-on: var(--highlight-violet-fg-on-bg); --fui-hue-fg: var(--highlight-violet-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="blue"] { --fui-hue-bg: var(--highlight-blue-bg); --fui-hue-on: var(--highlight-blue-fg-on-bg); --fui-hue-fg: var(--highlight-blue-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="turquoise"] { --fui-hue-bg: var(--highlight-turquoise-bg); --fui-hue-on: var(--highlight-turquoise-fg-on-bg); --fui-hue-fg: var(--highlight-turquoise-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="aqua"] { --fui-hue-bg: var(--highlight-aqua-bg); --fui-hue-on: var(--highlight-aqua-fg-on-bg); --fui-hue-fg: var(--highlight-aqua-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="aquamarine"] { --fui-hue-bg: var(--highlight-aquamarine-bg); --fui-hue-on: var(--highlight-aquamarine-fg-on-bg); --fui-hue-fg: var(--highlight-aquamarine-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="green"] { --fui-hue-bg: var(--highlight-green-bg); --fui-hue-on: var(--highlight-green-fg-on-bg); --fui-hue-fg: var(--highlight-green-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="yellow"] { --fui-hue-bg: var(--highlight-yellow-bg); --fui-hue-on: var(--highlight-yellow-fg-on-bg); --fui-hue-fg: var(--highlight-yellow-fg); }
+  :where([class^="fui-"], [class*=" fui-"])[data-hue="orange"] { --fui-hue-bg: var(--highlight-orange-bg); --fui-hue-on: var(--highlight-orange-fg-on-bg); --fui-hue-fg: var(--highlight-orange-fg); }
+
+  /* A section CountNav scrolled to flashes once, so the eye finds where it landed. */
+  [data-flash] { animation: fui-flash 0.9s ease-out; }
+
   /* Icons placed directly inside kit components: Fibery's 16px size, lighter Lucide stroke. */
   :where([class^="fui-"], [class*=" fui-"]) > svg {
     width: 16px;
@@ -53,6 +72,9 @@
 @keyframes fui-dialog-in {
   from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
 }
+@keyframes fui-flash {
+  from, 30% { background-color: var(--muted); }
+}
 @keyframes fui-toast-time {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
@@ -63,6 +85,9 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  /* A near-zero duration would make these flicker: placeholders stand still, the flash is skipped. */
+  .fui-skeleton,
+  [data-flash] { animation: none !important; }
   /* The toast's time bar is its timer, not decoration: keep its real duration or the toast would vanish at once. */
   .fui-toast__progress { animation-duration: var(--fui-toast-duration) !important; }
 }

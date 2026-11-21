@@ -101,7 +101,31 @@ const lang = useKitLang();                             // inside the provider, e
 <EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name; a long name ends with "…" at its container's width
 <EnumBadge name="A" color="#4FAF54" variant="circle" />                         // letter in a ring
 <Avatar name="Jane Doe" src={url} size="sm" />
+<Avatar name="Jane Doe" size="sm" hue={hueFor(user.id)} />                      // initials on a stable person hue
+```
 
+**Fibery option colors** — the owner's option colors and emoji, drawn with the theme's hues (see Theme rules):
+
+```tsx
+fiberyHue("#FBA32F");        // "yellow" — Fibery's 17 standard colors by a fixed table, other hex → nearest; null → null
+fiberyEmoji(":rocket:");     // "🚀" — enum/icon shortcode → emoji; unknown → null (never the code as text)
+hueFor(user.id);             // "blue" | "turquoise" | "aquamarine" | "purple" | "pink", stable per id (avatars)
+
+// Read options from the enum type itself (all options, also unused ones), cache, refetch on window focus:
+// {"q/from": "<field's typeObject.name>", "q/select": {"id": "fibery/id", "name": "enum/name",
+//  "color": "enum/color", "icon": "enum/icon"}, "q/order-by": [[["fibery/rank"], "q/asc"]]}
+<OptionBadge name={o.name} color={o.color} icon={o.icon} />                    // soft: the record's own state
+<OptionBadge variant="outline" name="Lost" color="#D40915" />                  // outline: the record dropped out
+<OptionBadge variant="dot" name="Inbound: Website Form" color="#FBA32F" />     // dot + text: an attribute
+<OptionBadge name="Qualified" color={null} fallbackHue="aqua"                   // the app's own code while Fibery has none
+  glyph={<StageGlyph type="started" step={3} steps={6} />} />
+
+<Dot hue="green" />  <Dot variant="ring" size="md" />                          // 8px mark; hollow ring for "planned"
+<StageGlyph type="started" step={2} steps={6} />                               // 12px ring: notStarted | started (sector) | finished | paused | failed
+<Badge hue="violet"><StageGlyph type="started" step={4} steps={6} />Proposed</Badge>   // currentColor; muted in a neutral badge
+```
+
+```tsx
 <Card interactive onClick={…}>
   <CardHeader title="Skills" description="4 linked" actions={<IconButton … />} />
   <CardContent>…</CardContent>
@@ -111,6 +135,19 @@ const lang = useKitLang();                             // inside the provider, e
   <ListItem leading={<EnumBadge … />} trailing="B" onClick={() => openEntity(…)}>3D › Handpaint</ListItem>
   <ListItem multiline>…nested content that wraps…</ListItem>
 </List>
+
+// Worklist: rows edge to edge with hairlines (13px text), an actions column of 28px slots. The first action is the
+// main verb and always shows; the rest appear on hover, focus inside, selection and touch screens, keeping their place.
+// Clicks and keys in the actions never reach the row; `busy` puts a spinner in the first slot and disables the rest.
+<List variant="divided" className="@container">
+  <ListItem multiline onClick={open} selected={isOpen} busy={saving} actionSlots={4} actions={[
+    <RowAction icon={<Check />} label="Done" onClick={done} />,
+    <RowAction icon={<Redo2 />} label="Reschedule" onClick={reschedule} />,
+    <DropdownMenu><DropdownMenuTrigger asChild><RowAction icon={<MoreHorizontal />} label="More" /></DropdownMenuTrigger>…</DropdownMenu>,
+  ]}>…</ListItem>
+  <Separator as="li" tone="alert" label="now 11:42" />  // red "now" line between rows (see nowLineIndex)
+</List>
+<ShowMore shown={15} total={37} onShowAll={() => setAll(true)} />   // «Показано 15 из 37» + «Показать все»
 
 <Table>                                                 // native thead/tbody/tr/th/td inside
   <thead><tr><th>Skill</th><th data-align="right">People</th></tr></thead>
@@ -129,6 +166,31 @@ const lang = useKitLang();                             // inside the provider, e
 <InlineEdit value={group.name} label="Rename group" hint="Renames it in 12 skills" onSave={(name) => rename(name)}>
   <Highlight text={group.name} query={tokens} />
 </InlineEdit>
+// More fields in place; a rejected onSave keeps the error under the value. `disabled` = read-only text,
+// `startEditing` opens the editor at once (after PropertyAdd), `placeholder` replaces the muted "—".
+<InlineSelect label="Win probability" value={winId} onSave={saveWin} clearable
+  options={wins.map((o) => ({value: o.id, label: <OptionBadge variant="dot" name={o.name} color={o.color} />}))} />
+<InlineDate label="Expected close" value="2026-12-15" onSave={saveClose} />          // "YYYY-MM-DD" | null
+<InlineTextarea label="Key note" value={note} onSave={saveNote} />                   // Ctrl+Enter / blur saves
+
+// Card fields: only the filled ones, «+ Поле» adds an empty one.
+<PropertyGroup icon={<Briefcase />} title="Deal" actions={<PropertyAdd fields={emptyFields} onAdd={reveal} />}>
+  <PropertyList hideEmpty>
+    <Property label="Expected close" empty={!deal.close && !revealed.has("close")}>
+      <InlineDate label="Expected close" value={deal.close} onSave={…} startEditing={revealed.has("close")} />
+    </Property>
+  </PropertyList>
+</PropertyGroup>
+
+// History: spine with markers, 80px time column, title (+ second line), meta on the right, the red "now" line,
+// «Ещё N» after `limit` (10) rows. Markers: Dot or a 12px Lucide icon in a circle of the card color.
+<Timeline
+  nowIndex={nowLineIndex(items.map((i) => i.at), Date.now(), "desc")}
+  nowLabel="now 11:42"
+  empty={<span>No activities yet</span>}
+  items={items.map((i) => ({id: i.id, marker: <ArrowDownLeft className="text-green" />, time: "20 Nov",
+    title: "Sent the estimate", meta: "✉️ Email · Jane Doe", struck: i.cancelled, onClick: () => edit(i)}))}
+/>
 
 // Copy icon (20px) after a value: shows on hover of its parent or table row; copies, then a short toast.
 // Clicks and keys don't reach a clickable row around it. Needs FiberyUIProvider (toasts).
@@ -181,6 +243,17 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 ```tsx
 <PageHeader eyebrow={<Badge caps>Contractor</Badge>} title="Jane Doe" actions={…} />
 <SectionHeader icon={<Layers />} title="Skills" count={4} actions={…} />
+// Worklist section: 600-weight title, icon on a 20px plate of its hue, collapse chevron (controlled), anchor id.
+<SectionHeader tone="strong" icon={<CalendarClock />} iconHue={overdue ? "red" : "grey"} title="Due" count={49}
+  collapsible open={open} onOpenChange={setOpen} id="due" aria-controls="due-list" />
+
+// Sticky anchors over a screen of several lists: icon (in the hue while the count is above 0), short name, count.
+// Click → onSelect (open the section), then a scroll to the element with that id and a short flash.
+// Below 700px of width only icons and counts stay (name in title / aria-label).
+<CountNav onSelect={(id) => setOpen(id, true)} items={[
+  {id: "due", label: "Due", icon: <CalendarClock />, count: 49, hue: "red"},
+  {id: "replied", label: "Replied", icon: <MessageSquareReply />, count: 3, hue: "green"},
+]} />
 <Separator />
 <Separator label="На английском" />                       // captioned divider splitting one block into parts
 <Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // raised block (shadow) for a key field
@@ -226,6 +299,21 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 <Field label="Email" htmlFor="email" required>   // red asterisk after the label
   <Input id="email" />
 </Field>
+// Separate 24px chips that wrap, one value, the picked one in the accent. `visible` moves the rest into «ещё ▾»;
+// `deselectable` lets a click on the picked chip clear an optional value. Arrow keys move the choice.
+<ChipGroup aria-label="Channel" deselectable visible={5} value={channel} onValueChange={setChannel}
+  options={channels.map((c) => ({value: c.id, label: c.name, glyph: <span className="fui-emoji">{fiberyEmoji(c.icon)}</span>}))} />
+
+// Planning date: quick terms (the app computes their dates), «Дата…» opens date + time inputs, and the resolved
+// date under the chips («вт 24 ноября, 10:00» / "Tue 24 November, 10:00") — a click on it adjusts the time.
+// A value keeps its chip while it stays on that chip's day.
+<Field label="When" required>
+  <QuickDate value={due} onChange={setDue} terms={[
+    {id: "tomorrow", label: "Tomorrow", date: tomorrowAt10},
+    {id: "week", label: "+1 week", date: inAWeekAt10},
+  ]} />
+</Field>
+<QuickDate withTime={false} … />
 <SearchInput placeholder="Search…" size="sm" />
 <Textarea rows={4} />
 <Checkbox label="Only experts" checked={v} onCheckedChange={setV} />
@@ -320,6 +408,8 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
     <TabsTrigger value="list">List</TabsTrigger>
     <TabsTrigger value="matrix">Matrix</TabsTrigger>
   </TabsList>
+  // `count`: round counter with room for "999"; 0 keeps its place invisibly; tone="alert" puts it on red.
+  <TabsTrigger value="today" count={49} tone="alert" title="Today: 49, 37 of them overdue">Today</TabsTrigger>
   <TabsContent value="list" keepMounted>…</TabsContent>    // keepMounted: state survives tab switches
 </Tabs>
 
@@ -341,6 +431,10 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 // `label`: muted caption inside an input-styled frame, like MultiSelect's "Status: All" — use it in a filter row
 // next to MultiSelects so all filters share one look and height (28px).
 <SegmentedControl label="Level" scale="from" aria-label="Minimum level" value={min} onValueChange={setMin} options={…} />
+
+// `glyph`: a mark before an option's label — a Dot in the option's Fibery hue, an emoji, an arrow.
+<SegmentedControl aria-label="Status" value={status} onValueChange={setStatus}
+  options={states.map((s) => ({value: s.id, label: s.name, glyph: <Dot hue={fiberyHue(s.color) ?? "grey"} />}))} />
 
 // Same look, but every option toggles on and off by itself (filled while on); value is an array. Any combination,
 // including none, is allowed — the caller decides what "all off" means.
@@ -366,6 +460,8 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 <Callout>Empty groups are removed automatically.</Callout>   // always-visible note: info | warning | error | neutral | plain (no fill)
 <Callout tone="error">Move the opportunities first or delete them together.</Callout>   // blocks the action, no field to point at
 <Skeleton style={{height: 20, width: 160}} />
+// Placeholder rows shaped like the real ones (same height, so nothing jumps); static under reduced motion.
+<SkeletonRows rows={5} height={48} lead={40} lines={[[120, 180], [240]]} trail={[80, 96]} />
 <Spinner size="sm" />
 
 // Notice in the bottom-right corner with a time bar; closes by itself (hover pauses it). Needs FiberyUIProvider.
@@ -597,8 +693,17 @@ const spec: ImportSpec<Task, Context, Patch> = {
 
 - Color only through theme variables or Tailwind tokens; no hard-coded hex in components.
 - No `dark:` overrides or theme toggles: Fibery's sidecar owns the theme.
-- User-defined colors (enum, space, entity) are data: render them as-is, don't derive shades or text colors
-  from them. `EnumBadge` follows this — the color paints a dot or a ring, never a text background.
+- A user-defined color (enum, space, entity) is drawn one of two ways, and neither derives a shade from it:
+  - **as is**, only as a dot or a ring — `EnumBadge`: the hex paints the mark, never a text background;
+  - **as a theme hue** — `fiberyHue` maps the hex to one of the 12 highlight hues by a fixed table of Fibery's
+    standard palette (any other hex takes the nearest entry's hue: a choice of token, not a new color), and
+    `OptionBadge`, `Dot`, `Badge` paint with that hue's `--highlight-<hue>-*` pair, so light and dark themes keep
+    working. `null` stays neutral.
+- Colors carry meaning in shape too: a fill for the record's own state, an outline for one that dropped out, a dot for
+  an attribute. The accent (`--primary`) marks interaction only — buttons, focus, selection, picked chips — never a
+  code.
+- Hue classes and data attributes are full literals (`data-hue="green"`, `highlight-green`); never build them from
+  fragments.
 - Don't reference Fibery's internal UI variables (`--bg-button-*` and the like): they are not passed into apps.
 
 ## Develop
@@ -606,7 +711,7 @@ const spec: ImportSpec<Task, Context, Patch> = {
 ```sh
 npm install
 npm run build    # tsc -> dist/, src/styles/*.css -> dist/style.css
-npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands, languages); no extra dependencies
+npm test         # node --test on test/*.test.ts (field types, XLSX, import planning, runCommands, languages, colors, dates); no extra dependencies
 ```
 
 Pure modules import each other as `./x.ts` (`rewriteRelativeImportExtensions` turns that into `.js` on build), so Node
