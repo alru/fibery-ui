@@ -227,10 +227,12 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
 </PropertyGroup>
 
 // History: spine with markers, 80px time column, title (+ second line), meta on the right, the red "now" line,
-// «Ещё N» after `limit` (10) rows. Markers: Dot or a 12px Lucide icon in a circle of the card color.
+// «Ещё N» after `limit` (10) rows. Markers: Dot or a 12px Lucide icon in a circle of the card color. `start` adds
+// the row where the record began (a filled dot ends the spine), so a latest-first history has a clear top and bottom.
 <Timeline
   nowIndex={nowLineIndex(items.map((i) => i.at), Date.now(), "desc")}
   nowLabel="now 11:42"
+  start={{time: "16 Jun", label: "Opened"}}
   empty={<span>No activities yet</span>}
   items={items.map((i) => ({id: i.id, marker: <ArrowDownLeft className="text-green" />, time: "20 Nov",
     title: "Sent the estimate", meta: "✉️ Email · Jane Doe", struck: i.cancelled, onClick: () => edit(i)}))}
