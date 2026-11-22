@@ -9,9 +9,13 @@ export type ToastOptions = {
   /** Text of the action button, e.g. "Undo"; the toast closes when it is clicked. */
   actionLabel?: string;
   onAction?: () => void;
+  /** More buttons after the action, e.g. "Schedule"; each closes the toast too. */
+  moreActions?: ToastAction[];
   /** Milliseconds until the toast closes by itself. Default 6000. */
   duration?: number;
 };
+
+export type ToastAction = {label: string; onAction: () => void};
 
 type ToastItem = ToastOptions & {id: number};
 
@@ -32,18 +36,19 @@ export function ToastProvider({children}: {children: ReactNode}) {
           {toasts.map((t) => (
             <div key={t.id} className="fui-toast" role="status">
               <span className="fui-toast__message">{t.message}</span>
-              {t.actionLabel && (
+              {[...(t.actionLabel ? [{label: t.actionLabel, onAction: () => t.onAction?.()}] : []), ...(t.moreActions ?? [])].map((a, i) => (
                 <button
+                  key={i}
                   type="button"
                   className="fui-toast__action"
                   onClick={() => {
-                    t.onAction?.();
+                    a.onAction();
                     dismiss(t.id);
                   }}
                 >
-                  {t.actionLabel}
+                  {a.label}
                 </button>
-              )}
+              ))}
               {/* The bar's CSS animation is the timer: it pauses on hover, and its end closes the toast. */}
               <span
                 className="fui-toast__progress"

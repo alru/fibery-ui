@@ -1,7 +1,7 @@
 // Small count charts for stats pages: BarList (labelled bars), StackedBar (parts of one whole) and FlowChart
 // (per-period ins above an axis, outs below, optional level line). Every number is printed, so nothing needs a hover;
 // a clickable value has the same dotted underline everywhere, and the accent appears only on hover.
-import type {CSSProperties, ReactNode} from "react";
+import {useLayoutEffect, useRef, type CSSProperties, type ReactNode} from "react";
 import {cx} from "../cx";
 import type {Hue} from "./Badge";
 
@@ -153,6 +153,13 @@ export type FlowChartProps = {
   levelLabel?: string;
   upHue?: Hue;
   downHue?: Hue;
+  /**
+   * Which points of the level line print their value: `"all"` (default), or `"changes"` — the first, the last and
+   * every point that differs from the one before, so a long flat stretch doesn't repeat one number.
+   */
+  levelValues?: "all" | "changes";
+  /** When the periods don't fit, start scrolled to the latest ones instead of the earliest. */
+  scrollToEnd?: boolean;
   className?: string;
 };
 
@@ -189,7 +196,23 @@ function FlowBar({value, scale, side, name, label, onClick}: {
  * Per-period flow: `up` bars rise above the axis, `down` bars hang below it, each with its number; an optional level
  * line runs above them with its value at every point. Scrolls sideways when the periods don't fit (36px each at least).
  */
-export function FlowChart({periods, upLabel, downLabel, levelLabel, upHue = "green", downHue = "red", className}: FlowChartProps) {
+export function FlowChart({
+  periods,
+  upLabel,
+  downLabel,
+  levelLabel,
+  upHue = "green",
+  downHue = "red",
+  levelValues = "all",
+  scrollToEnd,
+  className,
+}: FlowChartProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Again when the number of periods changes, e.g. another range was picked.
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (scrollToEnd && el) el.scrollLeft = el.scrollWidth;
+  }, [scrollToEnd, periods.length]);
   const upMax = Math.max(0, ...periods.map((p) => p.up));
   const downMax = Math.max(0, ...periods.map((p) => p.down));
   const scale = Math.max(1, upMax, downMax);
@@ -220,7 +243,7 @@ export function FlowChart({periods, upLabel, downLabel, levelLabel, upHue = "gre
           </li>
         )}
       </ul>
-      <div className="fui-flow__scroll">
+      <div ref={scrollRef} className="fui-flow__scroll">
         <div
           className="fui-flow__plot"
           style={{"--fui-flow-n": periods.length, "--fui-flow-up": `${(upMax / scale) * PLOT}px`, "--fui-flow-down": `${(downMax / scale) * PLOT}px`} as CSSProperties}
@@ -233,12 +256,14 @@ export function FlowChart({periods, upLabel, downLabel, levelLabel, upHue = "gre
               />
             </svg>
           )}
-          {periods.map((p) => (
+          {periods.map((p, i) => (
             <div key={p.key} className="fui-flow__column">
               {hasLevel && (
                 <div className="fui-flow__band">
                   <span className="fui-flow__level" style={{top: `${levelY(p.level!)}%`}}>
-                    <span className="fui-flow__level-value">{p.level}</span>
+                    {(levelValues === "all" || i === 0 || i === periods.length - 1 || p.level !== periods[i - 1].level) && (
+                      <span className="fui-flow__level-value">{p.level}</span>
+                    )}
                   </span>
                 </div>
               )}

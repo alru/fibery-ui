@@ -19,6 +19,8 @@ export type ComboboxOption = {
   keywords?: string;
   /** Options with the same group are listed under one caption, in order of first appearance. */
   group?: string;
+  /** Drawn before the text in the list and not searched, e.g. an Avatar or a status dot. */
+  leading?: ReactNode;
 };
 
 const filterOptions = (options: ComboboxOption[], tokens: string[]) =>
@@ -89,6 +91,7 @@ function OptionList({options, tokens, emptyText, separator, nav, onPick}: Option
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onPick(option)}
             >
+              {option.leading != null && <span className="fui-menu-item__leading">{option.leading}</span>}
               <span className="fui-menu-item__text">
                 <Highlight text={option.text} query={tokens} separator={separator} />
               </span>

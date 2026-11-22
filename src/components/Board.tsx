@@ -21,6 +21,12 @@ export type BoardColumn<T> = {
   note?: ReactNode;
   /** Starts folded into a 56px strip with the count and the title; a click or a card dragged over opens it. */
   collapsed?: boolean;
+  /**
+   * For a `collapsed` column: whether it is open now, when the app keeps that state (e.g. a link opens it); the board
+   * then only reports clicks through `onOpenChange`. Left out, the board keeps it itself.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   /** Text of an empty column; «Пусто» / "Empty" by default. */
   empty?: ReactNode;
 };
@@ -78,7 +84,10 @@ export function Board<T>({
     else next.delete(id);
     return next;
   };
-  const open = (id: string, on: boolean) => setOpened((s) => toggle(s, id, on));
+  const open = (column: BoardColumn<T>, on: boolean) => {
+    column.onOpenChange?.(on);
+    if (column.open === undefined) setOpened((s) => toggle(s, column.id, on));
+  };
   const endDrag = () => {
     setDrag(null);
     setOver(null);
@@ -87,7 +96,7 @@ export function Board<T>({
   return (
     <div className={cx("fui-board", className)} role="group" aria-label={label}>
       {columns.map((column, index) => {
-        const folded = column.collapsed === true && !opened.has(column.id);
+        const folded = column.collapsed === true && !(column.open ?? opened.has(column.id));
         const count = column.count ?? column.cards.length;
         // By position: a column id may hold spaces, and aria-labelledby splits on them.
         const titleId = `${baseId}-column-${index}`;
@@ -98,7 +107,7 @@ export function Board<T>({
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
             if (over !== column.id) setOver(column.id);
-            if (folded) open(column.id, true);
+            if (folded) open(column, true);
           },
           onDragLeave: (e: DragEvent<HTMLElement>) => {
             // Moving onto a child also fires dragleave on the column: only leaving the column itself counts.
@@ -128,7 +137,7 @@ export function Board<T>({
                 className="fui-board__strip"
                 aria-expanded={false}
                 title={t.expandColumn}
-                onClick={() => open(column.id, true)}
+                onClick={() => open(column, true)}
               >
                 <span className="fui-board__count">{count}</span>
                 <span id={titleId} className="fui-board__strip-title">
@@ -163,7 +172,7 @@ export function Board<T>({
                     aria-label={t.collapseColumn}
                     size="sm"
                     className="fui-board__fold"
-                    onClick={() => open(column.id, false)}
+                    onClick={() => open(column, false)}
                   />
                 )}
               </div>

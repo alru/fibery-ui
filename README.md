@@ -161,6 +161,13 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
   ]}>…</ListItem>
   <Separator as="li" tone="alert" label="now 11:42" />  // red "now" line between rows (see nowLineIndex)
 </List>
+// A multi-line card row with its verbs at the right of the last line (not a column along the whole row):
+// ListItemActions shows and hides the same way (also while a menu of it is open).
+<ListItem multiline onClick={open}>
+  …first lines…
+  <span className="flex items-end gap-2"><span className="flex-1">…meta…</span>
+    <ListItemActions busy={saving} actions={[<RowAction … />, <RowAction … />]} /></span>
+</ListItem>
 <ShowMore shown={15} total={37} onShowAll={() => setAll(true)} />   // «Показано 15 из 37» + «Показать все»
 
 <Table>                                                 // native thead/tbody/tr/th/td inside
@@ -202,7 +209,9 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
   <Highlight text={group.name} query={tokens} />
 </InlineEdit>
 // More fields in place; a rejected onSave keeps the error under the value. `disabled` = read-only text,
-// `startEditing` opens the editor at once (after PropertyAdd), `placeholder` replaces the muted "—".
+// `startEditing` opens the editor at once (after PropertyAdd), `placeholder` replaces the muted "—" (all editors).
+// InlineEdit: an emptied field cancels (a name must stay); `clearable` saves "" instead.
+<InlineEdit clearable label="Edit Source Ref" value={ref} onSave={saveRef} startEditing={revealed.has("ref")} />
 <InlineSelect label="Win probability" value={winId} onSave={saveWin} clearable
   options={wins.map((o) => ({value: o.id, label: <OptionBadge variant="dot" name={o.name} color={o.color} />}))} />
 <InlineDate label="Expected close" value="2026-12-15" onSave={saveClose} />          // "YYYY-MM-DD" | null
@@ -257,6 +266,8 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 <FlowChart upLabel="Пришли" downLabel="Ушли" levelLabel="В работе на конец месяца" periods={months.map((m) => ({
   key: m.id, label: "янв", name: "январь 2026", up: m.in, down: m.out, level: m.headcount, onUpClick: () => open(m),
 }))} />
+// Long ranges: the level's value only where it changes (and first / last); start scrolled to the latest periods.
+<FlowChart levelValues="changes" scrollToEnd … />
 
 // Metric card (a flat sheet): the number in 24px monospace, the label, a required definition line, and the previous
 // period pinned to the bottom — «было 11 · ↑ +7» / "was 11 · ↑ +7", never colored (growth isn't always good).
@@ -298,7 +309,8 @@ formatDelta(-6);                                        // "−6" (true minus); 
   aria-label="Deals"
   columns={stages.map((s) => ({id: s.id, title: s.name, cards: s.deals, aside: s.hours && `Σ ${s.hours} h`,
     note: s.noStep > 0 && <Button variant="ghost" size="sm" onClick={() => onlyNoStep(s.id)}>no step {s.noStep}</Button>,
-    collapsed: s.id === "draft"}))}
+    collapsed: s.id === "draft",
+    open: s.id === "draft" ? draftOpen : undefined, onOpenChange: setDraftOpen}))}   // optional: the app keeps the fold state
   cardId={(deal) => deal.id}
   renderCard={(deal) => <Card variant="flat" interactive onClick={() => open(deal)}>…</Card>}
   canDrag={(id) => canEdit(id)}
@@ -319,6 +331,7 @@ formatDelta(-6);                                        // "−6" (true minus); 
   {id: "due", label: "Due", icon: <CalendarClock />, count: 49, hue: "red"},
   {id: "replied", label: "Replied", icon: <MessageSquareReply />, count: 3, hue: "green"},
 ]} />
+<CountNav surface="muted" className="top-12" … />          // on a grey desk, sticking under a 48px app header
 <Separator />
 <Separator label="На английском" />                       // captioned divider splitting one block into parts
 <Inset><Field label="Email (ID)" hint="Links the record to …">…</Field></Inset>  // raised block (shadow) for a key field
@@ -364,6 +377,8 @@ formatDelta(-6);                                        // "−6" (true minus); 
 <Field label="Email" htmlFor="email" required>   // red asterisk after the label
   <Input id="email" />
 </Field>
+// Label in a 112px column on the left while the field is >= 560px wide (a dialog form); narrower, on top again.
+<Field layout="side" label="Channel" hint="…"><ChipGroup … /></Field>
 // Separate 24px chips that wrap, one value, the picked one in the accent. `visible` moves the rest into «ещё ▾»;
 // `deselectable` lets a click on the picked chip clear an optional value. Arrow keys move the choice.
 <ChipGroup aria-label="Channel" deselectable visible={5} value={channel} onValueChange={setChannel}
@@ -430,6 +445,9 @@ formatShortDayTime(date);                                // "24.11.26 14:30"
   <Button variant="ghost" size="sm" icon={<Plus />}>Add</Button>
 </Combobox>
 
+// `leading`: an Avatar, a Dot or an emoji before the option's text (not searched).
+<Combobox options={users.map((u) => ({value: u.id, text: u.name, leading: <Avatar name={u.name} size="sm" />}))} onSelect={setOwner}>…</Combobox>
+
 // As a form field: PickerButton shows the value; onCreate adds a "Создать «…»" row for text that matches nothing.
 <Field label="Group">
   <Combobox options={groups} onSelect={setGroup} onCreate={createGroup}>
@@ -481,6 +499,8 @@ formatShortDayTime(date);                                // "24.11.26 14:30"
   </TabsList>
   // `count`: round counter with room for "999"; 0 keeps its place invisibly; tone="alert" puts it on red.
   <TabsTrigger value="today" count={49} tone="alert" title="Today: 49, 37 of them overdue">Today</TabsTrigger>
+  // zero="hide": no empty place at 0, for a counter that stays at 0 for long (the tabs shift when it appears).
+  <TabsTrigger value="today" count={count} zero="hide">Today</TabsTrigger>
   <TabsContent value="list" keepMounted>…</TabsContent>    // keepMounted: state survives tab switches
 </Tabs>
 
@@ -538,6 +558,8 @@ const hit = tokens.every((t) => normalizeSearchText(name).includes(t));
 // Notice in the bottom-right corner with a time bar; closes by itself (hover pauses it). Needs FiberyUIProvider.
 const toast = useToast();
 toast({message: "Skill removed: Jane Doe", actionLabel: "Undo", onAction: restore, duration: 6000});
+toast({message: "Moved to Proposed", actionLabel: "Undo", onAction: undo,
+  moreActions: [{label: "Schedule", onAction: schedule}]});   // more buttons; each closes the toast
 ```
 
 `ErrorState` explains transient failures in plain words (see below) and keeps the raw message under that text,
@@ -568,6 +590,7 @@ server, and repeating it makes a duplicate.
 ```tsx
 // Bulk actions on selected rows: sticks to the bottom of the scrolling list. «Выбрано: 3» / "3 selected", the
 // actions, «Снять выбор» / "Clear". Fixed-width count and progress with tabular digits, so nothing shifts.
+// While it is open, toasts stand above it (its measured height, also when it wraps to two lines).
 {selected.size > 0 && (
   <SelectionBar
     count={selected.size}

@@ -78,12 +78,17 @@ export type FieldProps = {
   changed?: boolean;
   /** Marks the label with a red asterisk: the field must be filled. */
   required?: boolean;
+  /**
+   * `"stack"` (default): the label above the control. `"side"`: the label in a 112px column left of the control and
+   * its note, while the field is at least 560px wide; narrower, it goes back on top.
+   */
+  layout?: "stack" | "side";
   children: ReactNode;
   className?: string;
 };
 
-/** Label + control + hint/warning/error stacked vertically. */
-export function Field({label, htmlFor, hint, error, warning, changed, required, children, className}: FieldProps) {
+/** Label + control + hint/warning/error, stacked or with the label on the left. */
+export function Field({label, htmlFor, hint, error, warning, changed, required, layout = "stack", children, className}: FieldProps) {
   const t = useKitTexts();
   const note = error ? (
     <p className="fui-field__error">{error}</p>
@@ -92,19 +97,34 @@ export function Field({label, htmlFor, hint, error, warning, changed, required, 
   ) : (
     hint && <p className="fui-field__hint">{hint}</p>
   );
+  const labelEl = label && (
+    <Label htmlFor={htmlFor}>
+      {label}
+      {required && (
+        <span className="fui-label__required" aria-label={t.requiredField}>
+          *
+        </span>
+      )}
+      {changed && <span className="fui-visually-hidden">{t.changedField}</span>}
+    </Label>
+  );
+  if (layout === "side") {
+    // The outer box is the size container: a container query can't style the element it measures.
+    return (
+      <div className={cx("fui-field-side", className)} data-changed={changed ? "" : undefined}>
+        <div className="fui-field-side__grid">
+          {labelEl || <span />}
+          <div className="fui-field">
+            {children}
+            {note}
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={cx("fui-field", className)} data-changed={changed ? "" : undefined}>
-      {label && (
-        <Label htmlFor={htmlFor}>
-          {label}
-          {required && (
-            <span className="fui-label__required" aria-label={t.requiredField}>
-              *
-            </span>
-          )}
-          {changed && <span className="fui-visually-hidden">{t.changedField}</span>}
-        </Label>
-      )}
+      {labelEl}
       {children}
       {note}
     </div>

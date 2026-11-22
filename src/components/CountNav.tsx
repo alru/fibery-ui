@@ -25,6 +25,11 @@ export type CountNavProps = {
   scroll?: boolean;
   /** «Разделы» / "Sections" by default. */
   "aria-label"?: string;
+  /**
+   * What the sticky row sits on, so its band matches the page: `"background"` (default, white) or `"muted"` (a grey
+   * desk; the anchors' frame turns card-white).
+   */
+  surface?: "background" | "muted";
   className?: string;
 };
 
@@ -35,7 +40,7 @@ const FLASH_MS = 900;
  * its count (room for "999", tabular digits); a zero count turns muted and its icon neutral. Below 700px of
  * container width only icons and counts remain.
  */
-export function CountNav({items, onSelect, scroll = true, className, ...props}: CountNavProps) {
+export function CountNav({items, onSelect, scroll = true, surface = "background", className, ...props}: CountNavProps) {
   const t = useKitTexts();
   const sentinel = useRef<HTMLDivElement>(null);
   const [stuck, setStuck] = useState(false);
@@ -70,7 +75,7 @@ export function CountNav({items, onSelect, scroll = true, className, ...props}: 
   return (
     <>
       <div ref={sentinel} className="fui-count-nav__sentinel" aria-hidden />
-      <nav aria-label={props["aria-label"] ?? t.sections} data-stuck={stuck ? "" : undefined} className={cx("fui-count-nav", className)}>
+      <nav aria-label={props["aria-label"] ?? t.sections} data-stuck={stuck ? "" : undefined} data-surface={surface} className={cx("fui-count-nav", className)}>
         <div className="fui-count-nav__track">
           {items.map((item) => (
             <button

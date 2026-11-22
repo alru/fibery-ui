@@ -24,6 +24,7 @@ export {
   CardContent,
   List,
   ListItem,
+  ListItemActions,
   RowAction,
   PropertyList,
   Property,
@@ -34,6 +35,7 @@ export {
   type CardHeaderProps,
   type ListProps,
   type ListItemProps,
+  type ListItemActionsProps,
   type RowActionProps,
   type PropertyListProps,
   type PropertyProps,
@@ -189,7 +191,7 @@ export {FiberyUIProvider} from "./components/Provider";
 export {useKitLang} from "./components/KitLang";
 export type {KitLang} from "./i18n";
 export {SelectionBar, type SelectionBarProps} from "./components/SelectionBar";
-export {ToastProvider, useToast, type ToastOptions} from "./components/Toast";
+export {ToastProvider, useToast, type ToastAction, type ToastOptions} from "./components/Toast";
 export {
   InlineEdit,
   InlineSelect,
