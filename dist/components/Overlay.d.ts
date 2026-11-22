@@ -12,13 +12,17 @@ export type DropdownMenuItemProps = ComponentPropsWithoutRef<typeof DropdownPrim
     /** Keyboard hint at the right edge, e.g. `"⌘D"`. Display only. */
     shortcut?: string;
     destructive?: boolean;
+    /** Muted line under the label, wrapping; the row grows to fit it (like `SelectItem`'s `description`). */
+    description?: ReactNode;
 };
-/** 32px menu row with optional icon and shortcut hint. */
+/** 32px menu row with optional icon and shortcut hint; taller with a `description`. */
 export declare const DropdownMenuItem: import("react").ForwardRefExoticComponent<Omit<DropdownPrimitive.DropdownMenuItemProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & {
     icon?: ReactNode;
     /** Keyboard hint at the right edge, e.g. `"⌘D"`. Display only. */
     shortcut?: string;
     destructive?: boolean;
+    /** Muted line under the label, wrapping; the row grows to fit it (like `SelectItem`'s `description`). */
+    description?: ReactNode;
 } & import("react").RefAttributes<HTMLDivElement>>;
 export declare const DropdownMenuLabel: import("react").ForwardRefExoticComponent<Omit<DropdownPrimitive.DropdownMenuLabelProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & import("react").RefAttributes<HTMLDivElement>>;
 export declare const DropdownMenuSeparator: import("react").ForwardRefExoticComponent<Omit<DropdownPrimitive.DropdownMenuSeparatorProps & import("react").RefAttributes<HTMLDivElement>, "ref"> & import("react").RefAttributes<HTMLDivElement>>;

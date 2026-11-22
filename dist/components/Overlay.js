@@ -17,8 +17,8 @@ export const DropdownMenuGroup = DropdownPrimitive.Group;
 /** Menu popup, aligned to the trigger's start edge by default. */
 export const DropdownMenuContent = forwardRef(({ className, sideOffset = 4, align = "start", ...props }, ref) => (_jsx(DropdownPrimitive.Portal, { children: _jsx(DropdownPrimitive.Content, { ref: ref, sideOffset: sideOffset, align: align, className: cx("fui-popup fui-menu", className), ...props }) })));
 DropdownMenuContent.displayName = "DropdownMenuContent";
-/** 32px menu row with optional icon and shortcut hint. */
-export const DropdownMenuItem = forwardRef(({ icon, shortcut, destructive, className, children, ...props }, ref) => (_jsxs(DropdownPrimitive.Item, { ref: ref, "data-variant": destructive ? "destructive" : undefined, className: cx("fui-menu-item", className), ...props, children: [icon, _jsx("span", { className: "fui-menu-item__text", children: children }), shortcut && _jsx("span", { className: "fui-menu-item__shortcut", children: shortcut })] })));
+/** 32px menu row with optional icon and shortcut hint; taller with a `description`. */
+export const DropdownMenuItem = forwardRef(({ icon, shortcut, destructive, description, className, children, ...props }, ref) => (_jsxs(DropdownPrimitive.Item, { ref: ref, "data-variant": destructive ? "destructive" : undefined, "data-description": description ? "" : undefined, className: cx("fui-menu-item", className), ...props, children: [icon, description ? (_jsxs("span", { className: "fui-menu-item__text fui-menu-item__body", children: [_jsx("span", { children: children }), _jsx("span", { className: "fui-menu-item__description", children: description })] })) : (_jsx("span", { className: "fui-menu-item__text", children: children })), shortcut && _jsx("span", { className: "fui-menu-item__shortcut", children: shortcut })] })));
 DropdownMenuItem.displayName = "DropdownMenuItem";
 export const DropdownMenuLabel = forwardRef(({ className, ...props }, ref) => _jsx(DropdownPrimitive.Label, { ref: ref, className: cx("fui-menu-label", className), ...props }));
 DropdownMenuLabel.displayName = "DropdownMenuLabel";
