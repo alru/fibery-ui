@@ -44,19 +44,29 @@ export type DropdownMenuItemProps = ComponentPropsWithoutRef<typeof DropdownPrim
   /** Keyboard hint at the right edge, e.g. `"⌘D"`. Display only. */
   shortcut?: string;
   destructive?: boolean;
+  /** Muted line under the label, wrapping; the row grows to fit it (like `SelectItem`'s `description`). */
+  description?: ReactNode;
 };
 
-/** 32px menu row with optional icon and shortcut hint. */
+/** 32px menu row with optional icon and shortcut hint; taller with a `description`. */
 export const DropdownMenuItem = forwardRef<ElementRef<typeof DropdownPrimitive.Item>, DropdownMenuItemProps>(
-  ({icon, shortcut, destructive, className, children, ...props}, ref) => (
+  ({icon, shortcut, destructive, description, className, children, ...props}, ref) => (
     <DropdownPrimitive.Item
       ref={ref}
       data-variant={destructive ? "destructive" : undefined}
+      data-description={description ? "" : undefined}
       className={cx("fui-menu-item", className)}
       {...props}
     >
       {icon}
-      <span className="fui-menu-item__text">{children}</span>
+      {description ? (
+        <span className="fui-menu-item__text fui-menu-item__body">
+          <span>{children}</span>
+          <span className="fui-menu-item__description">{description}</span>
+        </span>
+      ) : (
+        <span className="fui-menu-item__text">{children}</span>
+      )}
       {shortcut && <span className="fui-menu-item__shortcut">{shortcut}</span>}
     </DropdownPrimitive.Item>
   ),
