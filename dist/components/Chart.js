@@ -1,4 +1,8 @@
 import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+// Small count charts for stats pages: BarList (labelled bars), StackedBar (parts of one whole) and FlowChart
+// (per-period ins above an axis, outs below, optional level line). Every number is printed, so nothing needs a hover;
+// a clickable value has the same dotted underline everywhere, and the accent appears only on hover.
+import { useLayoutEffect, useRef } from "react";
 import { cx } from "../cx";
 const share = (value, total) => (total > 0 ? `${Math.round((value / total) * 100)}%` : "");
 /**
@@ -34,7 +38,14 @@ function FlowBar({ value, scale, side, name, label, onClick }) {
  * Per-period flow: `up` bars rise above the axis, `down` bars hang below it, each with its number; an optional level
  * line runs above them with its value at every point. Scrolls sideways when the periods don't fit (36px each at least).
  */
-export function FlowChart({ periods, upLabel, downLabel, levelLabel, upHue = "green", downHue = "red", className }) {
+export function FlowChart({ periods, upLabel, downLabel, levelLabel, upHue = "green", downHue = "red", levelValues = "all", scrollToEnd, className, }) {
+    const scrollRef = useRef(null);
+    // Again when the number of periods changes, e.g. another range was picked.
+    useLayoutEffect(() => {
+        const el = scrollRef.current;
+        if (scrollToEnd && el)
+            el.scrollLeft = el.scrollWidth;
+    }, [scrollToEnd, periods.length]);
     const upMax = Math.max(0, ...periods.map((p) => p.up));
     const downMax = Math.max(0, ...periods.map((p) => p.down));
     const scale = Math.max(1, upMax, downMax);
@@ -46,5 +57,5 @@ export function FlowChart({ periods, upLabel, downLabel, levelLabel, upHue = "gr
     // line sits in the middle of the rest.
     const levelY = (v) => (levelMax > levelMin ? 88 - ((v - levelMin) / (levelMax - levelMin)) * 58 : 59);
     const sum = (pick) => periods.reduce((total, p) => total + pick(p), 0);
-    return (_jsxs("div", { className: cx("fui-flow", className), children: [_jsxs("ul", { className: "fui-flow__legend", children: [_jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch fui-chart-hue", "data-hue": upHue }), upLabel, " ", _jsx("b", { children: sum((p) => p.up) })] }), _jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch fui-chart-hue", "data-hue": downHue }), downLabel, " ", _jsx("b", { children: sum((p) => p.down) })] }), hasLevel && (_jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch", "data-line": "" }), levelLabel] }))] }), _jsx("div", { className: "fui-flow__scroll", children: _jsxs("div", { className: "fui-flow__plot", style: { "--fui-flow-n": periods.length, "--fui-flow-up": `${(upMax / scale) * PLOT}px`, "--fui-flow-down": `${(downMax / scale) * PLOT}px` }, children: [hasLevel && (_jsx("svg", { className: "fui-flow__line", viewBox: `0 0 ${periods.length} 100`, preserveAspectRatio: "none", "aria-hidden": true, children: _jsx("polyline", { points: periods.map((p, i) => `${i + 0.5},${levelY(p.level)}`).join(" "), vectorEffect: "non-scaling-stroke" }) })), periods.map((p) => (_jsxs("div", { className: "fui-flow__column", children: [hasLevel && (_jsx("div", { className: "fui-flow__band", children: _jsx("span", { className: "fui-flow__level", style: { top: `${levelY(p.level)}%` }, children: _jsx("span", { className: "fui-flow__level-value", children: p.level }) }) })), _jsx("div", { className: "fui-flow__up fui-chart-hue", "data-hue": upHue, children: _jsx(FlowBar, { value: p.up, scale: scale, side: "up", name: p.name, label: upLabel, onClick: p.onUpClick }) }), _jsx("div", { className: "fui-flow__down fui-chart-hue", "data-hue": downHue, children: _jsx(FlowBar, { value: p.down, scale: scale, side: "down", name: p.name, label: downLabel, onClick: p.onDownClick }) }), _jsx("span", { className: "fui-flow__period", children: p.label })] }, p.key)))] }) })] }));
+    return (_jsxs("div", { className: cx("fui-flow", className), children: [_jsxs("ul", { className: "fui-flow__legend", children: [_jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch fui-chart-hue", "data-hue": upHue }), upLabel, " ", _jsx("b", { children: sum((p) => p.up) })] }), _jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch fui-chart-hue", "data-hue": downHue }), downLabel, " ", _jsx("b", { children: sum((p) => p.down) })] }), hasLevel && (_jsxs("li", { children: [_jsx("span", { className: "fui-flow__swatch", "data-line": "" }), levelLabel] }))] }), _jsx("div", { ref: scrollRef, className: "fui-flow__scroll", children: _jsxs("div", { className: "fui-flow__plot", style: { "--fui-flow-n": periods.length, "--fui-flow-up": `${(upMax / scale) * PLOT}px`, "--fui-flow-down": `${(downMax / scale) * PLOT}px` }, children: [hasLevel && (_jsx("svg", { className: "fui-flow__line", viewBox: `0 0 ${periods.length} 100`, preserveAspectRatio: "none", "aria-hidden": true, children: _jsx("polyline", { points: periods.map((p, i) => `${i + 0.5},${levelY(p.level)}`).join(" "), vectorEffect: "non-scaling-stroke" }) })), periods.map((p, i) => (_jsxs("div", { className: "fui-flow__column", children: [hasLevel && (_jsx("div", { className: "fui-flow__band", children: _jsx("span", { className: "fui-flow__level", style: { top: `${levelY(p.level)}%` }, children: (levelValues === "all" || i === 0 || i === periods.length - 1 || p.level !== periods[i - 1].level) && (_jsx("span", { className: "fui-flow__level-value", children: p.level })) }) })), _jsx("div", { className: "fui-flow__up fui-chart-hue", "data-hue": upHue, children: _jsx(FlowBar, { value: p.up, scale: scale, side: "up", name: p.name, label: upLabel, onClick: p.onUpClick }) }), _jsx("div", { className: "fui-flow__down fui-chart-hue", "data-hue": downHue, children: _jsx(FlowBar, { value: p.down, scale: scale, side: "down", name: p.name, label: downLabel, onClick: p.onDownClick }) }), _jsx("span", { className: "fui-flow__period", children: p.label })] }, p.key)))] }) })] }));
 }

@@ -41,11 +41,16 @@ export type FieldProps = {
     changed?: boolean;
     /** Marks the label with a red asterisk: the field must be filled. */
     required?: boolean;
+    /**
+     * `"stack"` (default): the label above the control. `"side"`: the label in a 112px column left of the control and
+     * its note, while the field is at least 560px wide; narrower, it goes back on top.
+     */
+    layout?: "stack" | "side";
     children: ReactNode;
     className?: string;
 };
-/** Label + control + hint/warning/error stacked vertically. */
-export declare function Field({ label, htmlFor, hint, error, warning, changed, required, children, className }: FieldProps): import("react").JSX.Element;
+/** Label + control + hint/warning/error, stacked or with the label on the left. */
+export declare function Field({ label, htmlFor, hint, error, warning, changed, required, layout, children, className }: FieldProps): import("react").JSX.Element;
 type ChoiceLabel = {
     /** Text to the right of the control; wraps both in a clickable `<label>`. */
     label?: ReactNode;

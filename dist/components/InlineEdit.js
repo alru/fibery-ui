@@ -58,8 +58,8 @@ function CancelButton({ disabled, onCancel }) {
     return (_jsx(IconButton, { icon: _jsx(X, {}), size: "sm", "aria-label": t.cancelEdit, title: t.cancelEdit, className: "fui-inline-edit__button", disabled: disabled, onMouseDown: (e) => e.preventDefault(), onClick: onCancel }));
 }
 /** Click and Enter inside never reach the parent, so it works inside clickable rows. */
-export function InlineEdit({ value, children, onSave, label, hint, className }) {
-    const [draft, setDraft] = useState(null);
+export function InlineEdit({ value, children, onSave, label, hint, clearable, placeholder, disabled, startEditing, className, }) {
+    const [draft, setDraft] = useState(startEditing && !disabled ? value : null);
     const { saving, error, setError, run, isBusy } = useInlineSave();
     const close = () => {
         setDraft(null);
@@ -69,11 +69,13 @@ export function InlineEdit({ value, children, onSave, label, hint, className }) 
         if (isBusy() || draft == null)
             return;
         const next = draft.trim();
-        if (!next || next === value)
+        if ((!next && !clearable) || next === value)
             return close();
         if (await run(() => onSave(next)))
             close();
     };
+    // A placeholder only when the app passed nothing of its own to show.
+    const shown = children ?? (value ? value : _jsx("span", { className: "fui-inline-edit__placeholder", children: placeholder ?? "—" }));
     if (draft != null) {
         return (_jsxs("span", { "data-editing": "", className: cx("fui-inline-edit", className), onClick: stop, onKeyDown: stop, children: [_jsxs("span", { className: "fui-inline-edit__row", children: [_jsx(Input, { size: "sm", autoFocus: true, "aria-label": label, value: draft, disabled: saving, invalid: error != null, onChange: (e) => setDraft(e.target.value), onBlur: commit, onKeyDown: (e) => {
                                 if (e.key === "Enter") {
@@ -86,7 +88,7 @@ export function InlineEdit({ value, children, onSave, label, hint, className }) 
                                 }
                             } }), _jsx(CancelButton, { disabled: saving, onCancel: close })] }), (error ?? hint) && _jsx("span", { className: error ? "fui-field__error" : "fui-field__hint", children: error ?? hint })] }));
     }
-    return (_jsxs("span", { className: cx("fui-inline-edit", className), children: [_jsx("span", { className: "fui-inline-edit__value", children: children ?? value }), _jsx(EditButton, { label: label, onEdit: () => setDraft(value) })] }));
+    return (_jsxs("span", { className: cx("fui-inline-edit", className), children: [_jsx("span", { className: "fui-inline-edit__value", children: shown }), !disabled && _jsx(EditButton, { label: label, onEdit: () => setDraft(value) })] }));
 }
 /** Multi-line text edited in place: line breaks kept, Ctrl+Enter or leaving the field saves, Escape cancels. */
 export function InlineTextarea({ value, children, onSave, label, placeholder, disabled, startEditing, required, hint, rows = 4, className, }) {

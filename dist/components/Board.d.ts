@@ -13,6 +13,12 @@ export type BoardColumn<T> = {
     note?: ReactNode;
     /** Starts folded into a 56px strip with the count and the title; a click or a card dragged over opens it. */
     collapsed?: boolean;
+    /**
+     * For a `collapsed` column: whether it is open now, when the app keeps that state (e.g. a link opens it); the board
+     * then only reports clicks through `onOpenChange`. Left out, the board keeps it itself.
+     */
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
     /** Text of an empty column; «Пусто» / "Empty" by default. */
     empty?: ReactNode;
 };

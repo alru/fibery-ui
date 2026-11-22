@@ -51,9 +51,9 @@ function OptionList({ options, tokens, emptyText, separator, nav, onPick }) {
     return (_jsxs("div", { id: nav.listId, role: "listbox", className: "fui-combobox__list", children: [options.length === 0 && emptyText && _jsx("div", { className: "fui-combobox__empty", children: emptyText }), options.map((option, index) => {
                 const caption = option.group !== lastGroup ? option.group : undefined;
                 lastGroup = option.group;
-                return (_jsxs("div", { role: "presentation", children: [caption && _jsx("div", { className: "fui-menu-label", children: caption }), _jsx("div", { id: nav.optionId(index), role: "option", "aria-selected": index === nav.active, "data-highlighted": index === nav.active ? "" : undefined, className: "fui-menu-item", onMouseMove: () => index !== nav.active && nav.setActive(index), 
+                return (_jsxs("div", { role: "presentation", children: [caption && _jsx("div", { className: "fui-menu-label", children: caption }), _jsxs("div", { id: nav.optionId(index), role: "option", "aria-selected": index === nav.active, "data-highlighted": index === nav.active ? "" : undefined, className: "fui-menu-item", onMouseMove: () => index !== nav.active && nav.setActive(index), 
                             // Keep focus in the search field so typing and arrow keys keep working.
-                            onMouseDown: (e) => e.preventDefault(), onClick: () => onPick(option), children: _jsx("span", { className: "fui-menu-item__text", children: _jsx(Highlight, { text: option.text, query: tokens, separator: separator }) }) })] }, option.value));
+                            onMouseDown: (e) => e.preventDefault(), onClick: () => onPick(option), children: [option.leading != null && _jsx("span", { className: "fui-menu-item__leading", children: option.leading }), _jsx("span", { className: "fui-menu-item__text", children: _jsx(Highlight, { text: option.text, query: tokens, separator: separator }) })] })] }, option.value));
             })] }));
 }
 // Value of the synthetic "create" row; cannot clash with real option values, which are ids.

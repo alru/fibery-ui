@@ -21,11 +21,16 @@ Textarea.displayName = "Textarea";
 /** Form label, 12px / 500. */
 export const Label = forwardRef(({ className, ...props }, ref) => (_jsx("label", { ref: ref, className: cx("fui-label", className), ...props })));
 Label.displayName = "Label";
-/** Label + control + hint/warning/error stacked vertically. */
-export function Field({ label, htmlFor, hint, error, warning, changed, required, children, className }) {
+/** Label + control + hint/warning/error, stacked or with the label on the left. */
+export function Field({ label, htmlFor, hint, error, warning, changed, required, layout = "stack", children, className }) {
     const t = useKitTexts();
     const note = error ? (_jsx("p", { className: "fui-field__error", children: error })) : warning ? (_jsx("p", { className: "fui-field__warning", children: warning })) : (hint && _jsx("p", { className: "fui-field__hint", children: hint }));
-    return (_jsxs("div", { className: cx("fui-field", className), "data-changed": changed ? "" : undefined, children: [label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, required && (_jsx("span", { className: "fui-label__required", "aria-label": t.requiredField, children: "*" })), changed && _jsx("span", { className: "fui-visually-hidden", children: t.changedField })] })), children, note] }));
+    const labelEl = label && (_jsxs(Label, { htmlFor: htmlFor, children: [label, required && (_jsx("span", { className: "fui-label__required", "aria-label": t.requiredField, children: "*" })), changed && _jsx("span", { className: "fui-visually-hidden", children: t.changedField })] }));
+    if (layout === "side") {
+        // The outer box is the size container: a container query can't style the element it measures.
+        return (_jsx("div", { className: cx("fui-field-side", className), "data-changed": changed ? "" : undefined, children: _jsxs("div", { className: "fui-field-side__grid", children: [labelEl || _jsx("span", {}), _jsxs("div", { className: "fui-field", children: [children, note] })] }) }));
+    }
+    return (_jsxs("div", { className: cx("fui-field", className), "data-changed": changed ? "" : undefined, children: [labelEl, children, note] }));
 }
 const withLabel = (control, label, className) => label ? (_jsxs("label", { className: cx("fui-choice", className), children: [control, _jsx("span", { children: label })] })) : (control);
 /** 16px checkbox; supports `checked="indeterminate"`. */

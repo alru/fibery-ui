@@ -10,7 +10,7 @@ const FLASH_MS = 900;
  * its count (room for "999", tabular digits); a zero count turns muted and its icon neutral. Below 700px of
  * container width only icons and counts remain.
  */
-export function CountNav({ items, onSelect, scroll = true, className, ...props }) {
+export function CountNav({ items, onSelect, scroll = true, surface = "background", className, ...props }) {
     const t = useKitTexts();
     const sentinel = useRef(null);
     const [stuck, setStuck] = useState(false);
@@ -38,5 +38,5 @@ export function CountNav({ items, onSelect, scroll = true, className, ...props }
             window.setTimeout(() => target.removeAttribute("data-flash"), FLASH_MS);
         }));
     };
-    return (_jsxs(_Fragment, { children: [_jsx("div", { ref: sentinel, className: "fui-count-nav__sentinel", "aria-hidden": true }), _jsx("nav", { "aria-label": props["aria-label"] ?? t.sections, "data-stuck": stuck ? "" : undefined, className: cx("fui-count-nav", className), children: _jsx("div", { className: "fui-count-nav__track", children: items.map((item) => (_jsxs("button", { type: "button", className: "fui-count-nav__item", "data-hue": item.count > 0 ? item.hue : undefined, "data-zero": item.count === 0 ? "" : undefined, title: item.label, "aria-label": `${item.label}: ${item.count}`, onClick: () => select(item.id), children: [item.icon, _jsx("span", { className: "fui-count-nav__label", children: item.label }), _jsx("span", { className: "fui-count-nav__count", children: item.count })] }, item.id))) }) })] }));
+    return (_jsxs(_Fragment, { children: [_jsx("div", { ref: sentinel, className: "fui-count-nav__sentinel", "aria-hidden": true }), _jsx("nav", { "aria-label": props["aria-label"] ?? t.sections, "data-stuck": stuck ? "" : undefined, "data-surface": surface, className: cx("fui-count-nav", className), children: _jsx("div", { className: "fui-count-nav__track", children: items.map((item) => (_jsxs("button", { type: "button", className: "fui-count-nav__item", "data-hue": item.count > 0 ? item.hue : undefined, "data-zero": item.count === 0 ? "" : undefined, title: item.label, "aria-label": `${item.label}: ${item.count}`, onClick: () => select(item.id), children: [item.icon, _jsx("span", { className: "fui-count-nav__label", children: item.label }), _jsx("span", { className: "fui-count-nav__count", children: item.count })] }, item.id))) }) })] }));
 }

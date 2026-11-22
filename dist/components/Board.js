@@ -28,13 +28,17 @@ export function Board({ columns, cardId, renderCard, onMove, canDrag, limit = 50
             next.delete(id);
         return next;
     };
-    const open = (id, on) => setOpened((s) => toggle(s, id, on));
+    const open = (column, on) => {
+        column.onOpenChange?.(on);
+        if (column.open === undefined)
+            setOpened((s) => toggle(s, column.id, on));
+    };
     const endDrag = () => {
         setDrag(null);
         setOver(null);
     };
     return (_jsx("div", { className: cx("fui-board", className), role: "group", "aria-label": label, children: columns.map((column, index) => {
-            const folded = column.collapsed === true && !opened.has(column.id);
+            const folded = column.collapsed === true && !(column.open ?? opened.has(column.id));
             const count = column.count ?? column.cards.length;
             // By position: a column id may hold spaces, and aria-labelledby splits on them.
             const titleId = `${baseId}-column-${index}`;
@@ -48,7 +52,7 @@ export function Board({ columns, cardId, renderCard, onMove, canDrag, limit = 50
                     if (over !== column.id)
                         setOver(column.id);
                     if (folded)
-                        open(column.id, true);
+                        open(column, true);
                 },
                 onDragLeave: (e) => {
                     // Moving onto a child also fires dragleave on the column: only leaving the column itself counts.
@@ -65,12 +69,12 @@ export function Board({ columns, cardId, renderCard, onMove, canDrag, limit = 50
                 },
             };
             if (folded) {
-                return (_jsx("section", { className: "fui-board__column", "data-collapsed": "", "data-drop-target": over === column.id ? "" : undefined, "aria-labelledby": titleId, ...dropProps, children: _jsxs("button", { type: "button", className: "fui-board__strip", "aria-expanded": false, title: t.expandColumn, onClick: () => open(column.id, true), children: [_jsx("span", { className: "fui-board__count", children: count }), _jsx("span", { id: titleId, className: "fui-board__strip-title", children: column.title })] }) }, column.id));
+                return (_jsx("section", { className: "fui-board__column", "data-collapsed": "", "data-drop-target": over === column.id ? "" : undefined, "aria-labelledby": titleId, ...dropProps, children: _jsxs("button", { type: "button", className: "fui-board__strip", "aria-expanded": false, title: t.expandColumn, onClick: () => open(column, true), children: [_jsx("span", { className: "fui-board__count", children: count }), _jsx("span", { id: titleId, className: "fui-board__strip-title", children: column.title })] }) }, column.id));
             }
             const all = showAll.has(column.id);
             const shown = all ? column.cards : column.cards.slice(0, limit);
             const hidden = column.cards.length - shown.length;
-            return (_jsxs("section", { className: "fui-board__column", "data-drop-target": over === column.id ? "" : undefined, "aria-labelledby": titleId, ...dropProps, children: [_jsxs("header", { className: "fui-board__header", children: [_jsxs("div", { className: "fui-board__heading", children: [_jsxs("h3", { id: titleId, className: "fui-board__title", children: [column.title, _jsx("span", { className: "fui-board__count", children: count })] }), column.aside != null && _jsx("span", { className: "fui-board__aside", children: column.aside }), column.collapsed && (_jsx(IconButton, { icon: _jsx(FoldHorizontal, {}), "aria-label": t.collapseColumn, size: "sm", className: "fui-board__fold", onClick: () => open(column.id, false) }))] }), column.note != null && _jsx("div", { className: "fui-board__note", children: column.note })] }), _jsxs("ul", { className: "fui-board__cards", children: [shown.map((card) => {
+            return (_jsxs("section", { className: "fui-board__column", "data-drop-target": over === column.id ? "" : undefined, "aria-labelledby": titleId, ...dropProps, children: [_jsxs("header", { className: "fui-board__header", children: [_jsxs("div", { className: "fui-board__heading", children: [_jsxs("h3", { id: titleId, className: "fui-board__title", children: [column.title, _jsx("span", { className: "fui-board__count", children: count })] }), column.aside != null && _jsx("span", { className: "fui-board__aside", children: column.aside }), column.collapsed && (_jsx(IconButton, { icon: _jsx(FoldHorizontal, {}), "aria-label": t.collapseColumn, size: "sm", className: "fui-board__fold", onClick: () => open(column, false) }))] }), column.note != null && _jsx("div", { className: "fui-board__note", children: column.note })] }), _jsxs("ul", { className: "fui-board__cards", children: [shown.map((card) => {
                                 const id = cardId(card);
                                 const draggable = onMove != null && (canDrag?.(id) ?? true);
                                 return (_jsx("li", { className: "fui-board__card", draggable: draggable, "data-dragging": drag?.cardId === id ? "" : undefined, onDragStart: draggable

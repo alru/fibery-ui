@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import type { Hue } from "./Badge";
 export type BarListItem = {
     key: string;
@@ -63,10 +63,17 @@ export type FlowChartProps = {
     levelLabel?: string;
     upHue?: Hue;
     downHue?: Hue;
+    /**
+     * Which points of the level line print their value: `"all"` (default), or `"changes"` — the first, the last and
+     * every point that differs from the one before, so a long flat stretch doesn't repeat one number.
+     */
+    levelValues?: "all" | "changes";
+    /** When the periods don't fit, start scrolled to the latest ones instead of the earliest. */
+    scrollToEnd?: boolean;
     className?: string;
 };
 /**
  * Per-period flow: `up` bars rise above the axis, `down` bars hang below it, each with its number; an optional level
  * line runs above them with its value at every point. Scrolls sideways when the periods don't fit (36px each at least).
  */
-export declare function FlowChart({ periods, upLabel, downLabel, levelLabel, upHue, downHue, className }: FlowChartProps): import("react").JSX.Element;
+export declare function FlowChart({ periods, upLabel, downLabel, levelLabel, upHue, downHue, levelValues, scrollToEnd, className, }: FlowChartProps): import("react").JSX.Element;

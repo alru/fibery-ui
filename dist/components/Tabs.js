@@ -10,7 +10,7 @@ const VariantContext = createContext("segmented");
 /** Row of tab triggers; `variant` styles the whole row. */
 export const TabsList = forwardRef(({ variant = "segmented", className, ...props }, ref) => (_jsx(VariantContext.Provider, { value: variant, children: _jsx(TabsPrimitive.List, { ref: ref, "data-variant": variant, className: cx("fui-tabs-list", className), ...props }) })));
 TabsList.displayName = "TabsList";
-export const TabsTrigger = forwardRef(({ count, tone = "neutral", className, children, ...props }, ref) => (_jsxs(TabsPrimitive.Trigger, { ref: ref, "data-variant": useContext(VariantContext), className: cx("fui-tabs-trigger", className), ...props, children: [children, count != null && (_jsx("span", { className: "fui-tabs-trigger__count", "data-tone": tone, "data-zero": count === 0 ? "" : undefined, "aria-hidden": count === 0 || undefined, children: count }))] })));
+export const TabsTrigger = forwardRef(({ count, zero = "reserve", tone = "neutral", className, children, ...props }, ref) => (_jsxs(TabsPrimitive.Trigger, { ref: ref, "data-variant": useContext(VariantContext), className: cx("fui-tabs-trigger", className), ...props, children: [children, count != null && !(count === 0 && zero === "hide") && (_jsx("span", { className: "fui-tabs-trigger__count", "data-tone": tone, "data-zero": count === 0 ? "" : undefined, "aria-hidden": count === 0 || undefined, children: count }))] })));
 TabsTrigger.displayName = "TabsTrigger";
 export const TabsContent = forwardRef(({ keepMounted, className, ...props }, ref) => (_jsx(TabsPrimitive.Content, { ref: ref, forceMount: keepMounted || undefined, className: cx("fui-tabs-content", className), ...props })));
 TabsContent.displayName = "TabsContent";

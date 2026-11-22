@@ -8,6 +8,8 @@ export type ComboboxOption = {
     keywords?: string;
     /** Options with the same group are listed under one caption, in order of first appearance. */
     group?: string;
+    /** Drawn before the text in the list and not searched, e.g. an Avatar or a status dot. */
+    leading?: ReactNode;
 };
 export type ComboboxProps = {
     options: ComboboxOption[];

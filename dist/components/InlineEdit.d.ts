@@ -1,18 +1,4 @@
 import { type ReactNode } from "react";
-export type InlineEditProps = {
-    value: string;
-    /** Shown instead of the plain value while not editing, e.g. a Highlight. */
-    children?: ReactNode;
-    /** Called with the trimmed new value when it changed; a rejected promise keeps the field open with the error. */
-    onSave: (value: string) => unknown;
-    /** Accessible name of the pencil button and the field, e.g. "Rename group". */
-    label: string;
-    /** Muted note under the field while editing, e.g. what else the change affects. */
-    hint?: ReactNode;
-    className?: string;
-};
-/** Click and Enter inside never reach the parent, so it works inside clickable rows. */
-export declare function InlineEdit({ value, children, onSave, label, hint, className }: InlineEditProps): import("react").JSX.Element;
 type InlineCommonProps = {
     /** Accessible name of the pencil (or the value button) and the field, e.g. "Edit Expected Close". */
     label: string;
@@ -24,6 +10,19 @@ type InlineCommonProps = {
     startEditing?: boolean;
     className?: string;
 };
+export type InlineEditProps = InlineCommonProps & {
+    value: string;
+    /** Shown instead of the plain value while not editing, e.g. a Highlight. */
+    children?: ReactNode;
+    /** Called with the trimmed new value when it changed; a rejected promise keeps the field open with the error. */
+    onSave: (value: string) => unknown;
+    /** Muted note under the field while editing, e.g. what else the change affects. */
+    hint?: ReactNode;
+    /** An emptied field saves "" (clears the value). By default it cancels, as for a name that must stay. */
+    clearable?: boolean;
+};
+/** Click and Enter inside never reach the parent, so it works inside clickable rows. */
+export declare function InlineEdit({ value, children, onSave, label, hint, clearable, placeholder, disabled, startEditing, className, }: InlineEditProps): import("react").JSX.Element;
 export type InlineTextareaProps = InlineCommonProps & {
     value: string;
     /** Shown instead of the plain value while not editing. */

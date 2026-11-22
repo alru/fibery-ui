@@ -42,9 +42,17 @@ export const ListItem = forwardRef(({ leading, trailing, onClick, multiline, sel
             onClick?.();
         }
     };
-    return (_jsxs("li", { ref: ref, "data-multiline": multiline ? "" : undefined, "data-selected": selected ? "" : undefined, "aria-busy": busy || undefined, className: cx("fui-list-item", className), ...(onClick && { role: "button", tabIndex: 0, onClick, onKeyDown, "aria-pressed": selected, "data-interactive": "" }), ...props, children: [leading, _jsx("span", { className: "fui-list-item__main", children: children }), trailing && _jsx("span", { className: "fui-list-item__trailing", children: trailing }), actions && (_jsx("span", { className: "fui-list-item__actions", "data-visible": actionsVisible ? "" : undefined, style: { "--fui-action-slots": Math.max(actionSlots ?? 0, actions.length) }, onClick: stopEvent, onKeyDown: stopEvent, children: _jsx("fieldset", { className: "fui-list-item__action-set", disabled: busy, children: actions.map((action, i) => (_jsx("span", { className: "fui-list-item__action", "data-main": i === 0 ? "" : undefined, children: i === 0 && busy ? _jsx(Spinner, { size: "sm" }) : action }, i))) }) }))] }));
+    return (_jsxs("li", { ref: ref, "data-multiline": multiline ? "" : undefined, "data-selected": selected ? "" : undefined, "aria-busy": busy || undefined, className: cx("fui-list-item", className), ...(onClick && { role: "button", tabIndex: 0, onClick, onKeyDown, "aria-pressed": selected, "data-interactive": "" }), ...props, children: [leading, _jsx("span", { className: "fui-list-item__main", children: children }), trailing && _jsx("span", { className: "fui-list-item__trailing", children: trailing }), actions && _jsx(ListItemActions, { actions: actions, slots: actionSlots, visible: actionsVisible, busy: busy })] }));
 });
 ListItem.displayName = "ListItem";
+/**
+ * ListItem's actions column on its own, to place inside a multi-line row's content, e.g. at the right of its last
+ * line instead of a column along the whole row. Shows and hides like ListItem `actions`: secondary verbs on hover,
+ * focus inside, a selected row, an open menu and touch screens. Clicks and keys inside never reach the row.
+ */
+export function ListItemActions({ actions, slots, visible, busy, className }) {
+    return (_jsx("span", { className: cx("fui-list-item__actions", className), "data-visible": visible ? "" : undefined, style: { "--fui-action-slots": Math.max(slots ?? 0, actions.length) }, onClick: stopEvent, onKeyDown: stopEvent, children: _jsx("fieldset", { className: "fui-list-item__action-set", disabled: busy, children: actions.map((action, i) => (_jsx("span", { className: "fui-list-item__action", "data-main": i === 0 ? "" : undefined, children: i === 0 && busy ? _jsx(Spinner, { size: "sm" }) : action }, i))) }) }));
+}
 /**
  * Icon-only verb for a ListItem's `actions`: a small ghost IconButton with a tooltip. Also works as a menu trigger
  * (`<DropdownMenuTrigger asChild><RowAction … /></DropdownMenuTrigger>`).

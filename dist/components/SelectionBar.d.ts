@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 export type SelectionBarProps = {
     /** Number of selected rows. */
     count: number;
@@ -17,7 +17,7 @@ export type SelectionBarProps = {
 };
 /**
  * Sticky bar at the bottom of a list with selected rows: «Выбрано: N» / "N selected", the actions, «Снять выбор» /
- * "Clear". Render it while something is selected. The count and the progress have fixed widths with tabular digits,
- * so nothing moves while they change.
+ * "Clear". Render it while something is selected; toasts move up above it while it is open. The count and the
+ * progress have fixed widths with tabular digits, so nothing moves while they change.
  */
 export declare function SelectionBar({ count, actions, onClear, progress, busy, className }: SelectionBarProps): import("react").JSX.Element;

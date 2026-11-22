@@ -835,6 +835,7 @@
   .fui-list-item:hover .fui-list-item__action,
   .fui-list-item:focus-within .fui-list-item__action,
   .fui-list-item[data-selected] .fui-list-item__action,
+  .fui-list-item__action:has([data-state="open"]),
   .fui-list-item__actions[data-visible] .fui-list-item__action { opacity: 1; }
   @media (hover: none) {
     .fui-list-item__action:not([data-main]) { opacity: 1; }
@@ -917,6 +918,8 @@
     transition: box-shadow 0.12s;
   }
   .fui-count-nav[data-stuck] { box-shadow: 0 1px 0 var(--border); }
+  .fui-count-nav[data-surface="muted"] { background: var(--muted); }
+  .fui-count-nav[data-surface="muted"] .fui-count-nav__track { background: var(--card); }
   .fui-count-nav__track {
     display: inline-flex;
     max-width: 100%;
@@ -1540,8 +1543,10 @@
   .fui-label__required { margin-left: 2px; color: var(--destructive); }
   /* Changed-value marker: an accent bar in the left gutter along label, control and note. It sits outside the box,
      so marking a field shifts nothing; forms leave >= 8px of gap or padding to its left. */
-  .fui-field[data-changed] { position: relative; }
-  .fui-field[data-changed]::before {
+  .fui-field[data-changed],
+  .fui-field-side[data-changed] { position: relative; }
+  .fui-field[data-changed]::before,
+  .fui-field-side[data-changed]::before {
     content: "";
     position: absolute;
     top: 0;
@@ -1550,6 +1555,15 @@
     width: 2px;
     border-radius: 1px;
     background: var(--primary);
+  }
+  /* Field layout="side": label column on the left from 560px of the field's own width, on top below that. The label
+     sits level with the first line of a 32px control (28px for size="sm"). */
+  .fui-field-side { container-type: inline-size; }
+  .fui-field-side__grid { display: flex; flex-direction: column; gap: 6px; }
+  @container (min-width: 560px) {
+    .fui-field-side__grid { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 12px; align-items: start; }
+    .fui-field-side__grid > .fui-label { padding-top: 8px; overflow-wrap: anywhere; }
+    .fui-field-side__grid:has(> .fui-field > [data-size="sm"]) > .fui-label { padding-top: 6px; }
   }
   .fui-visually-hidden {
     position: absolute;
@@ -1789,6 +1803,7 @@
   .fui-menu-item[data-variant="destructive"],
   .fui-menu-item[data-variant="destructive"] > svg { color: var(--destructive); }
   .fui-menu-item[data-variant="destructive"][data-highlighted] { background: color-mix(in oklab, var(--destructive) 10%, transparent); }
+  .fui-menu-item__leading { display: flex; flex-shrink: 0; align-items: center; }
   .fui-menu-item__text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fui-menu-item__shortcut { margin-left: auto; padding-left: 16px; color: var(--muted-foreground); font-size: 12px; }
   .fui-menu-item__check { display: flex; margin-left: auto; color: var(--primary); }
@@ -1825,7 +1840,8 @@
   .fui-toasts {
     position: fixed;
     right: 16px;
-    bottom: 16px;
+    /* An open SelectionBar sets the offset to its own height, so toasts stand above it instead of covering it. */
+    bottom: calc(16px + var(--fui-toasts-offset, 0px));
     z-index: 80;
     display: flex;
     flex-direction: column;
@@ -1864,6 +1880,7 @@
     font-weight: 600;
     cursor: pointer;
   }
+  .fui-toast__action + .fui-toast__action { margin-left: -8px; }
   .fui-toast__action:hover { background: color-mix(in oklab, var(--background) 15%, transparent); }
   .fui-toast__action:focus-visible { outline: 2px solid var(--background); outline-offset: 1px; }
   .fui-toast__progress {

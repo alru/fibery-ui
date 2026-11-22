@@ -19,6 +19,11 @@ export type CountNavProps = {
     scroll?: boolean;
     /** «Разделы» / "Sections" by default. */
     "aria-label"?: string;
+    /**
+     * What the sticky row sits on, so its band matches the page: `"background"` (default, white) or `"muted"` (a grey
+     * desk; the anchors' frame turns card-white).
+     */
+    surface?: "background" | "muted";
     className?: string;
 };
 /**
@@ -26,4 +31,4 @@ export type CountNavProps = {
  * its count (room for "999", tabular digits); a zero count turns muted and its icon neutral. Below 700px of
  * container width only icons and counts remain.
  */
-export declare function CountNav({ items, onSelect, scroll, className, ...props }: CountNavProps): import("react").JSX.Element;
+export declare function CountNav({ items, onSelect, scroll, surface, className, ...props }: CountNavProps): import("react").JSX.Element;

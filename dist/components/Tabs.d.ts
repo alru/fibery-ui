@@ -15,6 +15,11 @@ export type TabsTriggerProps = ComponentPropsWithoutRef<typeof TabsPrimitive.Tri
      * tabs never shift; leave it undefined for a tab without a counter. Say what it counts in the tab's `title`.
      */
     count?: number;
+    /**
+     * A 0 counter: `"reserve"` (default) keeps its empty place, so the tabs never shift; `"hide"` drops it, for a tab
+     * whose counter stays at 0 for long and would leave a permanent gap (the tabs then shift when it appears).
+     */
+    zero?: "reserve" | "hide";
     /** `"alert"` — the counter on a red plate, e.g. when overdue work is among it; neutral by default. */
     tone?: "neutral" | "alert";
 };
@@ -24,6 +29,11 @@ export declare const TabsTrigger: import("react").ForwardRefExoticComponent<Omit
      * tabs never shift; leave it undefined for a tab without a counter. Say what it counts in the tab's `title`.
      */
     count?: number;
+    /**
+     * A 0 counter: `"reserve"` (default) keeps its empty place, so the tabs never shift; `"hide"` drops it, for a tab
+     * whose counter stays at 0 for long and would leave a permanent gap (the tabs then shift when it appears).
+     */
+    zero?: "reserve" | "hide";
     /** `"alert"` — the counter on a red plate, e.g. when overdue work is among it; neutral by default. */
     tone?: "neutral" | "alert";
 } & import("react").RefAttributes<HTMLButtonElement>>;

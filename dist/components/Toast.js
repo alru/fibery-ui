@@ -12,10 +12,10 @@ export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([]);
     const show = useCallback((options) => setToasts((list) => [...list, { ...options, id: ++nextId }]), []);
     const dismiss = (id) => setToasts((list) => list.filter((t) => t.id !== id));
-    return (_jsxs(ToastContext.Provider, { value: show, children: [children, createPortal(_jsx("div", { className: "fui-toasts", role: "region", "aria-label": t.notifications, children: toasts.map((t) => (_jsxs("div", { className: "fui-toast", role: "status", children: [_jsx("span", { className: "fui-toast__message", children: t.message }), t.actionLabel && (_jsx("button", { type: "button", className: "fui-toast__action", onClick: () => {
-                                t.onAction?.();
+    return (_jsxs(ToastContext.Provider, { value: show, children: [children, createPortal(_jsx("div", { className: "fui-toasts", role: "region", "aria-label": t.notifications, children: toasts.map((t) => (_jsxs("div", { className: "fui-toast", role: "status", children: [_jsx("span", { className: "fui-toast__message", children: t.message }), [...(t.actionLabel ? [{ label: t.actionLabel, onAction: () => t.onAction?.() }] : []), ...(t.moreActions ?? [])].map((a, i) => (_jsx("button", { type: "button", className: "fui-toast__action", onClick: () => {
+                                a.onAction();
                                 dismiss(t.id);
-                            }, children: t.actionLabel })), _jsx("span", { className: "fui-toast__progress", style: { ["--fui-toast-duration"]: `${t.duration ?? 6000}ms` }, onAnimationEnd: () => dismiss(t.id) })] }, t.id))) }), document.body)] }));
+                            }, children: a.label }, i))), _jsx("span", { className: "fui-toast__progress", style: { ["--fui-toast-duration"]: `${t.duration ?? 6000}ms` }, onAnimationEnd: () => dismiss(t.id) })] }, t.id))) }), document.body)] }));
 }
 /**
  * Returns `toast(options)` to show a notice in the corner, e.g.

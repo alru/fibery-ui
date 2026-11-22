@@ -2,7 +2,7 @@ export { Button, IconButton, type ButtonProps, type IconButtonProps, type Button
 export { CopyButton, type CopyButtonProps } from "./components/CopyButton";
 export { Badge, EnumBadge, OptionBadge, Dot, StageGlyph, Emoji, type BadgeProps, type EmojiProps, type EnumBadgeProps, type OptionBadgeProps, type DotProps, type StageGlyphProps, type Hue, } from "./components/Badge";
 export { fiberyHue, fiberyEmoji, hueFor, emojiRenders, type GlyphProbe } from "./colors";
-export { Avatar, Card, CardHeader, CardContent, List, ListItem, RowAction, PropertyList, Property, PropertyAdd, PropertyGroup, type AvatarProps, type CardProps, type CardHeaderProps, type ListProps, type ListItemProps, type RowActionProps, type PropertyListProps, type PropertyProps, type PropertyAddProps, type PropertyGroupProps, } from "./components/Display";
+export { Avatar, Card, CardHeader, CardContent, List, ListItem, ListItemActions, RowAction, PropertyList, Property, PropertyAdd, PropertyGroup, type AvatarProps, type CardProps, type CardHeaderProps, type ListProps, type ListItemProps, type ListItemActionsProps, type RowActionProps, type PropertyListProps, type PropertyProps, type PropertyAddProps, type PropertyGroupProps, } from "./components/Display";
 export { Timeline, type TimelineItem, type TimelineProps } from "./components/Timeline";
 export { CountNav, type CountNavItem, type CountNavProps } from "./components/CountNav";
 export { ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps } from "./components/Chips";
@@ -25,7 +25,7 @@ export { FiberyUIProvider } from "./components/Provider";
 export { useKitLang } from "./components/KitLang";
 export type { KitLang } from "./i18n";
 export { SelectionBar, type SelectionBarProps } from "./components/SelectionBar";
-export { ToastProvider, useToast, type ToastOptions } from "./components/Toast";
+export { ToastProvider, useToast, type ToastAction, type ToastOptions } from "./components/Toast";
 export { InlineEdit, InlineSelect, InlineDate, InlineTextarea, type InlineEditProps, type InlineSelectProps, type InlineSelectOption, type InlineDateProps, type InlineTextareaProps, } from "./components/InlineEdit";
 export { usePersistentState } from "./components/PersistentState";
 export { useWrapped } from "./components/Wrapped";

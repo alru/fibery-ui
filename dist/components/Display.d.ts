@@ -113,6 +113,23 @@ export declare const ListItem: import("react").ForwardRefExoticComponent<Omit<Li
     /** The row's action is being saved: a spinner in place of the first action, the others disabled. */
     busy?: boolean;
 } & import("react").RefAttributes<HTMLLIElement>>;
+export type ListItemActionsProps = {
+    /** The verbs; the first is the main one and always shows. */
+    actions: ReactNode[];
+    /** Slots (28px each) to reserve, as ListItem's `actionSlots`. */
+    slots?: number;
+    /** Shows every action all the time. */
+    visible?: boolean;
+    /** A spinner in place of the first action, the others disabled. */
+    busy?: boolean;
+    className?: string;
+};
+/**
+ * ListItem's actions column on its own, to place inside a multi-line row's content, e.g. at the right of its last
+ * line instead of a column along the whole row. Shows and hides like ListItem `actions`: secondary verbs on hover,
+ * focus inside, a selected row, an open menu and touch screens. Clicks and keys inside never reach the row.
+ */
+export declare function ListItemActions({ actions, slots, visible, busy, className }: ListItemActionsProps): import("react").JSX.Element;
 export type RowActionProps = Omit<IconButtonProps, "aria-label" | "size" | "variant"> & {
     /** The verb, e.g. "Done": the tooltip and the accessible name. */
     label: string;

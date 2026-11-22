@@ -4,8 +4,14 @@ export type ToastOptions = {
     /** Text of the action button, e.g. "Undo"; the toast closes when it is clicked. */
     actionLabel?: string;
     onAction?: () => void;
+    /** More buttons after the action, e.g. "Schedule"; each closes the toast too. */
+    moreActions?: ToastAction[];
     /** Milliseconds until the toast closes by itself. Default 6000. */
     duration?: number;
+};
+export type ToastAction = {
+    label: string;
+    onAction: () => void;
 };
 /** Renders toasts shown with `useToast`. Already included in FiberyUIProvider. */
 export declare function ToastProvider({ children }: {
