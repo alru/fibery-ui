@@ -1,5 +1,6 @@
 // History of a record as a vertical timeline: a spine through the markers, a time column, the event and its context,
-// the red "now" line between what is planned and what is past, and «Ещё N» under a long history.
+// the red "now" line between what is planned and what is past, an optional row where the record began (the spine ends
+// there), and «Ещё N» under a long history.
 import {Fragment, useState, type KeyboardEvent, type ReactNode} from "react";
 import {cx} from "../cx";
 import {Button} from "./Button";
@@ -38,6 +39,12 @@ export type TimelineProps = {
   limit?: number;
   /** Shown instead of an empty timeline, e.g. "No activities yet" with a button. */
   empty?: ReactNode;
+  /**
+   * The row where the record began, after the last event, e.g. `{time: "16.06.25", label: "Opened"}`: a filled dot
+   * ends the spine there, so a latest-first history reads from "now" down to its start. Shown once every row is
+   * (not while «Ещё N» hides some), and in an otherwise empty timeline too.
+   */
+  start?: {time: ReactNode; label: ReactNode};
   "aria-label"?: string;
   className?: string;
 };
@@ -46,10 +53,10 @@ export type TimelineProps = {
  * Vertical timeline: spine 12px from the left edge, markers in circles of the card color (set
  * `--fui-timeline-bg` on another surface), time column, title with optional second line, muted meta on the right.
  */
-export function Timeline({items, nowIndex, nowLabel, limit = 10, empty, className, ...props}: TimelineProps) {
+export function Timeline({items, nowIndex, nowLabel, limit = 10, empty, start, className, ...props}: TimelineProps) {
   const t = useKitTexts();
   const [all, setAll] = useState(false);
-  if (items.length === 0) return empty ? <div className={cx("fui-timeline__empty", className)}>{empty}</div> : null;
+  if (items.length === 0 && !start) return empty ? <div className={cx("fui-timeline__empty", className)}>{empty}</div> : null;
 
   const shown = all ? items.length : Math.min(limit, items.length);
   const nowAt = nowIndex != null && nowIndex >= 0 && nowIndex <= shown ? nowIndex : null;
@@ -88,7 +95,19 @@ export function Timeline({items, nowIndex, nowLabel, limit = 10, empty, classNam
           </Fragment>
         ))}
         {nowAt === shown && nowLine}
+        {start && shown === items.length && (
+          <li className="fui-timeline__item fui-timeline__start">
+            <span className="fui-timeline__marker">
+              <span className="fui-timeline__start-dot" />
+            </span>
+            <span className="fui-timeline__time">{start.time}</span>
+            <span className="fui-timeline__main">
+              <span className="fui-timeline__title">{start.label}</span>
+            </span>
+          </li>
+        )}
       </ol>
+      {items.length === 0 && empty && <div className="fui-timeline__empty">{empty}</div>}
       {shown < items.length && (
         <Button variant="ghost" size="sm" className="fui-timeline__more" onClick={() => setAll(true)}>
           {t.moreCount(items.length - shown)}
