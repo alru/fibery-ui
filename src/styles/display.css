@@ -945,8 +945,9 @@
 
   /* ─── Table options: flat ring, tinted / sticky header, top-aligned rows, comfortable density, narrow mode ─── */
   .fui-table-wrap[data-flat]:not([data-editing]) { box-shadow: 0 0 0 1px var(--border); }
-  /* A sideways scroll box would keep the header from sticking; clip still rounds the corners. */
-  .fui-table-wrap[data-sticky] { overflow-x: clip; }
+  /* A scroll box would keep the header from sticking, so clip instead. On both axes: clipped on one only, the corners
+     stay square, and the header's and last row's fills cover the rounded ring there. */
+  .fui-table-wrap[data-sticky] { overflow: clip; }
   .fui-table-wrap[data-sticky] thead th {
     position: sticky;
     top: var(--fui-sticky-top, 0px);
