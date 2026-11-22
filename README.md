@@ -428,6 +428,8 @@ formatShortDayTime(date);                                // "24.11.26 14:30"
   <DropdownMenuTrigger asChild><IconButton icon={<MoreHorizontal />} aria-label="Actions" /></DropdownMenuTrigger>
   <DropdownMenuContent>
     <DropdownMenuItem icon={<Pencil />} shortcut="E">Edit</DropdownMenuItem>
+    {/* A muted line under the label; the row grows to fit it. */}
+    <DropdownMenuItem icon={<Archive />} description="Hidden from lists, kept in Fibery">Archive</DropdownMenuItem>
     <DropdownMenuSeparator />
     <DropdownMenuItem icon={<Trash2 />} destructive>Delete</DropdownMenuItem>
   </DropdownMenuContent>
