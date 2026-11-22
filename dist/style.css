@@ -1026,6 +1026,13 @@
   .fui-timeline__item[data-interactive]:focus-visible { outline: none; box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent); }
   /* The "now" row: caption in the time column, the line to the right edge. */
   .fui-timeline__list > .fui-timeline__now { --fui-tl-mid: 10px; min-height: 20px; padding-left: 32px; }
+  /* A quiet "now" inside a feed: it orients, it doesn't alarm — a faint line, the caption in a muted red. */
+  .fui-timeline__now.fui-separator-labeled[data-tone="alert"] > .fui-separator {
+    background: color-mix(in oklab, var(--highlight-red-fg) 25%, transparent);
+  }
+  .fui-timeline__now.fui-separator-labeled[data-tone="alert"] .fui-separator-labeled__text {
+    color: color-mix(in oklab, var(--highlight-red-fg) 70%, var(--muted-foreground));
+  }
   .fui-timeline__more { margin-left: 28px; }
   /* The record's start: the spine ends in a filled dot; the caption is muted, it is not an event. */
   .fui-timeline__start .fui-timeline__title { color: var(--muted-foreground); }
