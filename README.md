@@ -281,6 +281,7 @@ underline and turns to the accent on hover; zero values are a muted dash and nev
 <MetricCard value={41} label="Deals in progress" definition="Open deals past the first contact" compare={{prev: 34, delta: 7}} />
 <MetricCard value={12} label="Due today" definition="Today and overdue up to 30 days" onClick={openToday} />  // whole card is a button
 <MetricCard value={0} label="…" definition="…" loading compare={null} />   // grey block in place of the number
+<MetricCard value={7} label="On hold" definition="Paused with a return date" definitionAs="hint" />  // "?" after the label, definition on hover
 formatDelta(-6);                                        // "−6" (true minus); "+7"; 0 → "0"
 ```
 
