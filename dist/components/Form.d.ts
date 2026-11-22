@@ -43,7 +43,7 @@ export type FieldProps = {
     required?: boolean;
     /**
      * `"stack"` (default): the label above the control. `"side"`: the label in a 112px column left of the control and
-     * its note, while the field is at least 560px wide; narrower, it goes back on top.
+     * its note, while the field is at least 400px wide (a form in a 520px dialog); narrower, it goes back on top.
      */
     layout?: "stack" | "side";
     children: ReactNode;
