@@ -13,6 +13,11 @@ export type MetricCardProps = {
     /** How it is counted, in one line under the label: a number without its definition is a guess. */
     definition: ReactNode;
     /**
+     * `"line"` (default): the definition stays in view under the label. `"hint"`: a "?" after the label shows it on
+     * hover; screen readers still get it with the label.
+     */
+    definitionAs?: "line" | "hint";
+    /**
      * The previous period: «было 11 · ↑ +7». `null` keeps the line's room empty (a period with nothing to compare,
      * e.g. "all time"), so cards don't change height when the period changes; leave it out for metrics that never
      * compare ("right now").
@@ -31,4 +36,4 @@ export type MetricCardProps = {
  * comparison line pinned to the bottom, so cards in a row line up. The change has no color: growth of lost deals is
  * bad and growth of replies is good, so a red/green by sign would lie on half the metrics.
  */
-export declare function MetricCard({ value, label, definition, compare, note, onClick, loading, className }: MetricCardProps): import("react").JSX.Element;
+export declare function MetricCard({ value, label, definition, definitionAs, compare, note, onClick, loading, className, }: MetricCardProps): import("react").JSX.Element;

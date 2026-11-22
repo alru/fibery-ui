@@ -1459,6 +1459,9 @@
   }
   .fui-metric__skeleton { width: 56px; height: 24px; }
   .fui-metric__label { margin-top: 4px; color: var(--foreground); font-size: 14px; font-weight: var(--fui-regular); line-height: 20px; }
+  .fui-metric__hint { display: inline-flex; margin-left: 4px; color: var(--muted-foreground); vertical-align: -2px; cursor: help; }
+  .fui-metric__hint:hover { color: var(--foreground); }
+  .fui-metric__hint > svg { width: 14px; height: 14px; }
   .fui-metric__definition,
   .fui-metric__note { margin-top: 2px; color: var(--muted-foreground); font-size: 12px; font-weight: var(--fui-regular); line-height: 16px; }
   .fui-metric__compare {
