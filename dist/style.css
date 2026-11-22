@@ -1027,6 +1027,9 @@
   /* The "now" row: caption in the time column, the line to the right edge. */
   .fui-timeline__list > .fui-timeline__now { --fui-tl-mid: 10px; min-height: 20px; padding-left: 32px; }
   .fui-timeline__more { margin-left: 28px; }
+  /* The record's start: the spine ends in a filled dot; the caption is muted, it is not an event. */
+  .fui-timeline__start .fui-timeline__title { color: var(--muted-foreground); }
+  .fui-timeline__start-dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--muted-foreground); }
 
   /* ─── SkeletonRows: placeholder rows with the real rows' height and columns ─── */
   .fui-skeleton-rows { display: flex; flex-direction: column; }

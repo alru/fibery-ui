@@ -30,6 +30,15 @@ export type TimelineProps = {
     limit?: number;
     /** Shown instead of an empty timeline, e.g. "No activities yet" with a button. */
     empty?: ReactNode;
+    /**
+     * The row where the record began, after the last event, e.g. `{time: "16.06.25", label: "Opened"}`: a filled dot
+     * ends the spine there, so a latest-first history reads from "now" down to its start. Shown once every row is
+     * (not while «Ещё N» hides some), and in an otherwise empty timeline too.
+     */
+    start?: {
+        time: ReactNode;
+        label: ReactNode;
+    };
     "aria-label"?: string;
     className?: string;
 };
@@ -37,4 +46,4 @@ export type TimelineProps = {
  * Vertical timeline: spine 12px from the left edge, markers in circles of the card color (set
  * `--fui-timeline-bg` on another surface), time column, title with optional second line, muted meta on the right.
  */
-export declare function Timeline({ items, nowIndex, nowLabel, limit, empty, className, ...props }: TimelineProps): import("react").JSX.Element | null;
+export declare function Timeline({ items, nowIndex, nowLabel, limit, empty, start, className, ...props }: TimelineProps): import("react").JSX.Element | null;
