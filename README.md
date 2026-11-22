@@ -236,6 +236,10 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
     title: "Sent the estimate", meta: "✉️ Email · Jane Doe", struck: i.cancelled, onClick: () => edit(i)}))}
 />
 
+// A quiet control that shows only with its row (Timeline item, ListItem, table row, board card): on hover, focus
+// inside, a selected row, while its menu is open; always on touch screens. Hidden, it keeps its place.
+<DropdownMenuTrigger asChild><button className="fui-reveal-on-hover" aria-label="Status">…<ChevronDown /></button></DropdownMenuTrigger>
+
 // Copy icon (20px) after a value: shows on hover of its parent or table row; copies, then a short toast.
 // Clicks and keys don't reach a clickable row around it. Needs FiberyUIProvider (toasts).
 <span className="flex items-center gap-1"><span className="truncate">{email}</span><CopyButton value={email} message="Email скопирован" /></span>

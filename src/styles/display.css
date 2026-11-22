@@ -851,6 +851,14 @@
     font-size: 12px;
     white-space: nowrap;
   }
+  /* fui-reveal-on-hover: a quiet control (a menu chevron, a secondary verb) that shows only with its row: on hover,
+     focus inside, a selected row, while its own menu is open, and always on touch screens. Rows: Timeline items,
+     ListItems, table rows, board cards. It keeps its place while hidden, so nothing moves. */
+  @media (hover: hover) {
+    .fui-reveal-on-hover { opacity: 0; transition: opacity 0.12s ease-out; }
+    :is(.fui-timeline__item, .fui-list-item, tr, .fui-board__card):is(:hover, :focus-within, [data-selected]) .fui-reveal-on-hover,
+    .fui-reveal-on-hover:is(:focus-visible, [data-state="open"], :has([data-state="open"])) { opacity: 1; }
+  }
   .fui-timeline__item[data-interactive] { cursor: pointer; transition: background-color 0.12s; }
   .fui-timeline__item[data-interactive]:hover { background: var(--fui-hover); }
   .fui-timeline__item[data-interactive]:focus-visible { outline: none; box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent); }
