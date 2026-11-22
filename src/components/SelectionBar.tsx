@@ -1,10 +1,19 @@
 // Bar of actions on the rows selected in a list or table: how many are selected, what to do with them, and the
 // progress of a bulk write. Sticks to the bottom of the scrolling area, so it stays at hand in a long list.
-import type {ReactNode} from "react";
+import {useLayoutEffect, useRef, type ReactNode} from "react";
 import {X} from "lucide-react";
 import {cx} from "../cx";
 import {Button} from "./Button";
 import {useKitTexts} from "./KitLang";
+
+// Heights of the open bars; the tallest lifts the toasts (overlay.css, `--fui-toasts-offset`) by itself plus a gap.
+const openBars = new Map<HTMLElement, number>();
+const liftToasts = () => {
+  const tallest = Math.max(0, ...openBars.values());
+  const root = document.documentElement.style;
+  if (tallest) root.setProperty("--fui-toasts-offset", `${tallest + 12}px`);
+  else root.removeProperty("--fui-toasts-offset");
+};
 
 export type SelectionBarProps = {
   /** Number of selected rows. */
@@ -22,14 +31,30 @@ export type SelectionBarProps = {
 
 /**
  * Sticky bar at the bottom of a list with selected rows: «Выбрано: N» / "N selected", the actions, «Снять выбор» /
- * "Clear". Render it while something is selected. The count and the progress have fixed widths with tabular digits,
- * so nothing moves while they change.
+ * "Clear". Render it while something is selected; toasts move up above it while it is open. The count and the
+ * progress have fixed widths with tabular digits, so nothing moves while they change.
  */
 export function SelectionBar({count, actions, onClear, progress, busy, className}: SelectionBarProps) {
   const t = useKitTexts();
   const locked = busy || progress != null;
+  const ref = useRef<HTMLDivElement>(null);
+  // Measured, not assumed: the bar wraps to two lines in a narrow window.
+  useLayoutEffect(() => {
+    const bar = ref.current;
+    if (!bar) return;
+    const observer = new ResizeObserver(() => {
+      openBars.set(bar, bar.offsetHeight);
+      liftToasts();
+    });
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      openBars.delete(bar);
+      liftToasts();
+    };
+  }, []);
   return (
-    <div role="group" aria-label={t.selectionActions} className={cx("fui-selection-bar", className)}>
+    <div ref={ref} role="group" aria-label={t.selectionActions} className={cx("fui-selection-bar", className)}>
       <span className="fui-selection-bar__count" aria-live="polite">
         {t.selected(count)}
       </span>

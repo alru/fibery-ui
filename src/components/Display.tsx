@@ -166,29 +166,50 @@ export const ListItem = forwardRef<HTMLLIElement, ListItemProps>(
         {leading}
         <span className="fui-list-item__main">{children}</span>
         {trailing && <span className="fui-list-item__trailing">{trailing}</span>}
-        {actions && (
-          <span
-            className="fui-list-item__actions"
-            data-visible={actionsVisible ? "" : undefined}
-            style={{"--fui-action-slots": Math.max(actionSlots ?? 0, actions.length)} as CSSProperties}
-            onClick={stopEvent}
-            onKeyDown={stopEvent}
-          >
-            {/* A disabled fieldset disables every button inside, whatever the app put there. */}
-            <fieldset className="fui-list-item__action-set" disabled={busy}>
-              {actions.map((action, i) => (
-                <span key={i} className="fui-list-item__action" data-main={i === 0 ? "" : undefined}>
-                  {i === 0 && busy ? <Spinner size="sm" /> : action}
-                </span>
-              ))}
-            </fieldset>
-          </span>
-        )}
+        {actions && <ListItemActions actions={actions} slots={actionSlots} visible={actionsVisible} busy={busy} />}
       </li>
     );
   },
 );
 ListItem.displayName = "ListItem";
+
+export type ListItemActionsProps = {
+  /** The verbs; the first is the main one and always shows. */
+  actions: ReactNode[];
+  /** Slots (28px each) to reserve, as ListItem's `actionSlots`. */
+  slots?: number;
+  /** Shows every action all the time. */
+  visible?: boolean;
+  /** A spinner in place of the first action, the others disabled. */
+  busy?: boolean;
+  className?: string;
+};
+
+/**
+ * ListItem's actions column on its own, to place inside a multi-line row's content, e.g. at the right of its last
+ * line instead of a column along the whole row. Shows and hides like ListItem `actions`: secondary verbs on hover,
+ * focus inside, a selected row, an open menu and touch screens. Clicks and keys inside never reach the row.
+ */
+export function ListItemActions({actions, slots, visible, busy, className}: ListItemActionsProps) {
+  return (
+    <span
+      className={cx("fui-list-item__actions", className)}
+      data-visible={visible ? "" : undefined}
+      style={{"--fui-action-slots": Math.max(slots ?? 0, actions.length)} as CSSProperties}
+      onClick={stopEvent}
+      onKeyDown={stopEvent}
+    >
+      {/* A disabled fieldset disables every button inside, whatever the app put there. */}
+      <fieldset className="fui-list-item__action-set" disabled={busy}>
+        {actions.map((action, i) => (
+          <span key={i} className="fui-list-item__action" data-main={i === 0 ? "" : undefined}>
+            {i === 0 && busy ? <Spinner size="sm" /> : action}
+          </span>
+        ))}
+      </fieldset>
+    </span>
+  );
+}
 
 export type RowActionProps = Omit<IconButtonProps, "aria-label" | "size" | "variant"> & {
   /** The verb, e.g. "Done": the tooltip and the accessible name. */

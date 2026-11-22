@@ -78,22 +78,44 @@ function CancelButton({disabled, onCancel}: {disabled: boolean; onCancel: () => 
   );
 }
 
-export type InlineEditProps = {
+type InlineCommonProps = {
+  /** Accessible name of the pencil (or the value button) and the field, e.g. "Edit Expected Close". */
+  label: string;
+  /** Shown instead of the empty value, muted; «—» by default. */
+  placeholder?: ReactNode;
+  /** Read-only: the value as plain text, no editing. */
+  disabled?: boolean;
+  /** Opens the editor on mount, e.g. right after PropertyAdd revealed an empty field. */
+  startEditing?: boolean;
+  className?: string;
+};
+
+export type InlineEditProps = InlineCommonProps & {
   value: string;
   /** Shown instead of the plain value while not editing, e.g. a Highlight. */
   children?: ReactNode;
   /** Called with the trimmed new value when it changed; a rejected promise keeps the field open with the error. */
   onSave: (value: string) => unknown;
-  /** Accessible name of the pencil button and the field, e.g. "Rename group". */
-  label: string;
   /** Muted note under the field while editing, e.g. what else the change affects. */
   hint?: ReactNode;
-  className?: string;
+  /** An emptied field saves "" (clears the value). By default it cancels, as for a name that must stay. */
+  clearable?: boolean;
 };
 
 /** Click and Enter inside never reach the parent, so it works inside clickable rows. */
-export function InlineEdit({value, children, onSave, label, hint, className}: InlineEditProps) {
-  const [draft, setDraft] = useState<string | null>(null);
+export function InlineEdit({
+  value,
+  children,
+  onSave,
+  label,
+  hint,
+  clearable,
+  placeholder,
+  disabled,
+  startEditing,
+  className,
+}: InlineEditProps) {
+  const [draft, setDraft] = useState<string | null>(startEditing && !disabled ? value : null);
   const {saving, error, setError, run, isBusy} = useInlineSave();
 
   const close = () => {
@@ -103,9 +125,11 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
   const commit = async () => {
     if (isBusy() || draft == null) return;
     const next = draft.trim();
-    if (!next || next === value) return close();
+    if ((!next && !clearable) || next === value) return close();
     if (await run(() => onSave(next))) close();
   };
+  // A placeholder only when the app passed nothing of its own to show.
+  const shown = children ?? (value ? value : <span className="fui-inline-edit__placeholder">{placeholder ?? "—"}</span>);
 
   if (draft != null) {
     return (
@@ -138,23 +162,11 @@ export function InlineEdit({value, children, onSave, label, hint, className}: In
   }
   return (
     <span className={cx("fui-inline-edit", className)}>
-      <span className="fui-inline-edit__value">{children ?? value}</span>
-      <EditButton label={label} onEdit={() => setDraft(value)} />
+      <span className="fui-inline-edit__value">{shown}</span>
+      {!disabled && <EditButton label={label} onEdit={() => setDraft(value)} />}
     </span>
   );
 }
-
-type InlineCommonProps = {
-  /** Accessible name of the pencil (or the value button) and the field, e.g. "Edit Expected Close". */
-  label: string;
-  /** Shown instead of the empty value, muted; «—» by default. */
-  placeholder?: ReactNode;
-  /** Read-only: the value as plain text, no editing. */
-  disabled?: boolean;
-  /** Opens the editor on mount, e.g. right after PropertyAdd revealed an empty field. */
-  startEditing?: boolean;
-  className?: string;
-};
 
 export type InlineTextareaProps = InlineCommonProps & {
   value: string;

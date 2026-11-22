@@ -82,8 +82,10 @@
   .fui-label__required { margin-left: 2px; color: var(--destructive); }
   /* Changed-value marker: an accent bar in the left gutter along label, control and note. It sits outside the box,
      so marking a field shifts nothing; forms leave >= 8px of gap or padding to its left. */
-  .fui-field[data-changed] { position: relative; }
-  .fui-field[data-changed]::before {
+  .fui-field[data-changed],
+  .fui-field-side[data-changed] { position: relative; }
+  .fui-field[data-changed]::before,
+  .fui-field-side[data-changed]::before {
     content: "";
     position: absolute;
     top: 0;
@@ -92,6 +94,15 @@
     width: 2px;
     border-radius: 1px;
     background: var(--primary);
+  }
+  /* Field layout="side": label column on the left from 560px of the field's own width, on top below that. The label
+     sits level with the first line of a 32px control (28px for size="sm"). */
+  .fui-field-side { container-type: inline-size; }
+  .fui-field-side__grid { display: flex; flex-direction: column; gap: 6px; }
+  @container (min-width: 560px) {
+    .fui-field-side__grid { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 12px; align-items: start; }
+    .fui-field-side__grid > .fui-label { padding-top: 8px; overflow-wrap: anywhere; }
+    .fui-field-side__grid:has(> .fui-field > [data-size="sm"]) > .fui-label { padding-top: 6px; }
   }
   .fui-visually-hidden {
     position: absolute;

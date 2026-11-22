@@ -56,6 +56,7 @@
   .fui-menu-item[data-variant="destructive"],
   .fui-menu-item[data-variant="destructive"] > svg { color: var(--destructive); }
   .fui-menu-item[data-variant="destructive"][data-highlighted] { background: color-mix(in oklab, var(--destructive) 10%, transparent); }
+  .fui-menu-item__leading { display: flex; flex-shrink: 0; align-items: center; }
   .fui-menu-item__text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fui-menu-item__shortcut { margin-left: auto; padding-left: 16px; color: var(--muted-foreground); font-size: 12px; }
   .fui-menu-item__check { display: flex; margin-left: auto; color: var(--primary); }
@@ -92,7 +93,8 @@
   .fui-toasts {
     position: fixed;
     right: 16px;
-    bottom: 16px;
+    /* An open SelectionBar sets the offset to its own height, so toasts stand above it instead of covering it. */
+    bottom: calc(16px + var(--fui-toasts-offset, 0px));
     z-index: 80;
     display: flex;
     flex-direction: column;
@@ -131,6 +133,7 @@
     font-weight: 600;
     cursor: pointer;
   }
+  .fui-toast__action + .fui-toast__action { margin-left: -8px; }
   .fui-toast__action:hover { background: color-mix(in oklab, var(--background) 15%, transparent); }
   .fui-toast__action:focus-visible { outline: 2px solid var(--background); outline-offset: 1px; }
   .fui-toast__progress {
