@@ -95,14 +95,18 @@
     border-radius: 1px;
     background: var(--primary);
   }
-  /* Field layout="side": label column on the left from 560px of the field's own width, on top below that. The label
-     sits level with the first line of a 32px control (28px for size="sm"). */
+  /* Field layout="side": label column on the left from 400px of the field's own width (a 520px dialog leaves 480),
+     on top below that. The label sits level with the middle of the control's first row: 32px inputs, 28px small
+     inputs and segmented controls, 24px chips. */
   .fui-field-side { container-type: inline-size; }
   .fui-field-side__grid { display: flex; flex-direction: column; gap: 6px; }
-  @container (min-width: 560px) {
+  @container (min-width: 400px) {
     .fui-field-side__grid { display: grid; grid-template-columns: 112px minmax(0, 1fr); column-gap: 12px; align-items: start; }
     .fui-field-side__grid > .fui-label { padding-top: 8px; overflow-wrap: anywhere; }
-    .fui-field-side__grid:has(> .fui-field > [data-size="sm"]) > .fui-label { padding-top: 6px; }
+    .fui-field-side__grid:has(> .fui-field > :is([data-size="sm"], .fui-tabs-list, .fui-segmented-field):first-child) > .fui-label {
+      padding-top: 6px;
+    }
+    .fui-field-side__grid:has(> .fui-field > :is(.fui-chips, .fui-quick-date):first-child) > .fui-label { padding-top: 4px; }
   }
   .fui-visually-hidden {
     position: absolute;

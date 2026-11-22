@@ -377,7 +377,7 @@ formatDelta(-6);                                        // "−6" (true minus); 
 <Field label="Email" htmlFor="email" required>   // red asterisk after the label
   <Input id="email" />
 </Field>
-// Label in a 112px column on the left while the field is >= 560px wide (a dialog form); narrower, on top again.
+// Label in a 112px column on the left while the field is >= 400px wide (a form in a 520px dialog); narrower, on top.
 <Field layout="side" label="Channel" hint="…"><ChipGroup … /></Field>
 // Separate 24px chips that wrap, one value, the picked one in the accent. `visible` moves the rest into «ещё ▾»;
 // `deselectable` lets a click on the picked chip clear an optional value. Arrow keys move the choice.
