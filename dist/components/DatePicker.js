@@ -37,12 +37,12 @@ const YEARS_PAGE = 20;
 const yearsPageStart = (year) => Math.floor(year / YEARS_PAGE) * YEARS_PAGE;
 /**
  * Date field: type «24.11.2026» (also 24/11/26, 2411, 2026-11-24…) or pick from a calendar that opens on a click or
- * ↓. The short weekday next to the text follows what is typed. Calendar: weeks from Monday, today ringed, the picked
+ * ↓. The short weekday next to the text follows what is typed (`weekday={false}` leaves it out). Calendar: weeks from Monday, today ringed, the picked
  * day in the accent; the caption drills up to months and years for dates far away. Keys in the calendar: arrows,
  * PageUp / PageDown (a month; with Shift a year), Home / End, Enter, Escape. Text that isn't a date (or is outside
  * `min` / `max`) is dropped on leaving and the old value stays.
  */
-export function DateInput({ value: rawValue, onChange, min, max, required, placeholder, size = "md", invalid, disabled, id, autoFocus, defaultOpen, onBlur, onKeyDown, className, ...aria }) {
+export function DateInput({ value: rawValue, onChange, min, max, required, placeholder, size = "md", invalid, disabled, id, autoFocus, defaultOpen, weekday: showWeekday = true, onBlur, onKeyDown, className, ...aria }) {
     const lang = useKitLang();
     const t = useKitTexts();
     const value = rawValue ?? "";
@@ -235,14 +235,14 @@ export function DateInput({ value: rawValue, onChange, min, max, required, place
     const caption = view === "days" ? `${monthName(lang, cursorMonth)} ${cursorYear}`
         : view === "months" ? String(cursorYear)
             : `${pageStart}–${pageStart + YEARS_PAGE - 1}`;
-    const weekday = shown ? weekdayName(lang, (noon(shown).getDay() + 6) % 7, "short") : "";
+    const weekday = showWeekday && shown ? weekdayName(lang, (noon(shown).getDay() + 6) % 7, "short") : "";
     const monthAllowed = (y, m) => {
         const first = `${y}-${String(m + 1).padStart(2, "0")}-01`;
         const last = addDays(addMonths(first, 1), -1);
         return (!min || last >= min) && (!max || first <= max);
     };
     const yearAllowed = (y) => (!min || `${y}-12-31` >= min) && (!max || `${y}-01-01` <= max);
-    return (_jsxs(Popover, { open: open, onOpenChange: (next) => (next ? openCalendar(false) : close()), children: [_jsx(FieldFrame, { rootRef: rootRef, size: size, invalid: invalid, disabled: disabled, open: open, icon: _jsx(CalendarDays, {}), buttonLabel: t.openCalendar, onButton: () => (open ? close() : openCalendar(false)), onBlur: leave, className: className, note: _jsx("span", { className: "fui-date-field__note", "aria-hidden": true, children: weekday }), children: _jsx("input", { ref: inputRef, id: id, type: "text", autoComplete: "off", spellCheck: false, role: "combobox", "aria-haspopup": "dialog", "aria-expanded": open, "aria-controls": open ? popupId : undefined, "aria-invalid": invalid || undefined, "aria-label": aria["aria-label"], "aria-describedby": aria["aria-describedby"], "aria-required": required || undefined, autoFocus: autoFocus, disabled: disabled, placeholder: placeholder ?? t.datePlaceholder, className: "fui-date-field__input", value: text, onChange: (e) => onTextChange(e.target.value), onFocus: () => (inCalendar.current = false), onClick: () => !open && openCalendar(false), onKeyDown: onInputKey }) }), _jsxs(PopoverContent, { ref: contentRef, id: popupId, role: "dialog", "aria-label": t.chooseDate, align: "start", className: "fui-calendar", 
+    return (_jsxs(Popover, { open: open, onOpenChange: (next) => (next ? openCalendar(false) : close()), children: [_jsx(FieldFrame, { rootRef: rootRef, size: size, invalid: invalid, disabled: disabled, open: open, icon: _jsx(CalendarDays, {}), buttonLabel: t.openCalendar, onButton: () => (open ? close() : openCalendar(false)), onBlur: leave, className: className, note: showWeekday && (_jsx("span", { className: "fui-date-field__note", "aria-hidden": true, children: weekday })), children: _jsx("input", { ref: inputRef, id: id, type: "text", autoComplete: "off", spellCheck: false, role: "combobox", "aria-haspopup": "dialog", "aria-expanded": open, "aria-controls": open ? popupId : undefined, "aria-invalid": invalid || undefined, "aria-label": aria["aria-label"], "aria-describedby": aria["aria-describedby"], "aria-required": required || undefined, autoFocus: autoFocus, disabled: disabled, placeholder: placeholder ?? t.datePlaceholder, className: "fui-date-field__input", value: text, onChange: (e) => onTextChange(e.target.value), onFocus: () => (inCalendar.current = false), onClick: () => !open && openCalendar(false), onKeyDown: onInputKey }) }), _jsxs(PopoverContent, { ref: contentRef, id: popupId, role: "dialog", "aria-label": t.chooseDate, align: "start", className: "fui-calendar", 
                 // The caret stays in the text field until the keyboard moves into the calendar.
                 onOpenAutoFocus: (e) => {
                     e.preventDefault();

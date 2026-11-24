@@ -28,15 +28,20 @@ export type DateInputProps = FieldCommonProps & {
     max?: string;
     /** Opens the calendar on mount, e.g. right after the user asked to edit the date. */
     defaultOpen?: boolean;
+    /**
+     * The short weekday after the date; on by default (deadlines, meetings). `false` leaves it out where it is noise,
+     * e.g. a birth date or a range filter.
+     */
+    weekday?: boolean;
 };
 /**
  * Date field: type «24.11.2026» (also 24/11/26, 2411, 2026-11-24…) or pick from a calendar that opens on a click or
- * ↓. The short weekday next to the text follows what is typed. Calendar: weeks from Monday, today ringed, the picked
+ * ↓. The short weekday next to the text follows what is typed (`weekday={false}` leaves it out). Calendar: weeks from Monday, today ringed, the picked
  * day in the accent; the caption drills up to months and years for dates far away. Keys in the calendar: arrows,
  * PageUp / PageDown (a month; with Shift a year), Home / End, Enter, Escape. Text that isn't a date (or is outside
  * `min` / `max`) is dropped on leaving and the old value stays.
  */
-export declare function DateInput({ value: rawValue, onChange, min, max, required, placeholder, size, invalid, disabled, id, autoFocus, defaultOpen, onBlur, onKeyDown, className, ...aria }: DateInputProps): import("react").JSX.Element;
+export declare function DateInput({ value: rawValue, onChange, min, max, required, placeholder, size, invalid, disabled, id, autoFocus, defaultOpen, weekday: showWeekday, onBlur, onKeyDown, className, ...aria }: DateInputProps): import("react").JSX.Element;
 export type TimeInputProps = FieldCommonProps & {
     /** "HH:MM", 24-hour, as the native time input passes it; "" or `null` — empty. */
     value: string | null | undefined;
