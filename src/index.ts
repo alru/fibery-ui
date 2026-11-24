@@ -42,6 +42,7 @@ export {
   type PropertyAddProps,
   type PropertyGroupProps,
 } from "./components/Display";
+export {RelationLink, type RelationLinkProps} from "./components/RelationLink";
 export {Timeline, type TimelineItem, type TimelineProps} from "./components/Timeline";
 export {CountNav, type CountNavItem, type CountNavProps} from "./components/CountNav";
 export {ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps} from "./components/Chips";
