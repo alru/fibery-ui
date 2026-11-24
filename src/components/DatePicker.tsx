@@ -140,11 +140,16 @@ export type DateInputProps = FieldCommonProps & {
   max?: string;
   /** Opens the calendar on mount, e.g. right after the user asked to edit the date. */
   defaultOpen?: boolean;
+  /**
+   * The short weekday after the date; on by default (deadlines, meetings). `false` leaves it out where it is noise,
+   * e.g. a birth date or a range filter.
+   */
+  weekday?: boolean;
 };
 
 /**
  * Date field: type «24.11.2026» (also 24/11/26, 2411, 2026-11-24…) or pick from a calendar that opens on a click or
- * ↓. The short weekday next to the text follows what is typed. Calendar: weeks from Monday, today ringed, the picked
+ * ↓. The short weekday next to the text follows what is typed (`weekday={false}` leaves it out). Calendar: weeks from Monday, today ringed, the picked
  * day in the accent; the caption drills up to months and years for dates far away. Keys in the calendar: arrows,
  * PageUp / PageDown (a month; with Shift a year), Home / End, Enter, Escape. Text that isn't a date (or is outside
  * `min` / `max`) is dropped on leaving and the old value stays.
@@ -162,6 +167,7 @@ export function DateInput({
   id,
   autoFocus,
   defaultOpen,
+  weekday: showWeekday = true,
   onBlur,
   onKeyDown,
   className,
@@ -358,7 +364,7 @@ export function DateInput({
     : view === "months" ? String(cursorYear)
     : `${pageStart}–${pageStart + YEARS_PAGE - 1}`;
 
-  const weekday = shown ? weekdayName(lang, (noon(shown).getDay() + 6) % 7, "short") : "";
+  const weekday = showWeekday && shown ? weekdayName(lang, (noon(shown).getDay() + 6) % 7, "short") : "";
   const monthAllowed = (y: number, m: number) => {
     const first = `${y}-${String(m + 1).padStart(2, "0")}-01`;
     const last = addDays(addMonths(first, 1), -1);
@@ -380,9 +386,11 @@ export function DateInput({
         onBlur={leave}
         className={className}
         note={
-          <span className="fui-date-field__note" aria-hidden>
-            {weekday}
-          </span>
+          showWeekday && (
+            <span className="fui-date-field__note" aria-hidden>
+              {weekday}
+            </span>
+          )
         }
       >
         <input

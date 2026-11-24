@@ -402,6 +402,7 @@ formatDelta(-6);                                        // "−6" (true minus); 
   <DateInput id="close" className="w-48" value={close} onChange={setClose} />
 </Field>
 <DateInput required min="2026-01-01" max="2026-12-31" … />   // required: no «Очистить», emptying gives the value back
+<DateInput weekday={false} … />                     // no «вт» after the date: birth dates, range filters
 <TimeInput size="sm" aria-label="Time" value={time} onChange={setTime} step={30} />   // list every 30 min (15 by default)
 
 // The one date format of lists and tables: dd.mm.yy, the same in both languages. A calendar day string stays that
