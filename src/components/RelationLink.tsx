@@ -3,7 +3,7 @@
 // TanStack's <Link>) instead of rendering an <a>.
 import {cloneElement, forwardRef, isValidElement, type AnchorHTMLAttributes, type ReactElement, type ReactNode} from "react";
 import {Slot} from "@radix-ui/react-slot";
-import {ArrowRight} from "lucide-react";
+import {ArrowUpRight} from "lucide-react";
 import {cx} from "../cx";
 
 export type RelationLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -22,7 +22,7 @@ const content = (name: ReactNode) => (
   <>
     <span className="fui-relation-link__name">{name}</span>
     {"⁠"}
-    <ArrowRight className="fui-relation-link__arrow" aria-hidden />
+    <ArrowUpRight className="fui-relation-link__arrow" aria-hidden />
   </>
 );
 
