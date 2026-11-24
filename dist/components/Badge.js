@@ -3,15 +3,16 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // with an option's own color (EnumBadge), 8px dots (Dot), the progress ring of a workflow state (StageGlyph) and emoji
 // that are left out where the browser can't draw them (Emoji).
 import { forwardRef } from "react";
-import { X } from "lucide-react";
+import { CircleHelp, X } from "lucide-react";
 import { cx } from "../cx";
 import { emojiRenders, fiberyEmoji, fiberyHue } from "../colors";
 import { sectorPath } from "../glyphs";
 import { useKitTexts } from "./KitLang";
+import { Tooltip } from "./Overlay";
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
-export const Badge = forwardRef(({ hue, variant = "soft", caps, shape = "rect", wrap, onRemove, removeLabel, className, children, ...props }, ref) => {
+export const Badge = forwardRef(({ hue, variant = "soft", caps, shape = "rect", wrap, hint, onRemove, removeLabel, className, children, ...props }, ref) => {
     const t = useKitTexts();
-    return (_jsxs("span", { ref: ref, "data-hue": hue, "data-variant": variant, "data-caps": caps ? "" : undefined, "data-shape": shape === "pill" ? "pill" : undefined, "data-wrap": wrap ? "" : undefined, className: cx("fui-badge", className), ...props, children: [children, onRemove && (_jsx("button", { type: "button", className: "fui-badge__remove", "aria-label": removeLabel ?? t.remove, onClick: onRemove, children: _jsx(X, {}) }))] }));
+    return (_jsxs("span", { ref: ref, "data-hue": hue, "data-variant": variant, "data-caps": caps ? "" : undefined, "data-shape": shape === "pill" ? "pill" : undefined, "data-wrap": wrap ? "" : undefined, className: cx("fui-badge", className), ...props, children: [children, hint != null && hint !== "" && (_jsx(Tooltip, { content: hint, children: _jsx("span", { className: "fui-badge__hint", tabIndex: 0, role: "img", "aria-label": typeof hint === "string" ? hint : undefined, children: _jsx(CircleHelp, { "aria-hidden": true }) }) })), onRemove && (_jsx("button", { type: "button", className: "fui-badge__remove", "aria-label": removeLabel ?? t.remove, onClick: onRemove, children: _jsx(X, {}) }))] }));
 });
 Badge.displayName = "Badge";
 /**
@@ -31,13 +32,13 @@ Dot.displayName = "Dot";
  * and dark themes work): `fiberyHue(color)` picks the hue, `fiberyEmoji(icon)` the emoji (left out where the browser
  * can't draw it). No color → neutral badge (or a grey dot).
  */
-export const OptionBadge = forwardRef(({ name, color, icon, fallbackHue, variant = "soft", glyph, shape = "rect", wrap, className, ...props }, ref) => {
+export const OptionBadge = forwardRef(({ name, color, icon, fallbackHue, variant = "soft", glyph, shape = "rect", wrap, hint, className, ...props }, ref) => {
     const hue = fiberyHue(color) ?? fallbackHue;
     const mark = glyph ?? _jsx(Emoji, { char: fiberyEmoji(icon) });
     if (variant === "dot") {
         return (_jsxs("span", { ref: ref, "data-wrap": wrap ? "" : undefined, className: cx("fui-option-dot", className), ...props, children: [_jsx(Dot, { hue: hue ?? "grey" }), mark, _jsx("span", { className: "fui-option-dot__name", children: name })] }));
     }
-    return (_jsxs(Badge, { ref: ref, hue: hue, variant: variant, shape: shape, wrap: wrap ?? shape === "pill", className: cx("fui-option-badge", className), ...props, children: [mark, _jsx("span", { className: "fui-option-badge__name", children: name })] }));
+    return (_jsxs(Badge, { ref: ref, hue: hue, variant: variant, shape: shape, wrap: wrap ?? shape === "pill", hint: hint, className: cx("fui-option-badge", className), ...props, children: [mark, _jsx("span", { className: "fui-option-badge__name", children: name })] }));
 });
 OptionBadge.displayName = "OptionBadge";
 /**

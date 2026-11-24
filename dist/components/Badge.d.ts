@@ -18,6 +18,11 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
      * (a narrow property column). Nothing is ever cut with "…".
      */
     wrap?: boolean;
+    /**
+     * What the value means, behind a "?" at the end of the badge (on hover and keyboard focus): one pill instead of a
+     * pill with a separate "?" beside it.
+     */
+    hint?: ReactNode;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
     /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -41,6 +46,11 @@ export declare const Badge: import("react").ForwardRefExoticComponent<HTMLAttrib
      * (a narrow property column). Nothing is ever cut with "…".
      */
     wrap?: boolean;
+    /**
+     * What the value means, behind a "?" at the end of the badge (on hover and keyboard focus): one pill instead of a
+     * pill with a separate "?" beside it.
+     */
+    hint?: ReactNode;
     /** Adds a × button, e.g. for an active filter chip. */
     onRemove?: () => void;
     /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -110,6 +120,8 @@ export type OptionBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "
     shape?: "rect" | "pill";
     /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
     wrap?: boolean;
+    /** The option's meaning behind a "?" inside the badge (see Badge); not for the `"dot"` variant. */
+    hint?: ReactNode;
 };
 /**
  * A Fibery select or workflow option in the owner's colors and emoji, drawn with the theme's highlight hues (so light
@@ -136,6 +148,8 @@ export declare const OptionBadge: import("react").ForwardRefExoticComponent<Omit
     shape?: "rect" | "pill";
     /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
     wrap?: boolean;
+    /** The option's meaning behind a "?" inside the badge (see Badge); not for the `"dot"` variant. */
+    hint?: ReactNode;
 } & import("react").RefAttributes<HTMLSpanElement>>;
 export type StageGlyphProps = {
     /**
