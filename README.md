@@ -101,6 +101,7 @@ const lang = useKitLang();                             // inside the provider, e
 <Badge shape="pill" hue="violet">Proposed</Badge>        // pill: round ends, medium weight — a state in lists and tables
 <Badge shape="pill" variant="outline"><Emoji char="✉️" />Email</Badge>   // neutral outline pill: an attribute chip
 <Badge shape="pill" wrap>Inbound: Referral from partner</Badge>          // wraps inside once wider than its container, never "…"
+<Badge shape="pill" hue="blue" hint="Sent to the client">Proposed</Badge>  // the meaning behind a "?" inside the pill
 <Emoji char={fiberyEmoji(channel.icon)} />               // 12px in a 14px box; nothing where the browser can't draw it
 <EnumBadge name={state["enum/name"]} color={state["enum/color"]} />            // dot + name; a long name ends with "…" at its container's width
 <EnumBadge wrap name={state["enum/name"]} color={state["enum/color"]} />       // …or wraps, the dot at the first line
@@ -144,6 +145,7 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
 <OptionBadge variant="dot" name="Inbound: Website Form" color="#FBA32F" />     // dot + text: an attribute
 <OptionBadge shape="pill" name="Potential Client" color="#199EE3" />           // pill; its name wraps by default (wrap={false} to cut)
 <OptionBadge variant="dot" wrap name="High (60-80%)" color="#4FAF54" />        // dot + text that wraps instead of "…"
+<OptionBadge shape="pill" name="Lost" hint="No reply after three follow-ups" />  // hint: "?" inside the badge
 <OptionBadge name="Qualified" color={null} fallbackHue="aqua"                   // the app's own code while Fibery has none
   glyph={<StageGlyph type="started" step={3} steps={6} />} />
 
