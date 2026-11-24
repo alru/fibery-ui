@@ -18,6 +18,12 @@
     white-space: nowrap;
   }
   .fui-badge > svg { width: 12px; height: 12px; }
+  /* Hint "?" inside a badge: the badge's own text color, quieter until hovered or focused. */
+  .fui-badge__hint { display: inline-flex; flex-shrink: 0; align-self: center; margin-right: -2px; border-radius: 999px; opacity: 0.6; cursor: help; }
+  .fui-badge__hint:hover { opacity: 1; }
+  .fui-badge__hint:focus-visible { opacity: 1; outline: none; box-shadow: var(--fui-focus-ring); }
+  .fui-badge__hint > svg { width: 12px; height: 12px; }
+  .fui-properties .fui-property__value .fui-badge__hint > svg { width: 14px; height: 14px; }
   .fui-badge:has(> .fui-badge__remove) { padding-right: 2px; }
   .fui-badge__remove {
     display: inline-flex;

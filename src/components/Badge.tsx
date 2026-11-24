@@ -2,11 +2,12 @@
 // with an option's own color (EnumBadge), 8px dots (Dot), the progress ring of a workflow state (StageGlyph) and emoji
 // that are left out where the browser can't draw them (Emoji).
 import {forwardRef, type HTMLAttributes, type ReactNode} from "react";
-import {X} from "lucide-react";
+import {CircleHelp, X} from "lucide-react";
 import {cx} from "../cx";
 import {emojiRenders, fiberyEmoji, fiberyHue, type Hue} from "../colors";
 import {sectorPath} from "../glyphs";
 import {useKitTexts} from "./KitLang";
+import {Tooltip} from "./Overlay";
 
 export type {Hue};
 
@@ -27,6 +28,11 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
    * (a narrow property column). Nothing is ever cut with "…".
    */
   wrap?: boolean;
+  /**
+   * What the value means, behind a "?" at the end of the badge (on hover and keyboard focus): one pill instead of a
+   * pill with a separate "?" beside it.
+   */
+  hint?: ReactNode;
   /** Adds a × button, e.g. for an active filter chip. */
   onRemove?: () => void;
   /** Accessible label of the × button; «Убрать» / "Remove" by default. */
@@ -35,7 +41,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 
 /** Small label colored with the workspace highlight palette (follows light/dark theme). */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({hue, variant = "soft", caps, shape = "rect", wrap, onRemove, removeLabel, className, children, ...props}, ref) => {
+  ({hue, variant = "soft", caps, shape = "rect", wrap, hint, onRemove, removeLabel, className, children, ...props}, ref) => {
     const t = useKitTexts();
     return (
       <span
@@ -49,6 +55,13 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         {...props}
       >
         {children}
+        {hint != null && hint !== "" && (
+          <Tooltip content={hint}>
+            <span className="fui-badge__hint" tabIndex={0} role="img" aria-label={typeof hint === "string" ? hint : undefined}>
+              <CircleHelp aria-hidden />
+            </span>
+          </Tooltip>
+        )}
         {onRemove && (
           <button type="button" className="fui-badge__remove" aria-label={removeLabel ?? t.remove} onClick={onRemove}>
             <X />
@@ -139,6 +152,8 @@ export type OptionBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "
   shape?: "rect" | "pill";
   /** A long name wraps instead of ending with "…". Default: on for pills, off otherwise. */
   wrap?: boolean;
+  /** The option's meaning behind a "?" inside the badge (see Badge); not for the `"dot"` variant. */
+  hint?: ReactNode;
 };
 
 /**
@@ -147,7 +162,7 @@ export type OptionBadgeProps = Omit<HTMLAttributes<HTMLSpanElement>, "color" | "
  * can't draw it). No color → neutral badge (or a grey dot).
  */
 export const OptionBadge = forwardRef<HTMLSpanElement, OptionBadgeProps>(
-  ({name, color, icon, fallbackHue, variant = "soft", glyph, shape = "rect", wrap, className, ...props}, ref) => {
+  ({name, color, icon, fallbackHue, variant = "soft", glyph, shape = "rect", wrap, hint, className, ...props}, ref) => {
     const hue = fiberyHue(color) ?? fallbackHue;
     const mark = glyph ?? <Emoji char={fiberyEmoji(icon)} />;
     if (variant === "dot") {
@@ -166,6 +181,7 @@ export const OptionBadge = forwardRef<HTMLSpanElement, OptionBadgeProps>(
         variant={variant}
         shape={shape}
         wrap={wrap ?? shape === "pill"}
+        hint={hint}
         className={cx("fui-option-badge", className)}
         {...props}
       >
