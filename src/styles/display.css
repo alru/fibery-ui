@@ -257,9 +257,15 @@
   .fui-property-group__toggle[aria-expanded="true"] .fui-property-group__chevron { rotate: 180deg; }
   @media (prefers-reduced-motion: reduce) { .fui-property-group__chevron { transition: none; } }
   .fui-property-group__actions { display: flex; gap: 4px; }
-  .fui-property-group .fui-properties { grid-template-columns: minmax(112px, 148px) minmax(0, 1fr); }
-  .fui-property-group .fui-property__label { min-height: 28px; font-size: 13px; }
-  .fui-property-group .fui-property__value { min-height: 28px; font-weight: 500; }
+  /* Rows 32px apart by 4px: a card's fields read as separate lines, not a dense block. */
+  .fui-property-group .fui-properties { grid-template-columns: minmax(112px, 148px) minmax(0, 1fr); row-gap: 4px; }
+  .fui-property-group .fui-property__label { min-height: 32px; font-size: 13px; }
+  .fui-property-group .fui-property__value { min-height: 32px; font-weight: 500; }
+  /* A badge as a field's value (an option pill, a channel, a direction) speaks in the value's own 14px: text of two
+     sizes side by side in one column reads badly. */
+  .fui-properties .fui-property__value .fui-badge { min-height: 24px; height: auto; padding: 2px 8px; font-size: 14px; line-height: 20px; }
+  .fui-properties .fui-property__value .fui-badge[data-shape="pill"] { border-radius: 12px; }
+  .fui-properties .fui-property__value .fui-badge > svg { width: 14px; height: 14px; margin-top: 0; align-self: center; }
 
   /* ─── Callout: a highlight-palette note; the icon takes the text color ─── */
   .fui-callout {

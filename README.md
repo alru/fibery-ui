@@ -291,7 +291,8 @@ formatDelta(-6);                                        // "−6" (true minus); 
 </PropertyList>
 
 // Titled block of a details card: bold title with an icon, a hairline above every group but the first,
-// denser rows with smaller muted labels and heavier values. Children: a PropertyList, form fields, anything.
+// 32px rows 4px apart with smaller muted labels and heavier values. Children: a PropertyList, form fields, anything.
+// A badge as a property's value (option pill, chip) takes the value's 14px, so one column has one text size.
 <PropertyGroup icon={<Briefcase />} title="Работа" actions={<IconButton … />}>
   <PropertyList>…</PropertyList>
 </PropertyGroup>
