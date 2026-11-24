@@ -8,6 +8,7 @@ import {ChevronDown, Pencil, X} from "lucide-react";
 import {cx} from "../cx";
 import {formatQuickDate, fromDateInputs} from "../dates";
 import {IconButton} from "./Button";
+import {DateInput} from "./DatePicker";
 import {Input, Textarea} from "./Form";
 import {SelectContent, SelectItem, SelectSeparator} from "./Select";
 import {Spinner} from "./States";
@@ -259,7 +260,10 @@ export type InlineDateProps = InlineCommonProps & {
   hint?: ReactNode;
 };
 
-/** Date edited in place with the browser's date input: Enter or leaving the field saves, Escape cancels. */
+/**
+ * Date edited in place with the kit's DateInput, its calendar open at once: a picked day saves; typed text saves on
+ * Enter or on leaving the field; Escape (after closing the calendar) cancels.
+ */
 export function InlineDate({
   value,
   children,
@@ -273,40 +277,44 @@ export function InlineDate({
   className,
 }: InlineDateProps) {
   const lang = useKitLang();
-  const [draft, setDraft] = useState<string | null>(startEditing && !disabled ? (value ?? "") : null);
+  const [editing, setEditing] = useState(Boolean(startEditing && !disabled));
   const {saving, error, setError, run, isBusy} = useInlineSave();
   const close = () => {
-    setDraft(null);
+    setEditing(false);
     setError(null);
   };
-  const commit = async () => {
-    if (isBusy() || draft == null) return;
-    if (draft === (value ?? "") || (required && !draft)) return close();
-    if (await run(() => onSave(draft || null))) close();
+  // DateInput reports only real changes: a pick, Enter, Clear or leaving typed text.
+  const commit = async (next: string) => {
+    if (isBusy()) return;
+    if (next === (value ?? "") || (required && !next)) return close();
+    if (await run(() => onSave(next || null))) close();
   };
   const date = value ? fromDateInputs(value) : null;
   const shown =
     children ??
     (date ? formatQuickDate(date, lang, false) : <span className="fui-inline-edit__placeholder">{placeholder ?? value ?? "—"}</span>);
 
-  if (draft != null) {
+  if (editing) {
     return (
       <span data-editing="" className={cx("fui-inline-edit", className)} onClick={stop} onKeyDown={stop}>
         <span className="fui-inline-edit__row">
-          <Input
-            type="date"
+          <DateInput
             size="sm"
             autoFocus
+            defaultOpen
             aria-label={label}
-            value={draft}
+            value={value}
+            required={required}
             disabled={saving}
             invalid={error != null}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={commit}
+            onChange={commit}
+            // A save in flight decides itself whether the editor closes.
+            onBlur={() => !isBusy() && close()}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                commit();
+                // DateInput has already saved a changed value; Enter on an unchanged one just closes.
+                if (!isBusy()) close();
               } else if (e.key === "Escape") {
                 e.preventDefault();
                 close();
@@ -322,7 +330,7 @@ export function InlineDate({
   return (
     <span className={cx("fui-inline-edit", className)}>
       <span className="fui-inline-edit__value">{shown}</span>
-      {!disabled && <EditButton label={label} onEdit={() => setDraft(value ?? "")} />}
+      {!disabled && <EditButton label={label} onEdit={() => setEditing(true)} />}
     </span>
   );
 }
