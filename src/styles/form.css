@@ -69,7 +69,7 @@
   .fui-inline-edit .fui-inline-edit__button:focus-visible { opacity: 1; }
   .fui-inline-edit[data-editing] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; width: 100%; }
   .fui-inline-edit__row { display: flex; align-items: center; gap: 4px; }
-  .fui-inline-edit__row > .fui-input { flex: 1; min-width: 0; margin: -4px 0; }
+  .fui-inline-edit__row > :is(.fui-input, .fui-date-field) { flex: 1; min-width: 0; margin: -4px 0; }
 
   /* Sized by content, unlike full-width inputs: sits in a toolbar next to other filters. */
   .fui-multiselect { width: auto; flex-shrink: 0; }
@@ -266,8 +266,8 @@
   /* ─── QuickDate: chips, the inputs behind «Дата…», the resolved date as a quiet link ─── */
   .fui-quick-date { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
   .fui-quick-date__inputs { display: flex; flex-wrap: wrap; gap: 6px; }
-  .fui-quick-date__inputs > .fui-input[type="date"] { width: 152px; }
-  .fui-quick-date__inputs > .fui-input[type="time"] { width: 104px; }
+  .fui-quick-date__inputs > .fui-date-field { width: 144px; }
+  .fui-quick-date__inputs > .fui-date-field--time { width: 88px; }
   .fui-quick-date__resolved {
     padding: 0;
     border: 0;
@@ -286,4 +286,180 @@
   .fui-quick-date__resolved:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
   .fui-quick-date__resolved:disabled { cursor: default; text-decoration: none; }
   .fui-quick-date[data-invalid] .fui-quick-date__resolved { color: var(--destructive); }
+}
+
+@layer components {
+  /* ─── DateInput / TimeInput: the Input's ring around a text field, a muted note and the popover button. Typing never
+     changes the frame's size, and the note keeps a fixed slot, so nothing moves. ─── */
+  .fui-date-field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--background);
+    box-shadow: 0 0 0 1px var(--input);
+    transition: box-shadow 0.12s;
+  }
+  .fui-date-field:hover { box-shadow: 0 0 0 1px var(--fui-line-strong); }
+  .fui-date-field:focus-within,
+  .fui-date-field[data-state="open"] {
+    box-shadow: 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent);
+  }
+  .fui-date-field[data-invalid] { box-shadow: 0 0 0 1px var(--destructive); }
+  .fui-date-field[data-invalid]:focus-within {
+    box-shadow: 0 0 0 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 25%, transparent);
+  }
+  .fui-date-field[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+  .fui-date-field[data-size="sm"] { height: 28px; }
+
+  .fui-date-field__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 0 0 10px;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 14px;
+    font-weight: var(--fui-regular);
+    font-variant-numeric: tabular-nums;
+    line-height: 20px;
+    outline: none;
+  }
+  .fui-date-field__input::placeholder { color: var(--muted-foreground); opacity: 1; }
+  .fui-date-field__input:disabled { cursor: not-allowed; }
+  .fui-date-field[data-size="sm"] .fui-date-field__input { padding-left: 8px; font-size: 13px; }
+
+  /* The weekday of the typed or picked day: «вт» / "Tue". */
+  .fui-date-field__note {
+    flex-shrink: 0;
+    width: 28px;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    line-height: 16px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .fui-date-field__button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin: 0 4px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: background-color 0.12s, color 0.12s;
+  }
+  .fui-date-field__button:hover,
+  .fui-date-field[data-state="open"] .fui-date-field__button { background: var(--fui-hover); color: var(--foreground); }
+  .fui-date-field__button:disabled { background: transparent; cursor: not-allowed; }
+  .fui-date-field[data-size="sm"] .fui-date-field__button { width: 20px; height: 20px; }
+  .fui-date-field[data-size="sm"] .fui-date-field__button > svg { width: 14px; height: 14px; }
+  .fui-date-field--time .fui-date-field__button { margin-left: 2px; }
+
+  /* ─── Calendar popover: 7 × 32px days. Every view fills the same box (six week rows), so neither switching months
+     nor drilling up to months and years resizes it. Only the picked value takes the accent; today gets a neutral
+     ring. ─── */
+  /* Doubled class: overlay.css comes later and sizes every .fui-popover. */
+  .fui-popover.fui-calendar { width: auto; min-width: 0; padding: 8px; }
+  .fui-calendar__header { display: flex; align-items: center; gap: 2px; height: 28px; margin-bottom: 6px; }
+  .fui-calendar__caption {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+    margin-right: auto;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--popover-foreground);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background-color 0.12s;
+  }
+  .fui-calendar__caption:hover { background: var(--fui-hover); }
+  .fui-calendar__caption[aria-disabled="true"] { background: transparent; cursor: default; }
+  .fui-calendar__caption:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+  .fui-calendar__caption > svg { width: 14px; height: 14px; color: var(--muted-foreground); }
+
+  /* 20px weekday row + 6 × 32px weeks + 6 × 2px gaps. */
+  .fui-calendar__body { height: 224px; }
+  .fui-calendar__days,
+  .fui-calendar__months,
+  .fui-calendar__years { display: grid; height: 100%; }
+  .fui-calendar__days { grid-template-columns: repeat(7, 32px); grid-template-rows: 20px repeat(6, 32px); gap: 2px; }
+  .fui-calendar__months { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); gap: 4px; }
+  .fui-calendar__years { grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4px; }
+  .fui-calendar__row { display: contents; }
+  .fui-calendar__row > [role="gridcell"] { display: flex; min-width: 0; }
+
+  .fui-calendar__weekday { color: var(--muted-foreground); font-size: 12px; line-height: 20px; text-align: center; }
+
+  .fui-calendar__cell {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--popover-foreground);
+    font: inherit;
+    font-size: 13px;
+    font-weight: var(--fui-regular);
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.12s, color 0.12s;
+  }
+  .fui-calendar__cell:hover { background: var(--fui-hover); }
+  .fui-calendar__cell:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+  .fui-calendar__cell[data-outside] { color: var(--muted-foreground); }
+  .fui-calendar__cell[data-today] { box-shadow: inset 0 0 0 1px var(--fui-line-strong); font-weight: 600; }
+  .fui-calendar__cell[data-today]:focus-visible { box-shadow: inset 0 0 0 1px var(--fui-line-strong), var(--fui-focus-ring); }
+  .fui-calendar__cell[data-selected] { background: var(--primary); color: var(--primary-foreground); box-shadow: none; }
+  .fui-calendar__cell[data-selected]:hover { background: color-mix(in oklab, var(--primary) 88%, var(--foreground)); }
+  .fui-calendar__cell[data-selected]:focus-visible { box-shadow: var(--fui-focus-ring); }
+  .fui-calendar__cell[aria-disabled="true"] { background: transparent; opacity: 0.35; cursor: default; }
+
+  .fui-calendar__footer {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px -8px 0;
+    padding: 6px 4px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── Time list: rows as tall as a small input; the picked time with the accent check ─── */
+  .fui-popover.fui-time-list { width: var(--radix-popover-trigger-width); min-width: 112px; padding: 4px; }
+  .fui-time-list__scroll { max-height: 200px; overflow-y: auto; overscroll-behavior: contain; }
+  .fui-time-list__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    cursor: default;
+    user-select: none;
+  }
+  .fui-time-list__option[data-highlighted] { background: var(--fui-hover); }
+  .fui-time-list__option[data-selected] { font-weight: 500; }
+  .fui-time-list__option > svg { width: 14px; height: 14px; color: var(--primary); stroke-width: 2; }
 }

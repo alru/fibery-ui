@@ -1,11 +1,11 @@
 // Choice chips: ChipGroup — separate small chips that wrap, one value at a time, the rest in a «ещё ▾» menu — and
-// QuickDate on top of it: quick terms ("Tomorrow", "+1 week"), «Дата…» for any date and time, and the resolved date
-// spelled out under the chips.
+// QuickDate on top of it: quick terms ("Tomorrow", "+1 week"), «Дата…» for any date and time (the kit's DateInput and
+// TimeInput), and the resolved date spelled out under the chips.
 import {useState, type KeyboardEvent, type ReactNode} from "react";
 import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 import {formatQuickDate, fromDateInputs, matchQuickTerm, toDateInput, toTimeInput, type QuickTerm} from "../dates";
-import {Input} from "./Form";
+import {DateInput, TimeInput} from "./DatePicker";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "./Overlay";
 import {useKitLang, useKitTexts} from "./KitLang";
 
@@ -124,7 +124,7 @@ export type QuickDateProps = {
   terms: QuickTerm[];
   value: Date | null;
   onChange: (value: Date | null) => void;
-  /** Time input next to the date and the time in the resolved line; on by default. */
+  /** TimeInput next to the date and the time in the resolved line; on by default. */
   withTime?: boolean;
   invalid?: boolean;
   disabled?: boolean;
@@ -134,7 +134,7 @@ export type QuickDateProps = {
 };
 
 /**
- * Date field for planning: quick-term chips, «Дата…» / "Date…" for a date input (and a time input), and the resolved
+ * Date field for planning: quick-term chips, «Дата…» / "Date…" for a DateInput (and a TimeInput), and the resolved
  * date spelled out under the chips — «пн 24 ноября, 10:00» — which also opens the inputs to adjust the time. A value
  * keeps its chip picked while it stays on that chip's day. The chips never change size, so nothing shifts.
  */
@@ -177,23 +177,23 @@ export function QuickDate({terms, value, onChange, withTime = true, invalid, dis
       />
       {open && (
         <div className="fui-quick-date__inputs">
-          <Input
-            type="date"
+          <DateInput
             size="sm"
             aria-label={t.date}
             value={value ? toDateInput(value) : ""}
             invalid={invalid}
             disabled={disabled}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={setDate}
           />
           {withTime && (
-            <Input
-              type="time"
+            // A planned date always has a time: emptying the field brings the time back instead of midnight.
+            <TimeInput
               size="sm"
+              required
               aria-label={t.time}
               value={value ? toTimeInput(value) : ""}
               disabled={disabled}
-              onChange={(e) => setTime(e.target.value)}
+              onChange={setTime}
             />
           )}
         </div>

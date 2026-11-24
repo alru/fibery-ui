@@ -214,7 +214,8 @@ emojiRenders("✉️");          // false where the browser draws an empty box: 
 <InlineEdit clearable label="Edit Source Ref" value={ref} onSave={saveRef} startEditing={revealed.has("ref")} />
 <InlineSelect label="Win probability" value={winId} onSave={saveWin} clearable
   options={wins.map((o) => ({value: o.id, label: <OptionBadge variant="dot" name={o.name} color={o.color} />}))} />
-<InlineDate label="Expected close" value="2026-12-15" onSave={saveClose} />          // "YYYY-MM-DD" | null
+<InlineDate label="Expected close" value="2026-12-15" onSave={saveClose} />          // "YYYY-MM-DD" | null; opens a
+                                                     // DateInput with its calendar shown, a picked day saves at once
 <InlineTextarea label="Key note" value={note} onSave={saveNote} />                   // Ctrl+Enter / blur saves
 
 // Card fields: only the filled ones, «+ Поле» adds an empty one.
@@ -392,13 +393,24 @@ formatDelta(-6);                                        // "−6" (true minus); 
 <ChipGroup aria-label="Channel" deselectable visible={5} value={channel} onValueChange={setChannel}
   options={channels.map((c) => ({value: c.id, label: c.name, glyph: <span className="fui-emoji">{fiberyEmoji(c.icon)}</span>}))} />
 
+// Date and time fields instead of <input type="date"> / <input type="time">: same values ("YYYY-MM-DD", "HH:MM",
+// "" when empty), but onChange gets the value itself and fires once the field is left with it (a pick, Enter, leaving
+// typed text) — not on every keystroke. Typed: «24.11.2026», 24/11/26, 2411, 2026-11-24; «15:30», 1530, 9.
+// A click or ↓ opens the calendar (weeks from Monday; the caption drills up to months and years) or the time list.
+// Text that isn't a date / time is dropped on leaving and the old value stays. Width: 100%, set it with className.
+<Field label="Expected close" htmlFor="close">
+  <DateInput id="close" className="w-48" value={close} onChange={setClose} />
+</Field>
+<DateInput required min="2026-01-01" max="2026-12-31" … />   // required: no «Очистить», emptying gives the value back
+<TimeInput size="sm" aria-label="Time" value={time} onChange={setTime} step={30} />   // list every 30 min (15 by default)
+
 // The one date format of lists and tables: dd.mm.yy, the same in both languages. A calendar day string stays that
 // day; instants and Dates are shown in local time; empty or unreadable → "".
 formatShortDay("2026-11-24");                            // "24.11.26"
 formatShortDay(date, {weekday: true, lang: "en"});       // "Tue 24.11.26"
 formatShortDayTime(date);                                // "24.11.26 14:30"
 
-// Planning date: quick terms (the app computes their dates), «Дата…» opens date + time inputs, and the resolved
+// Planning date: quick terms (the app computes their dates), «Дата…» opens a DateInput + TimeInput, and the resolved
 // date under the chips («вт 24 ноября, 10:00» / "Tue 24 November, 10:00") — a click on it adjusts the time.
 // A value keeps its chip while it stays on that chip's day.
 <Field label="When" required>
