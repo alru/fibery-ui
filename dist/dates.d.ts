@@ -47,3 +47,30 @@ export declare function formatShortDayTime(value: Date | string | number | null 
  * none past → above the first. Draw it only while `index <= shown rows`: hidden behind "Show all", it would mislead.
  */
 export declare function nowLineIndex(times: readonly (Date | number)[], now: Date | number, order?: "asc" | "desc"): number | null;
+/** "2026-11-24" → "24.11.2026", the text DateInput shows in both languages; "" for an empty or broken value. */
+export declare function formatDateText(iso: string | null | undefined): string;
+/**
+ * A typed day → "YYYY-MM-DD", or `null` when it isn't one. Day first, as in Russia and Britain: "24.11.2026",
+ * "24/11/26", "24-11-2026", "24 11 2026", "24.11" (this year), digits only "24112026" / "241126" / "2411", and ISO
+ * "2026-11-24". A two-digit year lands within 20 years ahead of `today`, else in the century before ("85" → 1985).
+ */
+export declare function parseDateText(text: string, today?: Date): string | null;
+/**
+ * A typed time → "HH:MM" (24-hour), or `null` when it isn't one: "15:30", "15.30", "15 30", "9:05", "9" (09:00),
+ * digits only "930" / "1530".
+ */
+export declare function parseTimeText(text: string): string | null;
+/** Times of a day every `step` minutes from 00:00: ["00:00", "00:15", …] for 15. */
+export declare function timeSlots(step?: number): string[];
+/** Index of the last slot at or before `time` ("HH:MM"); 0 for an earlier or unreadable time. */
+export declare function slotIndexOf(slots: readonly string[], time: string): number;
+/** The 42 days ("YYYY-MM-DD") of a month page: six whole weeks from the Monday on or before the 1st. */
+export declare function calendarDays(year: number, month: number): string[];
+/** The day `count` days after `iso` (before, when negative). */
+export declare function addDays(iso: string, count: number): string;
+/** The same day `count` months later (earlier, when negative), kept inside the month: 31 Jan + 1 → 28 or 29 Feb. */
+export declare function addMonths(iso: string, count: number): string;
+/** Monday (`"start"`) or Sunday (`"end"`) of the week of `iso`. */
+export declare function weekEdge(iso: string, edge: "start" | "end"): string;
+/** `iso` moved into [min, max]; either bound may be empty. */
+export declare function clampDay(iso: string, min?: string, max?: string): string;

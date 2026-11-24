@@ -32,7 +32,7 @@ export type QuickDateProps = {
     terms: QuickTerm[];
     value: Date | null;
     onChange: (value: Date | null) => void;
-    /** Time input next to the date and the time in the resolved line; on by default. */
+    /** TimeInput next to the date and the time in the resolved line; on by default. */
     withTime?: boolean;
     invalid?: boolean;
     disabled?: boolean;
@@ -41,7 +41,7 @@ export type QuickDateProps = {
     className?: string;
 };
 /**
- * Date field for planning: quick-term chips, «Дата…» / "Date…" for a date input (and a time input), and the resolved
+ * Date field for planning: quick-term chips, «Дата…» / "Date…" for a DateInput (and a TimeInput), and the resolved
  * date spelled out under the chips — «пн 24 ноября, 10:00» — which also opens the inputs to adjust the time. A value
  * keeps its chip picked while it stays on that chip's day. The chips never change size, so nothing shifts.
  */

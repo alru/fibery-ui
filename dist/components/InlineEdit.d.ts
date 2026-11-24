@@ -48,7 +48,10 @@ export type InlineDateProps = InlineCommonProps & {
     required?: boolean;
     hint?: ReactNode;
 };
-/** Date edited in place with the browser's date input: Enter or leaving the field saves, Escape cancels. */
+/**
+ * Date edited in place with the kit's DateInput, its calendar open at once: a picked day saves; typed text saves on
+ * Enter or on leaving the field; Escape (after closing the calendar) cancels.
+ */
 export declare function InlineDate({ value, children, onSave, label, placeholder, disabled, startEditing, required, hint, className, }: InlineDateProps): import("react").JSX.Element;
 export type InlineSelectOption = {
     value: string;

@@ -9,6 +9,7 @@ import { ChevronDown, Pencil, X } from "lucide-react";
 import { cx } from "../cx";
 import { formatQuickDate, fromDateInputs } from "../dates";
 import { IconButton } from "./Button";
+import { DateInput } from "./DatePicker";
 import { Input, Textarea } from "./Form";
 import { SelectContent, SelectItem, SelectSeparator } from "./Select";
 import { Spinner } from "./States";
@@ -123,31 +124,39 @@ export function InlineTextarea({ value, children, onSave, label, placeholder, di
     }
     return (_jsxs("span", { "data-multiline": "", className: cx("fui-inline-edit", className), children: [_jsx("span", { className: "fui-inline-edit__value", children: shown }), !disabled && _jsx(EditButton, { label: label, onEdit: () => setDraft(value) })] }));
 }
-/** Date edited in place with the browser's date input: Enter or leaving the field saves, Escape cancels. */
+/**
+ * Date edited in place with the kit's DateInput, its calendar open at once: a picked day saves; typed text saves on
+ * Enter or on leaving the field; Escape (after closing the calendar) cancels.
+ */
 export function InlineDate({ value, children, onSave, label, placeholder, disabled, startEditing, required, hint, className, }) {
     const lang = useKitLang();
-    const [draft, setDraft] = useState(startEditing && !disabled ? (value ?? "") : null);
+    const [editing, setEditing] = useState(Boolean(startEditing && !disabled));
     const { saving, error, setError, run, isBusy } = useInlineSave();
     const close = () => {
-        setDraft(null);
+        setEditing(false);
         setError(null);
     };
-    const commit = async () => {
-        if (isBusy() || draft == null)
+    // DateInput reports only real changes: a pick, Enter, Clear or leaving typed text.
+    const commit = async (next) => {
+        if (isBusy())
             return;
-        if (draft === (value ?? "") || (required && !draft))
+        if (next === (value ?? "") || (required && !next))
             return close();
-        if (await run(() => onSave(draft || null)))
+        if (await run(() => onSave(next || null)))
             close();
     };
     const date = value ? fromDateInputs(value) : null;
     const shown = children ??
         (date ? formatQuickDate(date, lang, false) : _jsx("span", { className: "fui-inline-edit__placeholder", children: placeholder ?? value ?? "—" }));
-    if (draft != null) {
-        return (_jsxs("span", { "data-editing": "", className: cx("fui-inline-edit", className), onClick: stop, onKeyDown: stop, children: [_jsxs("span", { className: "fui-inline-edit__row", children: [_jsx(Input, { type: "date", size: "sm", autoFocus: true, "aria-label": label, value: draft, disabled: saving, invalid: error != null, onChange: (e) => setDraft(e.target.value), onBlur: commit, onKeyDown: (e) => {
+    if (editing) {
+        return (_jsxs("span", { "data-editing": "", className: cx("fui-inline-edit", className), onClick: stop, onKeyDown: stop, children: [_jsxs("span", { className: "fui-inline-edit__row", children: [_jsx(DateInput, { size: "sm", autoFocus: true, defaultOpen: true, "aria-label": label, value: value, required: required, disabled: saving, invalid: error != null, onChange: commit, 
+                            // A save in flight decides itself whether the editor closes.
+                            onBlur: () => !isBusy() && close(), onKeyDown: (e) => {
                                 if (e.key === "Enter") {
                                     e.preventDefault();
-                                    commit();
+                                    // DateInput has already saved a changed value; Enter on an unchanged one just closes.
+                                    if (!isBusy())
+                                        close();
                                 }
                                 else if (e.key === "Escape") {
                                     e.preventDefault();
@@ -155,7 +164,7 @@ export function InlineDate({ value, children, onSave, label, placeholder, disabl
                                 }
                             } }), _jsx(CancelButton, { disabled: saving, onCancel: close })] }), (error ?? hint) && _jsx("span", { className: error ? "fui-field__error" : "fui-field__hint", children: error ?? hint })] }));
     }
-    return (_jsxs("span", { className: cx("fui-inline-edit", className), children: [_jsx("span", { className: "fui-inline-edit__value", children: shown }), !disabled && _jsx(EditButton, { label: label, onEdit: () => setDraft(value ?? "") })] }));
+    return (_jsxs("span", { className: cx("fui-inline-edit", className), children: [_jsx("span", { className: "fui-inline-edit__value", children: shown }), !disabled && _jsx(EditButton, { label: label, onEdit: () => setEditing(true) })] }));
 }
 // Radix Select doesn't allow an empty item value, so clearing goes through this one.
 const CLEAR = "fui:clear";
