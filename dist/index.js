@@ -4,6 +4,7 @@ export { CopyButton } from "./components/CopyButton";
 export { Badge, EnumBadge, OptionBadge, Dot, StageGlyph, Emoji, } from "./components/Badge";
 export { fiberyHue, fiberyEmoji, hueFor, emojiRenders } from "./colors";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, ListItemActions, RowAction, PropertyList, Property, PropertyAdd, PropertyGroup, } from "./components/Display";
+export { RelationLink } from "./components/RelationLink";
 export { Timeline } from "./components/Timeline";
 export { CountNav } from "./components/CountNav";
 export { ChipGroup, QuickDate } from "./components/Chips";

@@ -3,6 +3,7 @@ export { CopyButton, type CopyButtonProps } from "./components/CopyButton";
 export { Badge, EnumBadge, OptionBadge, Dot, StageGlyph, Emoji, type BadgeProps, type EmojiProps, type EnumBadgeProps, type OptionBadgeProps, type DotProps, type StageGlyphProps, type Hue, } from "./components/Badge";
 export { fiberyHue, fiberyEmoji, hueFor, emojiRenders, type GlyphProbe } from "./colors";
 export { Avatar, Card, CardHeader, CardContent, List, ListItem, ListItemActions, RowAction, PropertyList, Property, PropertyAdd, PropertyGroup, type AvatarProps, type CardProps, type CardHeaderProps, type ListProps, type ListItemProps, type ListItemActionsProps, type RowActionProps, type PropertyListProps, type PropertyProps, type PropertyAddProps, type PropertyGroupProps, } from "./components/Display";
+export { RelationLink, type RelationLinkProps } from "./components/RelationLink";
 export { Timeline, type TimelineItem, type TimelineProps } from "./components/Timeline";
 export { CountNav, type CountNavItem, type CountNavProps } from "./components/CountNav";
 export { ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps } from "./components/Chips";

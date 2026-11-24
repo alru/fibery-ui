@@ -283,6 +283,26 @@
   .fui-avatar[data-size="lg"] { width: 32px; height: 32px; font-size: 13px; }
   .fui-avatar > img { width: 100%; height: 100%; object-fit: cover; }
 
+  /* ─── RelationLink: a link to another record, its kind's icon before the name ─── */
+  /* Baseline alignment gives the link its name's baseline, so it sits in a line of text like a word. */
+  .fui-relation-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+    border-radius: 4px;
+    color: inherit;
+    text-decoration: none;
+  }
+  /* One line of the text tall, so the icon stands centered on the name's first line however the name wraps. */
+  .fui-relation-link__icon { display: inline-flex; align-self: flex-start; align-items: center; height: 1lh; flex-shrink: 0; color: var(--muted-foreground); }
+  .fui-relation-link__icon > svg { width: 14px; height: 14px; stroke-width: 1.75; }
+  .fui-relation-link[data-size="sm"] .fui-relation-link__icon > svg { width: 12px; height: 12px; }
+  .fui-relation-link__name { min-width: 0; overflow-wrap: anywhere; }
+  .fui-relation-link:hover .fui-relation-link__name { text-decoration: underline; }
+  .fui-relation-link:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
+
   /* ─── Card ─── */
   .fui-card {
     border-radius: 8px;
