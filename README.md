@@ -109,16 +109,20 @@ const lang = useKitLang();                             // inside the provider, e
 <Avatar name="Jane Doe" size="sm" hue={hueFor(user.id)} />                      // initials on a stable person hue
 ```
 
-**Relation links** — a link to another record (a company, a person, a deal) carries the record kind's icon before
-its name, so it reads as a relation and says what it points to. Use the icon the app shows for that kind elsewhere
-(its section tab). The icon is muted and stands on the name's first line; the name wraps (never "…") and alone gets
-the hover underline; the color is inherited. Router-agnostic: `asChild` dresses the app's router link.
+**Relation links** — a link to another record (a company, a person, a deal) ends with a muted arrow, the same for
+every relation, so it reads as "leads to another record". The arrow stays on the line of the name's last word (never
+alone on a new line) and is never underlined; the name wraps (never "…") and alone gets the hover underline; the color
+is inherited. Anything before the name (a person's avatar) stands outside the link. Router-agnostic: `asChild`
+dresses the app's router link.
 
 ```tsx
-<RelationLink icon={<Building2 />} href="…">Acme Ltd</RelationLink>                  // 14px icon for 14px text
-<RelationLink icon={<ContactRound />} size="sm" asChild>                               // 12px icon for 13px text
-  <Link to="/contacts/$publicId" params={{publicId}}>Jane Doe</Link>                   // the router's link, its children = the name
-</RelationLink>
+<RelationLink href="…">Acme Ltd</RelationLink>                                       // 14px arrow after 14px text
+<span className="flex items-center gap-1.5">
+  <Avatar name="Jane Doe" size="sm" />
+  <RelationLink size="sm" asChild>                                                     // 12px arrow after 13px text
+    <Link to="/contacts/$publicId" params={{publicId}}>Jane Doe</Link>                 // the router's link, its children = the name
+  </RelationLink>
+</span>
 ```
 
 Only explicit name links get it: a clickable row or board card that opens a record as a whole is not a relation link.
