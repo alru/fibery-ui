@@ -207,6 +207,11 @@ export type PanelLayoutProps = {
   panel?: ReactNode;
   /** Click on the veil over the list on narrow screens, usually the panel's close. */
   onDismiss?: () => void;
+  /**
+   * A vertical line between the list and the open panel, the full height of the layout (side by side only). For
+   * content that runs on under the panel, e.g. a board scrolling sideways, so its cut edge reads as a border.
+   */
+  divider?: boolean;
   className?: string;
 };
 
@@ -215,12 +220,13 @@ export type PanelLayoutProps = {
  * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
  * clicking the veil calls `onDismiss`.
  */
-export function PanelLayout({children, panel, onDismiss, className}: PanelLayoutProps) {
+export function PanelLayout({children, panel, onDismiss, divider, className}: PanelLayoutProps) {
   return (
     <div className={cx("fui-panel-layout", className)} data-open={panel ? "" : undefined}>
       <div className="fui-panel-layout__main">{children}</div>
       {panel && (
         <>
+          {divider && <div className="fui-panel-layout__divider" aria-hidden />}
           <div className="fui-panel-layout__veil" aria-hidden onClick={onDismiss} />
           <div className="fui-panel-layout__panel">{panel}</div>
         </>
