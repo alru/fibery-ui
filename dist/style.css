@@ -678,6 +678,8 @@
   .fui-panel-layout { display: flex; align-items: flex-start; gap: 16px; }
   .fui-panel-layout__main { flex: 1; min-width: 0; }
   .fui-panel-layout__veil { display: none; }
+  /* The layout's 16px gap on both sides of the line. */
+  .fui-panel-layout__divider { flex-shrink: 0; align-self: stretch; width: 1px; background: var(--border); }
   /* Wide: the wrapper vanishes from layout, so the panel itself is the flex item with the app's own classes. */
   .fui-panel-layout__panel { display: contents; }
 
@@ -779,6 +781,7 @@
 /* Narrow PanelLayout, deliberately outside @layer: unlayered rules beat the app's Tailwind utilities on the panel
    (its "sticky top-6 w-[36rem] …" are meant for the side-by-side layout and must give way to the overlay). */
 @media (max-width: 1023.98px) {
+  .fui-panel-layout__divider { display: none; }
   .fui-panel-layout__veil {
     display: block;
     position: fixed;

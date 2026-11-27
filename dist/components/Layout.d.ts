@@ -85,6 +85,11 @@ export type PanelLayoutProps = {
     panel?: ReactNode;
     /** Click on the veil over the list on narrow screens, usually the panel's close. */
     onDismiss?: () => void;
+    /**
+     * A vertical line between the list and the open panel, the full height of the layout (side by side only). For
+     * content that runs on under the panel, e.g. a board scrolling sideways, so its cut edge reads as a border.
+     */
+    divider?: boolean;
     className?: string;
 };
 /**
@@ -92,7 +97,7 @@ export type PanelLayoutProps = {
  * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
  * clicking the veil calls `onDismiss`.
  */
-export declare function PanelLayout({ children, panel, onDismiss, className }: PanelLayoutProps): import("react").JSX.Element;
+export declare function PanelLayout({ children, panel, onDismiss, divider, className }: PanelLayoutProps): import("react").JSX.Element;
 export type SeparatorProps = HTMLAttributes<HTMLElement> & {
     orientation?: "horizontal" | "vertical";
     /** Caption before a horizontal line, e.g. "На английском": splits one block into named parts. */

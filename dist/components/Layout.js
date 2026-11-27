@@ -53,8 +53,8 @@ export function SidePanel({ title, description, actions, onClose, editing, class
  * Narrow: both don't fit, so the panel floats over the list on the right and the list stays behind a veil;
  * clicking the veil calls `onDismiss`.
  */
-export function PanelLayout({ children, panel, onDismiss, className }) {
-    return (_jsxs("div", { className: cx("fui-panel-layout", className), "data-open": panel ? "" : undefined, children: [_jsx("div", { className: "fui-panel-layout__main", children: children }), panel && (_jsxs(_Fragment, { children: [_jsx("div", { className: "fui-panel-layout__veil", "aria-hidden": true, onClick: onDismiss }), _jsx("div", { className: "fui-panel-layout__panel", children: panel })] }))] }));
+export function PanelLayout({ children, panel, onDismiss, divider, className }) {
+    return (_jsxs("div", { className: cx("fui-panel-layout", className), "data-open": panel ? "" : undefined, children: [_jsx("div", { className: "fui-panel-layout__main", children: children }), panel && (_jsxs(_Fragment, { children: [divider && _jsx("div", { className: "fui-panel-layout__divider", "aria-hidden": true }), _jsx("div", { className: "fui-panel-layout__veil", "aria-hidden": true, onClick: onDismiss }), _jsx("div", { className: "fui-panel-layout__panel", children: panel })] }))] }));
 }
 /** Raised block that sets one item apart inside a card, e.g. a record's key field together with its description. */
 export function Inset({ footer, className, children, ...props }) {
