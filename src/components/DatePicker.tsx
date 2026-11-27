@@ -23,6 +23,7 @@ import {
   calendarDays,
   clampDay,
   formatDateText,
+  fromDateInputs,
   parseDateText,
   parseTimeText,
   slotIndexOf,
@@ -798,5 +799,63 @@ export function TimeInput({
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+// ─── DateTimeInput ───────────────────────────────────────────────────────────
+
+export type DateTimeInputProps = {
+  /** A moment in the browser's time zone; `null` — not set. */
+  value: Date | null;
+  onChange: (value: Date | null) => void;
+  /** Hides «Очистить» / "Clear" in the date; an emptied time always comes back (a date with a time keeps one). */
+  required?: boolean;
+  size?: "sm" | "md";
+  invalid?: boolean;
+  disabled?: boolean;
+  /** Goes on the date's text field, so a Field's `htmlFor` focuses it. */
+  id?: string;
+  /** Names the pair for screen readers when no Field label points at it. */
+  "aria-label"?: string;
+  className?: string;
+};
+
+/**
+ * A date and a time as one value: DateInput with TimeInput beside it, the date taking the spare width. Picking a date
+ * keeps the time; a time without a date goes on today.
+ */
+export function DateTimeInput({value, onChange, required, size = "md", invalid, disabled, id, className, ...props}: DateTimeInputProps) {
+  const t = useKitTexts();
+  const setDate = (date: string) => {
+    if (!date) return onChange(null);
+    const next = fromDateInputs(date, value ? toTimeInput(value) : "");
+    if (next) onChange(next);
+  };
+  const setTime = (time: string) => {
+    const next = fromDateInputs(toDateInput(value ?? new Date()), time);
+    if (next) onChange(next);
+  };
+  return (
+    <div role="group" aria-label={props["aria-label"]} className={cx("fui-date-time", className)}>
+      <DateInput
+        id={id}
+        size={size}
+        aria-label={t.date}
+        value={value ? toDateInput(value) : ""}
+        required={required}
+        invalid={invalid}
+        disabled={disabled}
+        onChange={setDate}
+      />
+      <TimeInput
+        size={size}
+        required
+        aria-label={t.time}
+        value={value ? toTimeInput(value) : ""}
+        invalid={invalid}
+        disabled={disabled}
+        onChange={setTime}
+      />
+    </div>
   );
 }

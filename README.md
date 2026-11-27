@@ -425,6 +425,8 @@ formatDelta(-6);                                        // "−6" (true minus); 
 <DateInput required min="2026-01-01" max="2026-12-31" … />   // required: no «Очистить», emptying gives the value back
 <DateInput weekday={false} … />                     // no «вт» after the date: birth dates, range filters
 <TimeInput size="sm" aria-label="Time" value={time} onChange={setTime} step={30} />   // list every 30 min (15 by default)
+// One moment as a Date: the date (spare width) and the time side by side; a date keeps the time, a time alone goes on today.
+<DateTimeInput id="when" value={at} onChange={setAt} invalid={!!error} />   // Date | null
 
 // The one date format of lists and tables: dd.mm.yy, the same in both languages. A calendar day string stays that
 // day; instants and Dates are shown in local time; empty or unreadable → "".
@@ -570,6 +572,9 @@ formatShortDayTime(date);                                // "24.11.26 14:30"
 // `glyph`: a mark before an option's label — a Dot in the option's Fibery hue, an emoji, an arrow.
 <SegmentedControl aria-label="Status" value={status} onValueChange={setStatus}
   options={states.map((s) => ({value: s.id, label: s.name, glyph: <Dot hue={fiberyHue(s.color) ?? "grey"} />}))} />
+
+// `fill`: the full width of the container, the spare room shared by the options — a form field among full-width inputs.
+<SegmentedControl fill aria-label="Direction" value={direction} onValueChange={setDirection} options={…} />
 
 // Same look, but every option toggles on and off by itself (filled while on); value is an array. Any combination,
 // including none, is allowed — the caller decides what "all off" means.

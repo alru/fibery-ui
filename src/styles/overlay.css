@@ -203,6 +203,10 @@
     background: var(--fui-subtle);
   }
   .fui-tabs-list[data-variant="line"] { gap: 16px; box-shadow: inset 0 -1px 0 var(--border); }
+  /* fill (SegmentedControl): the full width; the room left over goes to the options in equal shares, so no label is
+     ever cut. */
+  .fui-tabs-list[data-variant="segmented"][data-fill] { display: flex; width: 100%; }
+  .fui-tabs-list[data-fill] > .fui-tabs-trigger { flex: 1 0 auto; }
 
   .fui-tabs-trigger {
     display: inline-flex;
