@@ -8,7 +8,7 @@ export { RelationLink } from "./components/RelationLink";
 export { Timeline } from "./components/Timeline";
 export { CountNav } from "./components/CountNav";
 export { ChipGroup, QuickDate } from "./components/Chips";
-export { DateInput, TimeInput } from "./components/DatePicker";
+export { DateInput, DateTimeInput, TimeInput } from "./components/DatePicker";
 export { formatQuickDate, formatShortDay, formatShortDayTime, fromDateInputs, matchQuickTerm, nowLineIndex, sameDay, toDateInput, toTimeInput, } from "./dates";
 export { Page, PageHeader, SectionHeader, ShowMore, SidePanel, PanelLayout, Separator, Inset, } from "./components/Layout";
 export { Input, SearchInput, Textarea, Label, Field, Checkbox, Switch, } from "./components/Form";

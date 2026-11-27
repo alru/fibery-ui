@@ -55,4 +55,24 @@ export type TimeInputProps = FieldCommonProps & {
  * value stays.
  */
 export declare function TimeInput({ value: rawValue, onChange, step, required, placeholder, size, invalid, disabled, id, autoFocus, onBlur, onKeyDown, className, ...aria }: TimeInputProps): import("react").JSX.Element;
+export type DateTimeInputProps = {
+    /** A moment in the browser's time zone; `null` — not set. */
+    value: Date | null;
+    onChange: (value: Date | null) => void;
+    /** Hides «Очистить» / "Clear" in the date; an emptied time always comes back (a date with a time keeps one). */
+    required?: boolean;
+    size?: "sm" | "md";
+    invalid?: boolean;
+    disabled?: boolean;
+    /** Goes on the date's text field, so a Field's `htmlFor` focuses it. */
+    id?: string;
+    /** Names the pair for screen readers when no Field label points at it. */
+    "aria-label"?: string;
+    className?: string;
+};
+/**
+ * A date and a time as one value: DateInput with TimeInput beside it, the date taking the spare width. Picking a date
+ * keeps the time; a time without a date goes on today.
+ */
+export declare function DateTimeInput({ value, onChange, required, size, invalid, disabled, id, className, ...props }: DateTimeInputProps): import("react").JSX.Element;
 export {};

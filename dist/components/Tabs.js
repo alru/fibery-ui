@@ -18,7 +18,7 @@ TabsContent.displayName = "TabsContent";
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export function SegmentedControl({ options, value, onValueChange, scale, label, className, ...props }) {
+export function SegmentedControl({ options, value, onValueChange, scale, label, fill, className, ...props }) {
     const selectedIndex = options.findIndex((o) => o.value === value);
     const onKeyDown = (e) => {
         const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -29,7 +29,7 @@ export function SegmentedControl({ options, value, onValueChange, scale, label, 
         onValueChange(next.value);
         e.currentTarget.querySelector(`[data-value="${CSS.escape(next.value)}"]`)?.focus();
     };
-    const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
+    const group = (_jsx("div", { role: "radiogroup", "aria-label": props["aria-label"], "data-variant": "segmented", "data-scale": scale ? "" : undefined, "data-fill": fill ? "" : undefined, className: cx("fui-tabs-list", !label && className), onKeyDown: onKeyDown, children: options.map((option, index) => {
             const active = option.value === value;
             return (_jsxs("button", { type: "button", role: "radio", "aria-checked": active, tabIndex: active ? 0 : -1, "data-value": option.value, "data-variant": "segmented", "data-state": active ? "active" : "inactive", "data-filled": (scale === "from" ? index >= selectedIndex : scale && index <= selectedIndex) ? "" : undefined, className: "fui-tabs-trigger", onClick: () => onValueChange(option.value), children: [option.glyph, option.label] }, option.value));
         }) }));

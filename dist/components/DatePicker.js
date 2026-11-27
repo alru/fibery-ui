@@ -7,7 +7,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useId, useMemo, useRef, useState, } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cx } from "../cx";
-import { addDays, addMonths, calendarDays, clampDay, formatDateText, parseDateText, parseTimeText, slotIndexOf, timeSlots, toDateInput, toTimeInput, weekEdge, } from "../dates";
+import { addDays, addMonths, calendarDays, clampDay, formatDateText, fromDateInputs, parseDateText, parseTimeText, slotIndexOf, timeSlots, toDateInput, toTimeInput, weekEdge, } from "../dates";
 import { Button, IconButton } from "./Button";
 import { useKitLang, useKitTexts } from "./KitLang";
 import { Popover, PopoverAnchor, PopoverContent } from "./Overlay";
@@ -399,4 +399,24 @@ export function TimeInput({ value: rawValue, onChange, step = 15, required, plac
                                 close();
                             }, children: [slot, selected && _jsx(Check, {})] }, slot));
                     }) }) })] }));
+}
+/**
+ * A date and a time as one value: DateInput with TimeInput beside it, the date taking the spare width. Picking a date
+ * keeps the time; a time without a date goes on today.
+ */
+export function DateTimeInput({ value, onChange, required, size = "md", invalid, disabled, id, className, ...props }) {
+    const t = useKitTexts();
+    const setDate = (date) => {
+        if (!date)
+            return onChange(null);
+        const next = fromDateInputs(date, value ? toTimeInput(value) : "");
+        if (next)
+            onChange(next);
+    };
+    const setTime = (time) => {
+        const next = fromDateInputs(toDateInput(value ?? new Date()), time);
+        if (next)
+            onChange(next);
+    };
+    return (_jsxs("div", { role: "group", "aria-label": props["aria-label"], className: cx("fui-date-time", className), children: [_jsx(DateInput, { id: id, size: size, "aria-label": t.date, value: value ? toDateInput(value) : "", required: required, invalid: invalid, disabled: disabled, onChange: setDate }), _jsx(TimeInput, { size: size, required: true, "aria-label": t.time, value: value ? toTimeInput(value) : "", invalid: invalid, disabled: disabled, onChange: setTime })] }));
 }
