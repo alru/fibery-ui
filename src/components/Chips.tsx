@@ -1,10 +1,11 @@
 // Choice chips: ChipGroup — separate small chips that wrap, one value at a time, the rest in a «ещё ▾» menu — and
-// QuickDate on top of it: quick terms ("Tomorrow", "+1 week"), «Дата…» for any date and time (the kit's DateInput and
-// TimeInput), and the resolved date spelled out under the chips.
-import {useState, type KeyboardEvent, type ReactNode} from "react";
+// QuickDate: the kit's DateInput and TimeInput with quick terms ("Now", "Tomorrow", "+1 week") under them as chips,
+// and the picked date spelled out under the chips.
+import {type KeyboardEvent, type ReactNode} from "react";
 import {ChevronDown} from "lucide-react";
 import {cx} from "../cx";
 import {formatQuickDate, fromDateInputs, matchQuickTerm, toDateInput, toTimeInput, type QuickTerm} from "../dates";
+import {Button} from "./Button";
 import {DateInput, TimeInput} from "./DatePicker";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "./Overlay";
 import {useKitLang, useKitTexts} from "./KitLang";
@@ -116,97 +117,109 @@ export function ChipGroup<T extends string>({
   );
 }
 
-// Value of the «Дата…» chip; term ids are the app's own and never start with "fui:".
-const CUSTOM = "fui:date";
+// Value of the "now" / "today" chip; term ids are the app's own and never start with "fui:".
+const NOW = "fui:now";
 
 export type QuickDateProps = {
-  /** Quick choices with their dates, computed by the app (e.g. "Tomorrow" = tomorrow 10:00). */
-  terms: QuickTerm[];
+  /** Quick choices with their dates, computed by the app (e.g. "Tomorrow" = tomorrow 10:00); none by default. */
+  terms?: QuickTerm[];
   value: Date | null;
   onChange: (value: Date | null) => void;
-  /** TimeInput next to the date and the time in the resolved line; on by default. */
+  /** TimeInput next to the date and the time in the preview; on by default. */
   withTime?: boolean;
+  /**
+   * «Сейчас» / "Now" (with the time) or «Сегодня» / "Today" (without): sets the current moment. The only quick choice
+   * stands right after the inputs; with `terms` it leads the chips under them.
+   */
+  now?: boolean;
+  /** The picked date spelled out under everything — «пн 24 ноября, 10:00»; on by default. */
+  preview?: boolean;
+  size?: "sm" | "md";
   invalid?: boolean;
   disabled?: boolean;
+  /** Goes on the date's text field, so a Field's `htmlFor` focuses it. */
+  id?: string;
   /** Names the field for screen readers when no Field label points at it. */
   "aria-label"?: string;
   className?: string;
 };
 
 /**
- * Date field for planning: quick-term chips, «Дата…» / "Date…" for a DateInput (and a TimeInput), and the resolved
- * date spelled out under the chips — «пн 24 ноября, 10:00» — which also opens the inputs to adjust the time. A value
- * keeps its chip picked while it stays on that chip's day. The chips never change size, so nothing shifts.
+ * Date (and time) field with quick choices (owner, 2026-11-27): the date and time inputs on top, the quick-term chips
+ * under them, then the picked date spelled out (`preview`). A value keeps its chip picked while it stays on that
+ * chip's day. The chips never change size, so nothing shifts.
  */
-export function QuickDate({terms, value, onChange, withTime = true, invalid, disabled, className, ...props}: QuickDateProps) {
+export function QuickDate({
+  terms = [],
+  value,
+  onChange,
+  withTime = true,
+  now,
+  preview = true,
+  size = "md",
+  invalid,
+  disabled,
+  id,
+  className,
+  ...props
+}: QuickDateProps) {
   const lang = useKitLang();
   const t = useKitTexts();
-  const [custom, setCustom] = useState(false);
+  const nowLabel = withTime ? t.nowAction : t.today;
   const match = matchQuickTerm(terms, value);
-  const open = custom || (value != null && !match);
-  const picked = open ? CUSTOM : (match?.id ?? null);
 
-  const choose = (id: string | null) => {
-    if (id === CUSTOM) {
-      setCustom(true);
-      return;
-    }
-    const term = terms.find((x) => x.id === id);
-    if (!term) return;
-    setCustom(false);
-    onChange(term.date);
+  const choose = (choice: string | null) => {
+    if (choice === NOW) return onChange(new Date());
+    const term = terms.find((x) => x.id === choice);
+    if (term) onChange(term.date);
   };
   const setDate = (date: string) => {
     if (!date) return onChange(null);
-    const next = fromDateInputs(date, value ? toTimeInput(value) : "");
+    const next = fromDateInputs(date, value && withTime ? toTimeInput(value) : "");
     if (next) onChange(next);
   };
   const setTime = (time: string) => {
     const next = fromDateInputs(toDateInput(value ?? new Date()), time);
     if (next) onChange(next);
   };
+  const chips = [...(now ? [{value: NOW, label: nowLabel}] : []), ...terms.map((x) => ({value: x.id, label: x.label}))];
 
   return (
-    <div data-invalid={invalid ? "" : undefined} className={cx("fui-quick-date", className)}>
-      <ChipGroup
-        aria-label={props["aria-label"]}
-        options={[...terms.map((x) => ({value: x.id, label: x.label})), {value: CUSTOM, label: t.pickDate}]}
-        value={picked}
-        onValueChange={choose}
-        disabled={disabled}
-      />
-      {open && (
-        <div className="fui-quick-date__inputs">
-          <DateInput
-            size="sm"
-            aria-label={t.date}
-            value={value ? toDateInput(value) : ""}
+    <div role="group" aria-label={props["aria-label"]} data-invalid={invalid ? "" : undefined} className={cx("fui-quick-date", className)}>
+      <div className="fui-date-time">
+        <DateInput
+          id={id}
+          size={size}
+          aria-label={t.date}
+          value={value ? toDateInput(value) : ""}
+          invalid={invalid}
+          disabled={disabled}
+          onChange={setDate}
+        />
+        {withTime && (
+          // A date with a time always has one: emptying the field brings the time back instead of midnight.
+          <TimeInput
+            size={size}
+            required
+            aria-label={t.time}
+            value={value ? toTimeInput(value) : ""}
             invalid={invalid}
             disabled={disabled}
-            onChange={setDate}
+            onChange={setTime}
           />
-          {withTime && (
-            // A planned date always has a time: emptying the field brings the time back instead of midnight.
-            <TimeInput
-              size="sm"
-              required
-              aria-label={t.time}
-              value={value ? toTimeInput(value) : ""}
-              disabled={disabled}
-              onChange={setTime}
-            />
-          )}
-        </div>
+        )}
+        {now && terms.length === 0 && (
+          <Button variant="outline" size={size === "sm" ? "md" : "lg"} disabled={disabled} onClick={() => choose(NOW)}>
+            {nowLabel}
+          </Button>
+        )}
+      </div>
+      {terms.length > 0 && <ChipGroup aria-label={t.quickDates} options={chips} value={match?.id ?? null} onValueChange={choose} disabled={disabled} />}
+      {preview && (
+        <span className="fui-quick-date__resolved" data-empty={value ? undefined : ""} aria-live="polite">
+          {value ? formatQuickDate(value, lang, withTime) : t.dateNotSet}
+        </span>
       )}
-      <button
-        type="button"
-        className="fui-quick-date__resolved"
-        data-empty={value ? undefined : ""}
-        disabled={disabled}
-        onClick={() => choose(CUSTOM)}
-      >
-        <span aria-live="polite">{value ? formatQuickDate(value, lang, withTime) : t.dateNotSet}</span>
-      </button>
     </div>
   );
 }

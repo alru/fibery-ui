@@ -434,15 +434,17 @@ formatShortDay("2026-11-24");                            // "24.11.26"
 formatShortDay(date, {weekday: true, lang: "en"});       // "Tue 24.11.26"
 formatShortDayTime(date);                                // "24.11.26 14:30"
 
-// Planning date: quick terms (the app computes their dates), «Дата…» opens a DateInput + TimeInput, and the resolved
-// date under the chips («вт 24 ноября, 10:00» / "Tue 24 November, 10:00") — a click on it adjusts the time.
-// A value keeps its chip while it stays on that chip's day.
+// Date with quick choices: DateInput + TimeInput on top, the quick terms (the app computes their dates) as chips under
+// them, then the picked date spelled out («вт 24 ноября, 10:00» / "Tue 24 November, 10:00"; `preview={false}` hides
+// it). A value keeps its chip while it stays on that chip's day. `now` adds «Сейчас» / "Now" («Сегодня» / "Today"
+// without the time): the first chip, or, as the only quick choice, a button right after the inputs.
 <Field label="When" required>
-  <QuickDate value={due} onChange={setDue} terms={[
+  <QuickDate value={due} onChange={setDue} now terms={[
     {id: "tomorrow", label: "Tomorrow", date: tomorrowAt10},
     {id: "week", label: "+1 week", date: inAWeekAt10},
   ]} />
 </Field>
+<QuickDate value={at} onChange={setAt} now preview={false} />   // the inputs and a Now button beside them
 <QuickDate withTime={false} … />
 <SearchInput placeholder="Search…" size="sm" />
 <Textarea rows={4} />
