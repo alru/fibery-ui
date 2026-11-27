@@ -370,6 +370,7 @@ formatDelta(-6);                                        // "−6" (true minus); 
 // Editable details: read-only by default, `editing` highlights the panel while an explicit edit mode is on.
 // PanelLayout: side by side from 1024px; narrower, the panel floats over the list, which stays behind a veil
 // (a click on the veil calls onDismiss). The panel's own classes (width, sticky) apply only side by side.
+// `divider`: a full-height line between them, for content that runs on under the panel (a board scrolling sideways).
 <PanelLayout
   onDismiss={close}
   panel={item && (
