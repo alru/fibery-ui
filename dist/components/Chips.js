@@ -1,11 +1,8 @@
 import { Fragment as _Fragment, jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// Choice chips: ChipGroup — separate small chips that wrap, one value at a time, the rest in a «ещё ▾» menu — and
-// QuickDate on top of it: quick terms ("Tomorrow", "+1 week"), «Дата…» for any date and time (the kit's DateInput and
-// TimeInput), and the resolved date spelled out under the chips.
-import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cx } from "../cx";
 import { formatQuickDate, fromDateInputs, matchQuickTerm, toDateInput, toTimeInput } from "../dates";
+import { Button } from "./Button";
 import { DateInput, TimeInput } from "./DatePicker";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./Overlay";
 import { useKitLang, useKitTexts } from "./KitLang";
@@ -37,35 +34,29 @@ export function ChipGroup({ options, value, onValueChange, visible, deselectable
                 return (_jsxs("button", { type: "button", role: "radio", "aria-checked": on, tabIndex: i === focusIndex ? 0 : -1, "data-value": option.value, "data-picked": on ? "" : undefined, title: option.title, disabled: disabled, className: "fui-chip", onClick: () => pick(option.value), children: [option.glyph, option.label] }, option.value));
             }), hidden.length > 0 && (_jsxs(DropdownMenu, { children: [_jsx(DropdownMenuTrigger, { asChild: true, children: _jsxs("button", { type: "button", className: "fui-chip", "data-picked": hiddenPick ? "" : undefined, disabled: disabled, children: [hiddenPick ? (_jsxs(_Fragment, { children: [hiddenPick.glyph, hiddenPick.label] })) : (t.more), _jsx(ChevronDown, {})] }) }), _jsx(DropdownMenuContent, { children: hidden.map((option) => (_jsx(DropdownMenuItem, { icon: option.glyph, title: option.title, onSelect: () => pick(option.value), children: option.label }, option.value))) })] }))] }));
 }
-// Value of the «Дата…» chip; term ids are the app's own and never start with "fui:".
-const CUSTOM = "fui:date";
+// Value of the "now" / "today" chip; term ids are the app's own and never start with "fui:".
+const NOW = "fui:now";
 /**
- * Date field for planning: quick-term chips, «Дата…» / "Date…" for a DateInput (and a TimeInput), and the resolved
- * date spelled out under the chips — «пн 24 ноября, 10:00» — which also opens the inputs to adjust the time. A value
- * keeps its chip picked while it stays on that chip's day. The chips never change size, so nothing shifts.
+ * Date (and time) field with quick choices (owner, 2026-11-27): the date and time inputs on top, the quick-term chips
+ * under them, then the picked date spelled out (`preview`). A value keeps its chip picked while it stays on that
+ * chip's day. The chips never change size, so nothing shifts.
  */
-export function QuickDate({ terms, value, onChange, withTime = true, invalid, disabled, className, ...props }) {
+export function QuickDate({ terms = [], value, onChange, withTime = true, now, preview = true, size = "md", invalid, disabled, id, className, ...props }) {
     const lang = useKitLang();
     const t = useKitTexts();
-    const [custom, setCustom] = useState(false);
+    const nowLabel = withTime ? t.nowAction : t.today;
     const match = matchQuickTerm(terms, value);
-    const open = custom || (value != null && !match);
-    const picked = open ? CUSTOM : (match?.id ?? null);
-    const choose = (id) => {
-        if (id === CUSTOM) {
-            setCustom(true);
-            return;
-        }
-        const term = terms.find((x) => x.id === id);
-        if (!term)
-            return;
-        setCustom(false);
-        onChange(term.date);
+    const choose = (choice) => {
+        if (choice === NOW)
+            return onChange(new Date());
+        const term = terms.find((x) => x.id === choice);
+        if (term)
+            onChange(term.date);
     };
     const setDate = (date) => {
         if (!date)
             return onChange(null);
-        const next = fromDateInputs(date, value ? toTimeInput(value) : "");
+        const next = fromDateInputs(date, value && withTime ? toTimeInput(value) : "");
         if (next)
             onChange(next);
     };
@@ -74,5 +65,6 @@ export function QuickDate({ terms, value, onChange, withTime = true, invalid, di
         if (next)
             onChange(next);
     };
-    return (_jsxs("div", { "data-invalid": invalid ? "" : undefined, className: cx("fui-quick-date", className), children: [_jsx(ChipGroup, { "aria-label": props["aria-label"], options: [...terms.map((x) => ({ value: x.id, label: x.label })), { value: CUSTOM, label: t.pickDate }], value: picked, onValueChange: choose, disabled: disabled }), open && (_jsxs("div", { className: "fui-quick-date__inputs", children: [_jsx(DateInput, { size: "sm", "aria-label": t.date, value: value ? toDateInput(value) : "", invalid: invalid, disabled: disabled, onChange: setDate }), withTime && (_jsx(TimeInput, { size: "sm", required: true, "aria-label": t.time, value: value ? toTimeInput(value) : "", disabled: disabled, onChange: setTime }))] })), _jsx("button", { type: "button", className: "fui-quick-date__resolved", "data-empty": value ? undefined : "", disabled: disabled, onClick: () => choose(CUSTOM), children: _jsx("span", { "aria-live": "polite", children: value ? formatQuickDate(value, lang, withTime) : t.dateNotSet }) })] }));
+    const chips = [...(now ? [{ value: NOW, label: nowLabel }] : []), ...terms.map((x) => ({ value: x.id, label: x.label }))];
+    return (_jsxs("div", { role: "group", "aria-label": props["aria-label"], "data-invalid": invalid ? "" : undefined, className: cx("fui-quick-date", className), children: [_jsxs("div", { className: "fui-date-time", children: [_jsx(DateInput, { id: id, size: size, "aria-label": t.date, value: value ? toDateInput(value) : "", invalid: invalid, disabled: disabled, onChange: setDate }), withTime && (_jsx(TimeInput, { size: size, required: true, "aria-label": t.time, value: value ? toTimeInput(value) : "", invalid: invalid, disabled: disabled, onChange: setTime })), now && terms.length === 0 && (_jsx(Button, { variant: "outline", size: size === "sm" ? "md" : "lg", disabled: disabled, onClick: () => choose(NOW), children: nowLabel }))] }), terms.length > 0 && _jsx(ChipGroup, { "aria-label": t.quickDates, options: chips, value: match?.id ?? null, onValueChange: choose, disabled: disabled }), preview && (_jsx("span", { className: "fui-quick-date__resolved", "data-empty": value ? undefined : "", "aria-live": "polite", children: value ? formatQuickDate(value, lang, withTime) : t.dateNotSet }))] }));
 }

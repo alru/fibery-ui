@@ -29,7 +29,8 @@ export declare const useKitTexts: () => {
     shownOf: (shown: number, total: number) => string;
     showAll: string;
     sections: string;
-    pickDate: string;
+    quickDates: string;
+    nowAction: string;
     dateNotSet: string;
     date: string;
     time: string;

@@ -1625,7 +1625,8 @@
     .fui-field-side__grid:has(> .fui-field > :is([data-size="sm"], .fui-tabs-list, .fui-segmented-field):first-child) > .fui-label {
       padding-top: 6px;
     }
-    .fui-field-side__grid:has(> .fui-field > :is(.fui-chips, .fui-quick-date):first-child) > .fui-label { padding-top: 4px; }
+    .fui-field-side__grid:has(> .fui-field > .fui-chips:first-child) > .fui-label { padding-top: 4px; }
+    .fui-field-side__grid:has(> .fui-field > .fui-quick-date:first-child [data-size="sm"]) > .fui-label { padding-top: 6px; }
   }
   .fui-visually-hidden {
     position: absolute;
@@ -1782,32 +1783,22 @@
   .fui-chip:disabled { opacity: 0.5; cursor: default; }
   .fui-chip > svg { width: 12px; height: 12px; }
 
-  /* ─── QuickDate: chips, the inputs behind «Дата…», the resolved date as a quiet link ─── */
-  .fui-quick-date { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
-  .fui-quick-date__inputs { display: flex; flex-wrap: wrap; gap: 6px; }
-  .fui-quick-date__inputs > .fui-date-field { width: 144px; }
-  .fui-quick-date__inputs > .fui-date-field--time { width: 88px; }
-  /* DateTimeInput: the date takes the spare width, the time keeps its own. */
+  /* ─── QuickDate: the inputs on top, the chips under them, then the picked date in quiet text ─── */
+  .fui-quick-date { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .fui-quick-date > .fui-chips,
+  .fui-quick-date > .fui-quick-date__resolved { align-self: flex-start; }
+  /* DateTimeInput and QuickDate's inputs: the date takes the spare width, the time and the Now button keep theirs. */
   .fui-date-time { display: flex; gap: 6px; min-width: 0; }
   .fui-date-time > .fui-date-field { flex: 1 1 auto; min-width: 0; }
   .fui-date-time > .fui-date-field--time { flex: 0 0 96px; }
+  .fui-date-time > .fui-button { flex: none; }
   .fui-quick-date__resolved {
-    padding: 0;
-    border: 0;
-    border-radius: 3px;
-    background: transparent;
     color: var(--muted-foreground);
-    font: inherit;
     font-size: 12px;
     font-weight: var(--fui-regular);
     line-height: 16px;
     font-variant-numeric: tabular-nums;
-    text-align: left;
-    cursor: pointer;
   }
-  .fui-quick-date__resolved:hover { color: var(--foreground); text-decoration: underline dotted; text-underline-offset: 3px; }
-  .fui-quick-date__resolved:focus-visible { outline: none; box-shadow: var(--fui-focus-ring); }
-  .fui-quick-date__resolved:disabled { cursor: default; text-decoration: none; }
   .fui-quick-date[data-invalid] .fui-quick-date__resolved { color: var(--destructive); }
 }
 
