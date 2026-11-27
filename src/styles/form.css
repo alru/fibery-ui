@@ -268,6 +268,10 @@
   .fui-quick-date__inputs { display: flex; flex-wrap: wrap; gap: 6px; }
   .fui-quick-date__inputs > .fui-date-field { width: 144px; }
   .fui-quick-date__inputs > .fui-date-field--time { width: 88px; }
+  /* DateTimeInput: the date takes the spare width, the time keeps its own. */
+  .fui-date-time { display: flex; gap: 6px; min-width: 0; }
+  .fui-date-time > .fui-date-field { flex: 1 1 auto; min-width: 0; }
+  .fui-date-time > .fui-date-field--time { flex: 0 0 96px; }
   .fui-quick-date__resolved {
     padding: 0;
     border: 0;

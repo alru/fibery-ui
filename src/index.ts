@@ -46,7 +46,7 @@ export {RelationLink, type RelationLinkProps} from "./components/RelationLink";
 export {Timeline, type TimelineItem, type TimelineProps} from "./components/Timeline";
 export {CountNav, type CountNavItem, type CountNavProps} from "./components/CountNav";
 export {ChipGroup, QuickDate, type ChipOption, type ChipGroupProps, type QuickDateProps} from "./components/Chips";
-export {DateInput, TimeInput, type DateInputProps, type TimeInputProps} from "./components/DatePicker";
+export {DateInput, DateTimeInput, TimeInput, type DateInputProps, type DateTimeInputProps, type TimeInputProps} from "./components/DatePicker";
 export {
   formatQuickDate,
   formatShortDay,

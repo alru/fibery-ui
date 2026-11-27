@@ -102,6 +102,11 @@ export type SegmentedControlProps<T extends string> = {
   scale?: boolean | "from";
   /** Muted caption inside an input-styled frame, like MultiSelect's: lines the control up with filter pickers. */
   label?: ReactNode;
+  /**
+   * Takes the full width of its container, the room left over shared equally by the options — for a form field,
+   * where the control stands in a column of full-width inputs.
+   */
+  fill?: boolean;
   className?: string;
 };
 
@@ -109,7 +114,7 @@ export type SegmentedControlProps<T extends string> = {
  * Single-choice segmented switch (radio group), 28px high to line up with small inputs.
  * Arrow keys move the selection, like native radio buttons.
  */
-export function SegmentedControl<T extends string>({options, value, onValueChange, scale, label, className, ...props}: SegmentedControlProps<T>) {
+export function SegmentedControl<T extends string>({options, value, onValueChange, scale, label, fill, className, ...props}: SegmentedControlProps<T>) {
   const selectedIndex = options.findIndex((o) => o.value === value);
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
@@ -125,6 +130,7 @@ export function SegmentedControl<T extends string>({options, value, onValueChang
       aria-label={props["aria-label"]}
       data-variant="segmented"
       data-scale={scale ? "" : undefined}
+      data-fill={fill ? "" : undefined}
       className={cx("fui-tabs-list", !label && className)}
       onKeyDown={onKeyDown}
     >
